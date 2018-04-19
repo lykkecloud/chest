@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		..\.gitattributes = ..\.gitattributes
 		..\.gitignore = ..\.gitignore
+		..\.travis.yml = ..\.travis.yml
 		Chest.ruleset = Chest.ruleset
 		NuGet.config = NuGet.config
 		..\README.md = ..\README.md
@@ -16,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chest", "Chest\Chest.csproj", "{85F0DBFC-0836-4A29-9DC8-4F49A08BA815}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chest.Services", "Chest.Services\Chest.Services.csproj", "{B7EE7756-373A-490E-816C-BAD72653D005}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chest.Services", "Chest.Services\Chest.Services.csproj", "{B7EE7756-373A-490E-816C-BAD72653D005}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

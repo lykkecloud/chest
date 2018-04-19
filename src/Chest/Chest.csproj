@@ -73,9 +73,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="appsettings.Customr.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Update="appsettings.Custom.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -94,9 +91,6 @@
     </None>
     <None Update="appsettings.Docker.json">
       <DependentUpon>appsettings.json</DependentUpon>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="VisualStudio.Dockerfile">

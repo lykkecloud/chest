@@ -3,6 +3,8 @@
 
 namespace Chest.Controllers
 {
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
@@ -23,11 +25,20 @@ namespace Chest.Controllers
         [HttpGet("{key}")]
         public async Task<IActionResult> Get(string key)
         {
-            var dict = await this.service.GetAsync(key);
+            Dictionary<string, string> dict = null;
 
-            if (dict == null)
+            try
             {
-                return this.NotFound(new { Message = $"No data found for key: {key}" });
+                dict = await this.service.GetAsync(key);
+
+                if (dict == null)
+                {
+                    return this.NotFound(new { Message = $"No data found for key: {key}" });
+                }
+            }
+            catch (Exception exp)
+            {
+                this.BadRequest(new { Message = $"An unknown error occured while fetching data, {exp.Message}" });
             }
 
             return this.Ok(
@@ -46,14 +57,19 @@ namespace Chest.Controllers
                 return this.BadRequest(new { Message = string.Join(", ", this.ModelState.Values.Select(m => string.Join(", ", m.Errors.Select(e => e.ErrorMessage)))) });
             }
 
-            var dict = await this.service.GetAsync(model.Key);
-
-            if (dict != null)
+            try
             {
-                return this.StatusCode((int)HttpStatusCode.Conflict, new { Message = $"Data already exists for key: {model.Key}" });
-            }
+                var isCreated = await this.service.SaveAsync(model.Key, model.Data);
 
-            await this.service.SaveAsync(model.Key, model.Data);
+                if (!isCreated)
+                {
+                    return this.StatusCode((int)HttpStatusCode.Conflict, new { Message = $"Data already exists for key: {model.Key}" });
+                }
+            }
+            catch (Exception exp)
+            {
+                this.BadRequest(new { Message = $"An unknown error occured while saving data, {exp.Message}" });
+            }
 
             return this.Created(this.Request.GetRelativeUrl($"api/metadata/{model.Key}"), model);
         }

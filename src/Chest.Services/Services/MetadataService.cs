@@ -44,13 +44,13 @@ namespace Chest.Services
         /// <param name="key">The key for which to store key value pair data</param>
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> object representing key value pair data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
-        public Task SaveAsync(string key, Dictionary<string, string> data)
+        public Task<bool> SaveAsync(string key, Dictionary<string, string> data)
         {
             var serializedData = JsonConvert.SerializeObject(data);
 
-            this.dataStore.TryAdd(key, new KeyValueData { Key = key, SerializedData = serializedData });
+            var isAdded = this.dataStore.TryAdd(key, new KeyValueData { Key = key, SerializedData = serializedData });
 
-            return Task.CompletedTask;
+            return Task.FromResult(isAdded);
         }
     }
 }

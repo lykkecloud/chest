@@ -24,6 +24,6 @@ namespace Chest.Services
         /// <param name="key">The key for which to store key value pair data</param>
         /// <param name="data">The key value pair data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
-        Task SaveAsync(string key, Dictionary<string, string> data);
+        Task<bool> SaveAsync(string key, Dictionary<string, string> data);
     }
 }
