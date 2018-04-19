@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+
+  api:
+    image: chest:${TAG:-dev}
+    container_name: chest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - API_AUTHORITY=${API_AUTHORITY}
+      - API_NAME=${API_NAME}
+      - API_SECRET=${API_SECRET}
+    env_file:
+      - ./default.env
+    build:
+      context: ../Chest/
+      dockerfile: VisualStudio.Dockerfile
+      args:
+        version: ${VERSION:-0.1.0-developer}
+    volumes:
+      - ${LOG_PATH:-/logs}:/app/logs
