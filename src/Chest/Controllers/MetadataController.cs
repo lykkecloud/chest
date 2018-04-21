@@ -29,7 +29,7 @@ namespace Chest.Controllers
 
             try
             {
-                dict = await this.service.GetAsync(key);
+                dict = await this.service.Get(key);
 
                 if (dict == null)
                 {
@@ -38,7 +38,7 @@ namespace Chest.Controllers
             }
             catch (Exception exp)
             {
-                this.BadRequest(new { Message = $"An unknown error occured while fetching data, {exp.Message}" });
+                return this.BadRequest(new { Message = $"An unknown error occured while fetching data, {exp.Message}" });
             }
 
             return this.Ok(
@@ -59,16 +59,16 @@ namespace Chest.Controllers
 
             try
             {
-                var isCreated = await this.service.SaveAsync(model.Key, model.Data);
+                var result = await this.service.Save(model.Key, model.Data);
 
-                if (!isCreated)
+                if (result == Result.Conflict)
                 {
                     return this.StatusCode((int)HttpStatusCode.Conflict, new { Message = $"Data already exists for key: {model.Key}" });
                 }
             }
             catch (Exception exp)
             {
-                this.BadRequest(new { Message = $"An unknown error occured while saving data, {exp.Message}" });
+                return this.BadRequest(new { Message = $"An unknown error occured while saving data, {exp.Message}" });
             }
 
             return this.Created(this.Request.GetRelativeUrl($"api/metadata/{model.Key}"), model);

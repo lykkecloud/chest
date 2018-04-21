@@ -5,18 +5,20 @@ namespace Chest.Services
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Chest.Models;
 
     /// <summary>
     /// Represents a service to store and retrieve keyvalue pairs in the data store
     /// </summary>
     public interface IMetadataService
     {
+#pragma warning disable CA1716
         /// <summary>
-        /// Get key value dictionary data for a given key
+        /// Gets key value dictionary data for a given key
         /// </summary>
         /// <param name="key">The key for which to get the dictionary data</param>
         /// <returns>A typed <see cref="Dictionary{TKey, TValue}"/> object</returns>
-        Task<Dictionary<string, string>> GetAsync(string key);
+        Task<Dictionary<string, string>> Get(string key);
 
         /// <summary>
         /// Stores key value pair data against a given key
@@ -24,6 +26,6 @@ namespace Chest.Services
         /// <param name="key">The key for which to store key value pair data</param>
         /// <param name="data">The key value pair data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
-        Task<bool> SaveAsync(string key, Dictionary<string, string> data);
+        Task<Result> Save(string key, Dictionary<string, string> data);
     }
 }

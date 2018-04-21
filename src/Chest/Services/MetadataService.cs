@@ -5,6 +5,8 @@ namespace Chest.Services
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Chest.Data;
+    using Chest.Models;
     using Newtonsoft.Json;
 
     /// <summary>
@@ -23,11 +25,11 @@ namespace Chest.Services
         }
 
         /// <summary>
-        /// Get key value dictionary data for a given key
+        /// Gets key value dictionary data for a given key
         /// </summary>
         /// <param name="key">The key for which to get the dictionary data</param>
         /// <returns>A typed <see cref="Dictionary{TKey, TValue}"/> object</returns>
-        public Task<Dictionary<string, string>> GetAsync(string key)
+        public Task<Dictionary<string, string>> Get(string key)
         {
             if (this.dataStore.TryGetValue(key, out var keyValue))
             {
@@ -44,13 +46,13 @@ namespace Chest.Services
         /// <param name="key">The key for which to store key value pair data</param>
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> object representing key value pair data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
-        public Task<bool> SaveAsync(string key, Dictionary<string, string> data)
+        public Task<Result> Save(string key, Dictionary<string, string> data)
         {
             var serializedData = JsonConvert.SerializeObject(data);
 
             var isAdded = this.dataStore.TryAdd(key, new KeyValueData { Key = key, SerializedData = serializedData });
 
-            return Task.FromResult(isAdded);
+            return Task.FromResult(Result.Added);
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿// Copyright (c) Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-namespace Chest.Services
+namespace Chest.Data
 {
     /// <summary>
     /// Represents a key value pair to be stored in data store
