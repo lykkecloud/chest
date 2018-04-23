@@ -25,27 +25,27 @@ namespace Chest.Controllers
         [HttpGet("{key}")]
         public async Task<IActionResult> Get(string key)
         {
-            Dictionary<string, string> dict = null;
+            Dictionary<string, string> keyValueData = null;
 
             try
             {
-                dict = await this.service.Get(key);
+                keyValueData = await this.service.Get(key);
 
-                if (dict == null)
+                if (keyValueData == null)
                 {
                     return this.NotFound(new { Message = $"No data found for key: {key}" });
                 }
             }
             catch (Exception exp)
             {
-                return this.BadRequest(new { Message = $"An unknown error occured while fetching data, {exp.Message}" });
+                return this.StatusCode((int)HttpStatusCode.InternalServerError, new { Message = $"An unknown error occured while fetching data | Error: {exp.Message}" });
             }
 
             return this.Ok(
                 new MetadataModel
                 {
                     Key = key,
-                    Data = dict
+                    Data = keyValueData
                 });
         }
 
@@ -68,7 +68,7 @@ namespace Chest.Controllers
             }
             catch (Exception exp)
             {
-                return this.BadRequest(new { Message = $"An unknown error occured while saving data, {exp.Message}" });
+                return this.StatusCode((int)HttpStatusCode.InternalServerError, new { Message = $"An unknown error occured while saving data | Error: {exp.Message}" });
             }
 
             return this.Created(this.Request.GetRelativeUrl($"api/metadata/{model.Key}"), model);

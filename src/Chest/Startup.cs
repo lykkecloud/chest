@@ -4,8 +4,6 @@
 namespace Chest
 {
     using Chest.Services;
-    using IdentityServer4.AccessTokenValidation;
-    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
@@ -38,41 +36,29 @@ namespace Chest
                 .AddDataAnnotations();
 
             // Default settings for Newtonsoft Serializer
-            JsonConvert.DefaultSettings = () => new JsonSerializerSettings
+            JsonConvert.DefaultSettings = () =>
             {
-                ContractResolver = new DefaultContractResolver { NamingStrategy = new SnakeCaseNamingStrategy() },
-                NullValueHandling = NullValueHandling.Ignore,
+                var settings = new JsonSerializerSettings
+                {
+                    ContractResolver = new DefaultContractResolver { NamingStrategy = new SnakeCaseNamingStrategy() },
+                    NullValueHandling = NullValueHandling.Ignore,
+                };
+
+                settings.Converters.Add(new StringEnumConverter());
+
+                return settings;
             };
 
-            /*.AddAuthorization(
-                options =>
-                {
-                    options.AddPolicy("admin_policy", policy => policy.RequireRole("admin"));
-                });*/
-
-            /*services.AddAuthentication(IdentityServerAuthenticationDefaults.AuthenticationScheme)
-            //    .AddIdentityServerAuthentication(
-            //        options =>
-            //        {
-            //            options.Authority = this.configuration.GetValue<string>("Api-Authority");
-            //            options.ApiName = this.configuration.GetValue<string>("Api-Name");
-            //            options.ApiSecret = this.configuration.GetValue<string>("Api-Secret");
-
-            //            // NOTE (Cameron): This is only used because we're performing HTTPS termination at the proxy.
-            //            options.RequireHttpsMetadata = false;
-            //        });*/
-
-            // services.AddSingleton<IClaimsTransformation, ClaimsTransformation>();
             services.AddSingleton<IMetadataService, MetadataService>();
 
             services.AddCors(options =>
             {
-                ////options.AddPolicy("spa", policy =>
-                ////{
-                ////    policy.WithOrigins("http://localhost:5008")
-                ////        .AllowAnyHeader()
-                ////        .AllowAnyMethod();
-                ////});
+                /*//options.AddPolicy("spa", policy =>
+                //{
+                //    policy.WithOrigins("http://localhost:5008")
+                //        .AllowAnyHeader()
+                //        .AllowAnyMethod();
+                //});*/
             });
         }
 
@@ -86,7 +72,6 @@ namespace Chest
             }
 
             // app.UseCors("spa");
-            // app.UseAuthentication();
             app.UseMvcWithDefaultRoute();
         }
     }
