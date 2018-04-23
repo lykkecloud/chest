@@ -42,7 +42,7 @@ namespace Chest.Controllers
             }
 
             return this.Ok(
-                new MetadaModel
+                new MetadataModel
                 {
                     Key = key,
                     Data = dict
@@ -50,7 +50,7 @@ namespace Chest.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]MetadaModel model)
+        public async Task<IActionResult> Post([FromBody]MetadataModel model)
         {
             if (!this.ModelState.IsValid)
             {

@@ -9,7 +9,7 @@ namespace Chest.Models
     /// <summary>
     /// Represents the data model
     /// </summary>
-    public class MetadaModel
+    public class MetadataModel
     {
         /// <summary>
         /// Gets or sets key
