@@ -25,6 +25,11 @@ namespace Chest.Controllers
         [HttpGet("{key}")]
         public async Task<IActionResult> Get(string key)
         {
+            if (string.IsNullOrWhiteSpace(key))
+            {
+                return this.BadRequest(new { Message = "Cannot get data without specifying a key" });
+            }
+
             Dictionary<string, string> keyValueData = null;
 
             try

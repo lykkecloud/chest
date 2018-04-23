@@ -3,9 +3,11 @@
 
 namespace Chest
 {
+    using Chest.Data;
     using Chest.Services;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Newtonsoft.Json;
@@ -23,6 +25,8 @@ namespace Chest
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(this.configuration.GetConnectionString("Chest")));
+
             services
                 .AddMvcCore()
                 .AddJsonFormatters()
@@ -49,7 +53,7 @@ namespace Chest
                 return settings;
             };
 
-            services.AddSingleton<IMetadataService, MetadataService>();
+            services.AddScoped<IMetadataService, MetadataService>();
 
             services.AddCors(options =>
             {
@@ -73,6 +77,7 @@ namespace Chest
 
             // app.UseCors("spa");
             app.UseMvcWithDefaultRoute();
+            app.InitializeDatabase();
         }
     }
 }

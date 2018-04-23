@@ -5,7 +5,8 @@ namespace Chest.Models
 {
     public enum Result
     {
-        Added = 0,
+        NoChange = 0,
+        Added,
         Updated,
         Conflict,
         Removed,
