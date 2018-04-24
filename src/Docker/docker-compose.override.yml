@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+
+  nginx:
+    image: nginx:1.13.8-alpine
+    depends_on:
+      - chest
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${LOG_PATH:-/var/log}:/var/log
+    ports:
+      - "5011:80"
+
+  chest:
+    ports:
+      - "5008:80"

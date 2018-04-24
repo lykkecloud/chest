@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+
+  chest:
+    image: chest:${TAG:-dev}
+    container_name: chest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+    env_file:
+      - ./default.env
+    build:
+      context: ../Chest/
+      dockerfile: VisualStudio.Dockerfile
+      args:
+        version: ${VERSION:-0.1.0-developer}
+    volumes:
+      - ${LOG_PATH:-/logs}:/app/logs
