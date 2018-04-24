@@ -26,8 +26,14 @@ namespace Chest.Migrations
                         .HasColumnName("key")
                         .HasMaxLength(100);
 
-                    b.Property<string>("SerializedData")
-                        .HasColumnName("serialized_data")
+                    b.Property<string>("DisplayKey")
+                        .IsRequired()
+                        .HasColumnName("display_key")
+                        .HasMaxLength(100);
+
+                    b.Property<string>("MetaData")
+                        .IsRequired()
+                        .HasColumnName("metadata_data")
                         .HasMaxLength(4096);
 
                     b.HasKey("Key");

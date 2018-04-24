@@ -16,7 +16,8 @@ namespace Chest.Migrations
                 columns: table => new
                 {
                     key = table.Column<string>(maxLength: 100, nullable: false),
-                    serialized_data = table.Column<string>(maxLength: 4096, nullable: true)
+                    display_key = table.Column<string>(maxLength: 100, nullable: false),
+                    metadata_data = table.Column<string>(maxLength: 4096, nullable: false)
                 },
                 constraints: table =>
                 {

@@ -34,11 +34,11 @@ namespace Chest.Services
         /// <returns>A typed <see cref="Dictionary{TKey, TValue}"/> object</returns>
         public async Task<Dictionary<string, string>> Get(string key)
         {
-            var data = await this.context.KeyValues.FindAsync(key);
+            var data = await this.context.KeyValues.FindAsync(key.ToUpperInvariant());
 
-            if (!string.IsNullOrEmpty(data?.SerializedData))
+            if (!string.IsNullOrEmpty(data?.MetaData))
             {
-                return JsonConvert.DeserializeObject<Dictionary<string, string>>(data.SerializedData);
+                return JsonConvert.DeserializeObject<Dictionary<string, string>>(data.MetaData);
             }
 
             return default(Dictionary<string, string>);
@@ -56,7 +56,12 @@ namespace Chest.Services
 
             try
             {
-                var isAdded = await this.context.AddAsync(new KeyValueData { Key = key, SerializedData = serializedData });
+                var isAdded = await this.context.AddAsync(new KeyValueData
+                {
+                    Key = key.ToUpperInvariant(),
+                    DisplayKey = key,
+                    MetaData = serializedData
+                });
 
                 if (await this.context.SaveChangesAsync() == 1)
                 {
