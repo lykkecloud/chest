@@ -17,7 +17,7 @@ namespace Chest.Migrations
                 {
                     key = table.Column<string>(maxLength: 100, nullable: false),
                     display_key = table.Column<string>(maxLength: 100, nullable: false),
-                    metadata_data = table.Column<string>(maxLength: 4096, nullable: false)
+                    meta_data = table.Column<string>(maxLength: 4096, nullable: false)
                 },
                 constraints: table =>
                 {

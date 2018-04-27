@@ -34,7 +34,7 @@ namespace Chest.Migrations
 
                     b.Property<string>("MetaData")
                         .IsRequired()
-                        .HasColumnName("metadata_data")
+                        .HasColumnName("meta_data")
                         .HasMaxLength(4096);
 
                     b.HasKey("Key");

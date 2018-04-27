@@ -16,9 +16,9 @@
 
   <PropertyGroup>
     <Version>0.0.1-developer</Version>
-    <Authors>Chest Contributers</Authors>
+    <Authors>Chest Contributors</Authors>
     <Company>Lykke</Company>
-    <Copyright>Copyright (c) Chest Contributers. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) Chest Contributors. All rights reserved.</Copyright>
   </PropertyGroup>
 
   <PropertyGroup>

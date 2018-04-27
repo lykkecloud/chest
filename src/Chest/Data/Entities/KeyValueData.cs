@@ -30,7 +30,7 @@ namespace Chest.Data
         /// </summary>
         [Required]
         [MaxLength(4096)]
-        [Column("metadata_data")]
+        [Column("meta_data")]
         public string MetaData { get; set; }
 
         public override string ToString() => $"{this.Key}:{this.MetaData}";

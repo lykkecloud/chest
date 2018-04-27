@@ -8,6 +8,7 @@ namespace Chest.Controllers
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
+    using Chest.Exceptions;
     using Chest.Models;
     using Chest.Services;
     using Microsoft.AspNetCore.Mvc;
@@ -64,12 +65,11 @@ namespace Chest.Controllers
 
             try
             {
-                var result = await this.service.Save(model.Key, model.Data);
-
-                if (result == Result.Conflict)
-                {
-                    return this.StatusCode((int)HttpStatusCode.Conflict, new { Message = $"Data already exists for key: {model.Key}" });
-                }
+                await this.service.Save(model.Key, model.Data);
+            }
+            catch (DuplicateKeyException)
+            {
+                return this.StatusCode((int)HttpStatusCode.Conflict, new { Message = $"Data already exists for key: {model.Key}" });
             }
             catch (Exception exp)
             {

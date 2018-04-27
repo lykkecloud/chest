@@ -7,6 +7,7 @@ services:
     container_name: chest
     environment:
       - ASPNETCORE_ENVIRONMENT=Docker
+      - CHEST_CONNECTIONSTRING=${CHEST_CONNECTIONSTRING:-Host=postgres;Port=5432;Database=Chest;User Id=chest;Password=secret}
     env_file:
       - ./default.env
     build:

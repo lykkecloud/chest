@@ -13,10 +13,5 @@ namespace Chest.Data
         }
 
         internal DbSet<KeyValueData> KeyValues { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            base.OnModelCreating(modelBuilder);
-        }
     }
 }

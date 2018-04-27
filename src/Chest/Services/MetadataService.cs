@@ -6,6 +6,7 @@ namespace Chest.Services
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Chest.Data;
+    using Chest.Exceptions;
     using Chest.Models;
     using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json;
@@ -16,6 +17,8 @@ namespace Chest.Services
     /// </summary>
     public class MetadataService : IMetadataService
     {
+        private const string PostgresDuplicateKeyErrorCode = "23505";
+
         private readonly ApplicationDbContext context;
 
         /// <summary>
@@ -50,7 +53,7 @@ namespace Chest.Services
         /// <param name="key">The key for which to store key value pair data</param>
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> object representing key value pair data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
-        public async Task<Result> Save(string key, Dictionary<string, string> data)
+        public async Task Save(string key, Dictionary<string, string> data)
         {
             var serializedData = JsonConvert.SerializeObject(data);
 
@@ -63,22 +66,17 @@ namespace Chest.Services
                     MetaData = serializedData
                 });
 
-                if (await this.context.SaveChangesAsync() == 1)
-                {
-                    return Result.Added;
-                }
+                await this.context.SaveChangesAsync();
             }
             catch (DbUpdateException dbException)
             {
-                if (dbException.InnerException is PostgresException e && e.SqlState == "23505")
+                if (dbException.InnerException is PostgresException e && e.SqlState == PostgresDuplicateKeyErrorCode)
                 {
-                    return Result.Conflict;
+                    throw new DuplicateKeyException(key, $"Cannot add Key: {key} because it already exists.", dbException);
                 }
 
                 throw;
             }
-
-            return Result.NoChange;
         }
     }
 }
