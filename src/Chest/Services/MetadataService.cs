@@ -6,22 +6,28 @@ namespace Chest.Services
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using Chest.Data;
+    using Chest.Exceptions;
     using Chest.Models;
+    using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json;
+    using Npgsql;
 
     /// <summary>
     /// Represents a service to store and retrieve keyvalue pairs in the data store
     /// </summary>
     public class MetadataService : IMetadataService
     {
-        private Dictionary<string, KeyValueData> dataStore;
+        private const string PostgresDuplicateKeyErrorCode = "23505";
+
+        private readonly ApplicationDbContext context;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MetadataService"/> class.
         /// </summary>
-        public MetadataService()
+        /// <param name="context">An instance of <see cref="ApplicationDbContext"/> to communicate with underlying database</param>
+        public MetadataService(ApplicationDbContext context)
         {
-            this.dataStore = new Dictionary<string, KeyValueData>();
+            this.context = context;
         }
 
         /// <summary>
@@ -29,15 +35,16 @@ namespace Chest.Services
         /// </summary>
         /// <param name="key">The key for which to get the dictionary data</param>
         /// <returns>A typed <see cref="Dictionary{TKey, TValue}"/> object</returns>
-        public Task<Dictionary<string, string>> Get(string key)
+        public async Task<Dictionary<string, string>> Get(string key)
         {
-            if (this.dataStore.TryGetValue(key, out var keyValue))
+            var data = await this.context.KeyValues.FindAsync(key.ToUpperInvariant());
+
+            if (!string.IsNullOrEmpty(data?.MetaData))
             {
-                var data = JsonConvert.DeserializeObject<Dictionary<string, string>>(keyValue.SerializedData);
-                return Task.FromResult(data);
+                return JsonConvert.DeserializeObject<Dictionary<string, string>>(data.MetaData);
             }
 
-            return Task.FromResult(default(Dictionary<string, string>));
+            return default(Dictionary<string, string>);
         }
 
         /// <summary>
@@ -46,13 +53,30 @@ namespace Chest.Services
         /// <param name="key">The key for which to store key value pair data</param>
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> object representing key value pair data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
-        public Task<Result> Save(string key, Dictionary<string, string> data)
+        public async Task Save(string key, Dictionary<string, string> data)
         {
             var serializedData = JsonConvert.SerializeObject(data);
 
-            var isAdded = this.dataStore.TryAdd(key, new KeyValueData { Key = key, SerializedData = serializedData });
+            try
+            {
+                var isAdded = await this.context.AddAsync(new KeyValueData
+                {
+                    Key = key.ToUpperInvariant(),
+                    DisplayKey = key,
+                    MetaData = serializedData
+                });
 
-            return Task.FromResult(Result.Added);
+                await this.context.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbException)
+            {
+                if (dbException.InnerException is PostgresException e && e.SqlState == PostgresDuplicateKeyErrorCode)
+                {
+                    throw new DuplicateKeyException(key, $"Cannot add Key: {key} because it already exists.", dbException);
+                }
+
+                throw;
+            }
         }
     }
 }

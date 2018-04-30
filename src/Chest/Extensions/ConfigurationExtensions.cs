@@ -22,7 +22,7 @@ namespace Chest
         {
             /* secrets.json Key         // Environment Variable     // command line argument    // default value (optional) */
             // Uncomment this with task MTC-20 implement persistence layer
-            // ("ConnectionStrings:Chest", "CHEST_CONNECTIONSTRING",   "connectionString",         null),
+             ("ConnectionStrings:Chest", "CHEST_CONNECTIONSTRING",   "connectionString",         null),
         };
 
         private static List<Action<ILogger>> logMessages = new List<Action<ILogger>>();

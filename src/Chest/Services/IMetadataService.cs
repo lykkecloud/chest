@@ -5,7 +5,6 @@ namespace Chest.Services
 {
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using Chest.Models;
 
     /// <summary>
     /// Represents a service to store and retrieve keyvalue pairs in the data store
@@ -26,6 +25,6 @@ namespace Chest.Services
         /// <param name="key">The key for which to store key value pair data</param>
         /// <param name="data">The key value pair data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
-        Task<Result> Save(string key, Dictionary<string, string> data);
+        Task Save(string key, Dictionary<string, string> data);
     }
 }
