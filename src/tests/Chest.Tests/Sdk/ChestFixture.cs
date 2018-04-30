@@ -29,13 +29,15 @@ namespace Chest.Tests.Sdk
         {
             var config = new ConfigurationBuilder().AddJsonFile("testsettings.json").Build();
 
-            this.Service = config.GetValue<string>("service");
+            this.ServiceUrl = config.GetValue<string>("serviceUrl");
 
             this.postgresProcess = this.StartPostgres();
             this.chestProcess = this.StartChest();
         }
 
-        public string Service { get; }
+#pragma warning disable CA1056 // Uri properties should not be strings
+        public string ServiceUrl { get; }
+#pragma warning restore CA1056 // Uri properties should not be strings
 
         public void Dispose()
         {
@@ -135,7 +137,7 @@ namespace Chest.Tests.Sdk
                     Thread.Sleep(500);
                     try
                     {
-                        using (var response = client.GetAsync(new Uri(this.Service + "/api")).GetAwaiter().GetResult())
+                        using (var response = client.GetAsync(new Uri(this.ServiceUrl + "/api")).GetAwaiter().GetResult())
                         {
                             var api = JsonConvert.DeserializeObject<ChestApi>(response.Content.ReadAsStringAsync().GetAwaiter().GetResult(), GetJsonSerializerSettings());
                             processId = int.Parse(api.ProcessId, CultureInfo.InvariantCulture);

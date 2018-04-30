@@ -15,6 +15,8 @@ namespace Chest.Tests.Sdk
             this.fixture = fixture;
         }
 
-        protected string Service => this.fixture.Service;
+#pragma warning disable CA1056 // Uri properties should not be strings
+        protected string ServiceUrl => this.fixture.ServiceUrl;
+#pragma warning restore CA1056 // Uri properties should not be strings
     }
 }

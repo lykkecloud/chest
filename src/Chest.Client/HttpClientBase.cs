@@ -24,22 +24,22 @@ namespace Chest.Client
         /// </summary>
         protected static readonly JsonSerializerSettings JsonSerializerSettings = GetJsonSerializerSettings();
 
-        private readonly string service;
+        private readonly string serviceUrl;
 
         private bool disposed;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpClientBase"/> class.
         /// </summary>
-        /// <param name="service">The service url.</param>
+        /// <param name="serviceUrl">The service url.</param>
         /// <param name="innerHandler">The inner handler.</param>
-        public HttpClientBase(string service, HttpMessageHandler innerHandler = null)
+        public HttpClientBase(string serviceUrl, HttpMessageHandler innerHandler = null)
         {
             // TODO (Cameron): Make sure we're working with application/json.
             var handler = innerHandler ?? new HttpClientHandler();
 
             this.Client = new HttpClient(handler);
-            this.service = service;
+            this.serviceUrl = serviceUrl;
         }
 
         /// <summary>
@@ -67,7 +67,7 @@ namespace Chest.Client
         {
             if (string.IsNullOrWhiteSpace(value))
             {
-                throw new ArgumentException("Value cannot be null.", parameterName);
+                throw new ArgumentNullException(parameterName, "Value cannot be null or white space.");
             }
 
             return value;
@@ -167,7 +167,7 @@ namespace Chest.Client
         /// <param name="path">The path.</param>
         /// <returns>A URL.</returns>
 #pragma warning disable CA1055
-        protected string RelativeUrl(string path) => this.service + path;
+        protected string RelativeUrl(string path) => this.serviceUrl + path;
 
         /// <summary>
         /// Releases unmanaged and - optionally - managed resources.

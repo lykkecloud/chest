@@ -22,7 +22,7 @@ namespace Chest.Tests.Integration
         [Scenario]
         public void CanGetAndAddMetdata()
         {
-            var client = new MetadataClient(this.Service);
+            var client = new MetadataClient(this.ServiceUrl);
             var key = "Some-Unique-Key";
 
             var expected = new Metadata
@@ -37,7 +37,7 @@ namespace Chest.Tests.Integration
                 }
             };
 
-            "Given the key the metadata doesn't exist"
+            "Given the metadata for key doesn't exist, When try to get metadata for the key, Then system should should return 404 NotFound"
                 .x(async () =>
                 {
                     try
@@ -60,13 +60,13 @@ namespace Chest.Tests.Integration
                     }
                 });
 
-            "Given the key, should add metadata"
+            "Given the metadata for the key doesn't exist, When try to add metadata for the key, Then system should add data"
                 .x(async () =>
                 {
                     await client.Add(expected).ConfigureAwait(false);
                 });
 
-            "Given the key, the metadata is now exist"
+            "Given the metadata for the key exist, When try to get metadata for the key, Then system should return the same metadata"
                 .x(async () =>
                 {
                     var response = await client.GetMetadata(key).ConfigureAwait(false);
@@ -75,7 +75,7 @@ namespace Chest.Tests.Integration
                     response.Should().BeEquivalentTo(expected);
                 });
 
-            "Given the key, conflict should occur when try to add metadata for same key"
+            "Given the metadata for key already exist, When try to add metadata for the key again, Then system should return 409 Conflict"
                 .x(async () =>
                 {
                     try
@@ -95,7 +95,7 @@ namespace Chest.Tests.Integration
                     }
                 });
 
-            "Given the key, conflict should occur when try to add metadata for same key but in different case"
+            "Given the metadata for key already exist, When try to add metadata for the key but in different casing, Then system should return 409 Conflict"
                 .x(async () =>
                 {
                     try
