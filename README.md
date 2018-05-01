@@ -14,6 +14,6 @@ It stores any key value pairs against a unique key
 ## POST /api/metadata
 Content-Type: application/json
 
-BODY
+## BODY
 
 {"key": "my-unique-key", "data": {["key_name", "value"]}}
