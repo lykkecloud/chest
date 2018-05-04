@@ -1,0 +1,34 @@
+version: '3'
+
+services:
+
+  chest:
+    image: chest:${TAG:-dev}
+    container_name: chest
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Docker
+      - CHEST_CONNECTIONSTRING=${CHEST_CONNECTIONSTRING:-Host=postgres;Port=5432;Database=Chest;User Id=chest;Password=secret}
+    env_file:
+      - ./default.env
+    build:
+      context: ../Chest/
+      dockerfile: VisualStudio.Dockerfile
+      args:
+        version: ${VERSION:-0.1.0-developer}
+    volumes:
+      - ${LOG_PATH:-/logs}:/app/logs
+
+  postgres:
+    image: postgres:10.1-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_DB=Chest
+      - POSTGRES_USER=${POSTGRES_USER:-chest}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-secret}
+      - POSTGRES_ROOT_PASSWORD=${POSTGRES_ROOT_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
