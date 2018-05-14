@@ -5,4 +5,4 @@ services:
   chest:
     build:
       context: ../
-      dockerfile: Dockerfile
+      dockerfile: Chest/Dockerfile

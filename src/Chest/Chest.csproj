@@ -80,6 +80,9 @@
     <Content Update="appsettings.Custom.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Update="appsettings.Deployment.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Update="appsettings.Docker.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -96,9 +99,6 @@
     <None Update="appsettings.Docker.json">
       <DependentUpon>appsettings.json</DependentUpon>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="VisualStudio.Dockerfile">
-      <DependentUpon>Dockerfile</DependentUpon>
     </None>
   </ItemGroup>
 
