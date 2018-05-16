@@ -5,7 +5,7 @@
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>63E46172-8B70-43CD-AB6F-A0D4DEEE1089</ProjectGuid>
     <DockerLaunchBrowser>True</DockerLaunchBrowser>
-    <DockerServiceUrl>http://localhost:5007</DockerServiceUrl>
+    <DockerServiceUrl>http://localhost:5011</DockerServiceUrl>
     <DockerServiceName>chest</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
