@@ -9,6 +9,7 @@ namespace Chest.Tests.Integration
     using System.Threading.Tasks;
     using Chest.Client;
     using Chest.Dto;
+    using Chest.Tests.Dto;
     using Chest.Tests.Sdk;
     using FluentAssertions;
     using Xbehave;
@@ -195,6 +196,42 @@ namespace Chest.Tests.Integration
                 {
                     Assert.Equal(HttpStatusCode.Conflict, httpException.StatusCode);
                     Assert.NotNull(httpException.ContentMessage);
+                });
+        }
+
+        [Scenario]
+        public void CanAddMetadataUsingDto()
+        {
+            var client = new MetadataClient(this.ServiceUrl);
+            var key = "556988";
+
+            var expected = new AssetAccountMetadata
+            {
+                    AccountNumber = key ,
+                    MarginAccount = "MA01",
+                    ReferenceAccount = "RF11",
+                    BankIdentificationReference = "BIR11",
+            };
+
+            AssetAccountMetadata actual = null;
+
+            $"Given the AssetAccountMetadata for key: {key}"
+                .x(async () =>
+                {
+                    await client.Add(key, expected).ConfigureAwait(false);
+                });
+
+            $"When try to get AssetAccountMetadata for the key: {key}"
+                .x(async () =>
+                {
+                    actual = await client.Get<AssetAccountMetadata>(key).ConfigureAwait(false);
+                });
+
+            "Then the fetched AssetAccountMetadata should be same"
+                .x(() =>
+                {
+                    Assert.NotNull(actual);
+                    actual.Should().BeEquivalentTo(expected);
                 });
         }
     }

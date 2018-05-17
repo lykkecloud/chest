@@ -15,6 +15,15 @@
     <LangVersion>latest</LangVersion>
     <DocumentationFile>bin\Debug\netstandard2.0\Chest.Client.xml</DocumentationFile>
     <NoWarn>1701;1702;1705;CA2007</NoWarn>
+    <Version>0.1.1</Version>
+    <AssemblyVersion>0.1.0.1</AssemblyVersion>
+    <FileVersion>0.1.0.1</FileVersion>
+    <Description>Provides a client on Chest.
+The chest is a metadata service with only two endpoints Add and Get.</Description>
+    <PackageReleaseNotes>Implemented generic methods, Add&lt;T&gt; and T Get&lt;T&gt;.
+Used serialization extensions helper inside these new methods to simplify usage of the client.
+Serialize instance of any class to dictionary with extension method `instanceObject.ToMetadataDictionary()`
+To deserialize metadata dictionary to instance object use `dictionary.ToObject&lt;T&gt;()`</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
