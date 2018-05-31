@@ -7,6 +7,7 @@ namespace Ironclad.WebApi
     using System.Reflection;
     using Chest;
     using Microsoft.AspNetCore.Mvc;
+    using Swashbuckle.AspNetCore.SwaggerGen;
 
     [Route("api")]
     public class RootController : Controller
@@ -21,6 +22,7 @@ namespace Ironclad.WebApi
             };
 
         [HttpGet]
+        [SwaggerOperation("Root_Get")]
         public IActionResult Get() => this.Ok(Version);
     }
 }

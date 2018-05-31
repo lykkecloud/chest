@@ -12,6 +12,7 @@ namespace Chest.Controllers
     using Chest.Models;
     using Chest.Services;
     using Microsoft.AspNetCore.Mvc;
+    using Swashbuckle.AspNetCore.SwaggerGen;
 
     [Route("api/[controller]")]
     public class MetadataController : ControllerBase
@@ -24,6 +25,7 @@ namespace Chest.Controllers
         }
 
         [HttpGet("{key}")]
+        [SwaggerOperation("Metadata_Get")]
         public async Task<IActionResult> Get(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -56,6 +58,7 @@ namespace Chest.Controllers
         }
 
         [HttpPost]
+        [SwaggerOperation("Metadata_Add")]
         public async Task<IActionResult> Post([FromBody]MetadataModel model)
         {
             if (!this.ModelState.IsValid)
