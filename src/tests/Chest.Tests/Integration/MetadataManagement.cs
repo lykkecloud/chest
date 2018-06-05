@@ -6,9 +6,10 @@ namespace Chest.Tests.Integration
     using System.Collections.Generic;
     using System.Globalization;
     using System.Net;
-    using System.Threading.Tasks;
     using Chest.Client;
-    using Chest.Dto;
+    using Chest.Client.AutorestClient;
+    using Chest.Client.AutorestClient.Models;
+    using Chest.Tests;
     using Chest.Tests.Dto;
     using Chest.Tests.Sdk;
     using FluentAssertions;
@@ -26,7 +27,7 @@ namespace Chest.Tests.Integration
         public void GetShouldReturnNotFound()
         {
             // arrange
-            var client = new MetadataClient(this.ServiceUrl);
+            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
             var key = "Unknown";
 
             HttpException exception = null;
@@ -42,7 +43,7 @@ namespace Chest.Tests.Integration
                     // arrange
                     try
                     {
-                        await client.GetMetadata(key).ConfigureAwait(false);
+                        await client.Metadata.GetAsync(key).ConfigureAwait(false);
                     }
                     catch (HttpException exp)
                     {
@@ -62,10 +63,10 @@ namespace Chest.Tests.Integration
         [Scenario]
         public void CanAddMetadata()
         {
-            var client = new MetadataClient(this.ServiceUrl);
+            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
             var key = "456987";
 
-            var expected = new Metadata
+            var expected = new MetadataModel
             {
                 Key = key,
                 Data = new Dictionary<string, string>
@@ -77,18 +78,18 @@ namespace Chest.Tests.Integration
                 }
             };
 
-            Metadata actual = null;
+            MetadataModel actual = null;
 
             $"Given the metadata for key: {key}"
                 .x(async () =>
                 {
-                    await client.Add(expected).ConfigureAwait(false);
+                    await client.Metadata.AddAsync(expected).ConfigureAwait(false);
                 });
 
             $"When try to get metadata for the key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.GetMetadata(key).ConfigureAwait(false);
+                    actual = await client.Metadata.GetAsync(key).ConfigureAwait(false);
                 });
 
             "Then the fetched metadata should be same"
@@ -102,10 +103,10 @@ namespace Chest.Tests.Integration
         [Scenario]
         public void ShouldNotAddKeyMultipleTimes()
         {
-            var client = new MetadataClient(this.ServiceUrl);
+            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
             var key = "Some-Unique-Key";
 
-            var expected = new Metadata
+            var expected = new MetadataModel
             {
                 Key = key,
                 Data = new Dictionary<string, string>
@@ -122,7 +123,7 @@ namespace Chest.Tests.Integration
             $"Given the metadata for key: {key}"
                 .x(async () =>
                 {
-                    await client.Add(expected).ConfigureAwait(false);
+                    await client.Metadata.AddAsync(expected).ConfigureAwait(false);
                 });
 
             $"When try to add metadata again for key: {key}"
@@ -130,7 +131,7 @@ namespace Chest.Tests.Integration
                 {
                     try
                     {
-                        await client.Add(expected).ConfigureAwait(false);
+                        await client.Metadata.AddAsync(expected).ConfigureAwait(false);
                     }
                     catch (HttpException exp)
                     {
@@ -149,10 +150,10 @@ namespace Chest.Tests.Integration
         [Scenario]
         public void ShouldNotAddKeyMultipleTimesEvenInDifferentCase()
         {
-            var client = new MetadataClient(this.ServiceUrl);
+            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
             var key = "Case-Sensitive-Key";
 
-            var expected = new Metadata
+            var expected = new MetadataModel
             {
                 Key = key,
                 Data = new Dictionary<string, string>
@@ -169,7 +170,7 @@ namespace Chest.Tests.Integration
             $"Given the metadata for key: {key}"
                 .x(async () =>
                 {
-                    await client.Add(expected).ConfigureAwait(false);
+                    await client.Metadata.AddAsync(expected).ConfigureAwait(false);
                 });
 
 #pragma warning disable CA1308 // Normalize strings to uppercase
@@ -183,7 +184,7 @@ namespace Chest.Tests.Integration
                     {
                         expected.Key = key;
 
-                        await client.Add(expected).ConfigureAwait(false);
+                        await client.Metadata.AddAsync(expected).ConfigureAwait(false);
                     }
                     catch (HttpException exp)
                     {
@@ -202,15 +203,15 @@ namespace Chest.Tests.Integration
         [Scenario]
         public void CanAddMetadataUsingDto()
         {
-            var client = new MetadataClient(this.ServiceUrl);
+            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
             var key = "556988";
 
             var expected = new AssetAccountMetadata
             {
-                    AccountNumber = key ,
-                    MarginAccount = "MA01",
-                    ReferenceAccount = "RF11",
-                    BankIdentificationReference = "BIR11",
+                AccountNumber = key,
+                MarginAccount = "MA01",
+                ReferenceAccount = "RF11",
+                BankIdentificationReference = "BIR11",
             };
 
             AssetAccountMetadata actual = null;
@@ -218,13 +219,13 @@ namespace Chest.Tests.Integration
             $"Given the AssetAccountMetadata for key: {key}"
                 .x(async () =>
                 {
-                    await client.Add(key, expected).ConfigureAwait(false);
+                    await client.Metadata.AddAsync(key, expected).ConfigureAwait(false);
                 });
 
             $"When try to get AssetAccountMetadata for the key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.Get<AssetAccountMetadata>(key).ConfigureAwait(false);
+                    actual = await client.Metadata.GetAsync<AssetAccountMetadata>(key).ConfigureAwait(false);
                 });
 
             "Then the fetched AssetAccountMetadata should be same"

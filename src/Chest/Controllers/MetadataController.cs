@@ -26,6 +26,10 @@ namespace Chest.Controllers
 
         [HttpGet("{key}")]
         [SwaggerOperation("Metadata_Get")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(MetadataModel))]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Get(string key)
         {
             if (string.IsNullOrWhiteSpace(key))
@@ -59,6 +63,10 @@ namespace Chest.Controllers
 
         [HttpPost]
         [SwaggerOperation("Metadata_Add")]
+        [SwaggerResponse((int)HttpStatusCode.Created)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [SwaggerResponse((int)HttpStatusCode.Conflict)]
+        [SwaggerResponse((int)HttpStatusCode.InternalServerError)]
         public async Task<IActionResult> Post([FromBody]MetadataModel model)
         {
             if (!this.ModelState.IsValid)

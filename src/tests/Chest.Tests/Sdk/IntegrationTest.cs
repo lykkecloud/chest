@@ -3,6 +3,7 @@
 
 namespace Chest.Tests.Sdk
 {
+    using System;
     using Xunit;
 
     [Collection("Chest")]
@@ -15,8 +16,6 @@ namespace Chest.Tests.Sdk
             this.fixture = fixture;
         }
 
-#pragma warning disable CA1056 // Uri properties should not be strings
-        protected string ServiceUrl => this.fixture.ServiceUrl;
-#pragma warning restore CA1056 // Uri properties should not be strings
+        protected Uri ServiceUrl => this.fixture.ServiceUrl;
     }
 }
