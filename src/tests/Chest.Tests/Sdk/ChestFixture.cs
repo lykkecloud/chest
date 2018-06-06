@@ -10,6 +10,8 @@ namespace Chest.Tests.Sdk
     using System.Net.Http;
     using System.Net.Sockets;
     using System.Threading;
+    using Chest.Client;
+    using Chest.Client.AutorestClient;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
@@ -29,15 +31,13 @@ namespace Chest.Tests.Sdk
         {
             var config = new ConfigurationBuilder().AddJsonFile("testsettings.json").Build();
 
-            this.ServiceUrl = config.GetValue<string>("serviceUrl");
+            this.ServiceUrl = new Uri(config.GetValue<string>("serviceUrl"));
 
             this.postgresProcess = this.StartPostgres();
             this.chestProcess = this.StartChest();
         }
 
-#pragma warning disable CA1056 // Uri properties should not be strings
-        public string ServiceUrl { get; }
-#pragma warning restore CA1056 // Uri properties should not be strings
+        public Uri ServiceUrl { get; }
 
         public void Dispose()
         {
@@ -129,7 +129,7 @@ namespace Chest.Tests.Sdk
                 });
 
             var processId = default(int);
-            using (var client = new HttpClient())
+            using (var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() }))
             {
                 var attempt = 0;
                 while (true)
@@ -137,12 +137,8 @@ namespace Chest.Tests.Sdk
                     Thread.Sleep(500);
                     try
                     {
-                        using (var response = client.GetAsync(new Uri(this.ServiceUrl + "/api")).GetAwaiter().GetResult())
-                        {
-                            var api = JsonConvert.DeserializeObject<ChestApi>(response.Content.ReadAsStringAsync().GetAwaiter().GetResult(), GetJsonSerializerSettings());
-                            processId = int.Parse(api.ProcessId, CultureInfo.InvariantCulture);
-                        }
-
+                        var response = client.Root.GetAsync().GetAwaiter().GetResult();
+                        processId = response.ProcessId;
                         break;
                     }
                     catch (HttpRequestException)
@@ -156,12 +152,6 @@ namespace Chest.Tests.Sdk
             }
 
             return Process.GetProcessById(processId);
-        }
-
-#pragma warning disable CA1812
-        private class ChestApi
-        {
-            public string ProcessId { get; set; }
         }
     }
 }

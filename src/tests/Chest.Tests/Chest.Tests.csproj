@@ -32,7 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Chest.Client\Chest.Client.csproj" />
+    <ProjectReference Include="..\..\client\Chest.AutoClient\Chest.AutoClient.csproj" />
   </ItemGroup>
 
   <ItemGroup>
