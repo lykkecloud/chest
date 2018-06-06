@@ -47,6 +47,7 @@ namespace Chest
             services.AddSwaggerGen(options =>
             {
                 options.DefaultLykkeConfiguration("v1", "Chest API");
+                options.SchemaFilter<NullableTypeSchemaFilter>();
             });
 
             // Default settings for Newtonsoft Serializer
