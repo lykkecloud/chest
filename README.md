@@ -1,7 +1,11 @@
 # Chest #
 
-Lykke Web API to store and retrieve key value data
-It stores any key value pairs against a unique key
+Lykke Web API to store and retrieve key value data.
+It stores any key value pairs against a unique key. The key is composed of three parts and is case in-sensitive
+
+1. Category
+2. Collection
+3. Key
 
 ### Prerequisites
 
@@ -104,13 +108,54 @@ This will run the project directly using dotnet.exe without attaching the debugg
 
 ### It exposes following end-points
 
-GET /api/metadata/{key}
+You can view those end-points in swagger at the following url
 
-POST /api/metadata
+http://localhost:5011/swagger/ui/
+
+1. Add new metadata
+
+POST /api/{category}/{collection}/{key}
 
 Content-Type: application/json
 
-#### BODY
+Body:
 
-{"key": "my-unique-key", "data": {["key_name", "value"]}}
+{"data": {["key_name": "value"]}}
 
+2. Update existing metadata
+
+PUT /api/{category}/{collection}/{key}
+
+Content-Type: application/json
+
+Body:
+
+{"data": {["key_name": "value"]}}
+
+3. Delete metadata
+
+DELETE /api/{category}/{collection}/{key}
+
+4. Get metadata
+
+GET /api/{category}/{collection}/{key}
+
+Response:
+
+{"data": {["key_name": "value"]}}
+
+4. Get all key value pairs in a collection
+
+GET /api/{category}/{collection}
+
+Response:
+
+["collection1", "collection2"]
+
+5. Get all collections in a category
+
+GET /api
+
+Response:
+
+["category1", "category2"]
