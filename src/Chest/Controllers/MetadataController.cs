@@ -50,7 +50,7 @@ namespace Chest.Controllers
                 return this.StatusCode((int)HttpStatusCode.InternalServerError, new { Message = $"An unknown error occured while saving data | Error: {exp.Message}" });
             }
 
-            return this.Created(this.Request.GetRelativeUrl($"api/{category}/{collection}/{key}"), model.Data);
+            return this.Created(this.Request.GetRelativeUrl($"api/{category}/{collection}/{key}"), model);
         }
 
         [HttpPut("api/{category}/{collection}/{key}")]

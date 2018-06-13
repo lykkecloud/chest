@@ -1,9 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
-using System.Collections.Generic;
+﻿// Copyright (c) Lykke Corp.
+// See the LICENSE file in the project root for more information.
 
 namespace Chest.Migrations
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.EntityFrameworkCore.Migrations;
+
     public partial class ModelExtension : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
