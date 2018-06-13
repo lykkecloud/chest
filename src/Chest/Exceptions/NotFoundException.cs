@@ -6,26 +6,26 @@ namespace Chest.Exceptions
     using System;
 
     /// <summary>
-    /// Represents duplicate key exception
+    /// Represents key not found exception
     /// </summary>
-    public class DuplicateKeyException : Exception
+    public class NotFoundException : Exception
     {
-        public DuplicateKeyException()
+        public NotFoundException()
             : this(null, null)
         {
         }
 
-        public DuplicateKeyException(string message)
+        public NotFoundException(string message)
             : this(message, null)
         {
         }
 
-        public DuplicateKeyException(string message, Exception innerException)
+        public NotFoundException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
 
-        public DuplicateKeyException(string category, string collection, string key, string message, Exception innerException)
+        public NotFoundException(string category, string collection, string key, string message, Exception innerException)
             : base(message, innerException)
         {
             this.Category = category;
