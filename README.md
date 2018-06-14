@@ -150,9 +150,18 @@ GET /api/{category}/{collection}
 
 Response:
 
-["collection1", "collection2"]
+[
+  "key1": {["key_name": "value"]},
+  "key2": {["key_name": "value"]}
+]
 
 5. Get all collections in a category
+
+Response:
+
+["collection1", "collection2"]
+
+6. Get all categories in the system
 
 GET /api
 

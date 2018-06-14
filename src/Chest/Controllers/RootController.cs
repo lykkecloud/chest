@@ -11,7 +11,7 @@ namespace Ironclad.WebApi
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.SwaggerGen;
 
-    [Route("api")]
+    [Route("status")]
     public class RootController : Controller
     {
         private static readonly RootModel Root =
@@ -24,7 +24,7 @@ namespace Ironclad.WebApi
             };
 
         [HttpGet]
-        [SwaggerOperation("Root_Get")]
+        [SwaggerOperation("Root_GetStatus")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(RootModel))]
         public IActionResult Get() => this.Ok(Root);
     }
