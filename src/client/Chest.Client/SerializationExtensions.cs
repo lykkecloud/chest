@@ -65,7 +65,7 @@ namespace Chest.Client
 
             foreach (var property in properties)
             {
-                var value = metadataDictionary[property.Name];
+                metadataDictionary.TryGetValue(property.Name, out var value);
 
                 if (string.IsNullOrWhiteSpace(value))
                 {

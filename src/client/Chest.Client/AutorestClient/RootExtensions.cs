@@ -18,6 +18,14 @@ namespace Chest.Client.AutorestClient
             /// <param name='operations'>
             /// The operations group for this extension method.
             /// </param>
+            public static RootModel Get(this IRoot operations)
+            {
+                return operations.GetAsync().GetAwaiter().GetResult();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
