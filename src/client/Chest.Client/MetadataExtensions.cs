@@ -66,10 +66,10 @@ namespace Chest.Client
         /// <param name="key">Unique key for which to get metadata</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>Instance object of the type T containing all the metadata information against the given key</returns>
-        public static async Task<T> GetMetadata<T>(this IMetadata operations, string category, string collection, string key, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task<T> Get<T>(this IMetadata operations, string category, string collection, string key, CancellationToken cancellationToken = default(CancellationToken))
             where T : class, new()
         {
-            var metadata = await operations.GetMetadataAsync(category, collection, key, cancellationToken).ConfigureAwait(false);
+            var metadata = await operations.GetAsync(category, collection, key, cancellationToken).ConfigureAwait(false);
 
             return metadata?.Data?.To<T>();
         }
@@ -87,7 +87,7 @@ namespace Chest.Client
             var list = await operations.GetKeysWithDataAsync(category, collection, cancellationToken).ConfigureAwait(false);
 
             return list
-                .ToDictionary(d => d.Key, d => d.Value.To<T>());
+                ?.ToDictionary(d => d.Key, d => d.Value.To<T>());
         }
     }
 }

@@ -15,9 +15,9 @@ namespace Chest.Controllers
 
     public class MetadataController : ControllerBase
     {
-        private readonly IMetadataService service;
+        private readonly IDataService service;
 
-        public MetadataController(IMetadataService service)
+        public MetadataController(IDataService service)
         {
             this.service = service;
         }
@@ -83,7 +83,6 @@ namespace Chest.Controllers
         [HttpGet("api")]
         [SwaggerOperation("Metadata_GetCategories")]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(List<string>))]
-        [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetCategories()
         {
             var categories = await this.service.GetCategories();
@@ -124,10 +123,10 @@ namespace Chest.Controllers
         }
 
         [HttpGet("api/{category}/{collection}/{key}")]
-        [SwaggerOperation("Metadata_GetMetadata")]
+        [SwaggerOperation("Metadata_Get")]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(MetadataModel))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> GetMetadata(string category, string collection, string key)
+        public async Task<IActionResult> Get(string category, string collection, string key)
         {
             var keyValueData = await this.service.Get(category, collection, key);
 

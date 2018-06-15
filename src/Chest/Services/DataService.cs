@@ -8,7 +8,6 @@ namespace Chest.Services
     using System.Threading.Tasks;
     using Chest.Data;
     using Chest.Exceptions;
-    using Chest.Models;
     using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json;
     using Npgsql;
@@ -16,17 +15,17 @@ namespace Chest.Services
     /// <summary>
     /// Represents a service to store and retrieve keyvalue pairs in the data store
     /// </summary>
-    public class MetadataService : IMetadataService
+    public class DataService : IDataService
     {
         private const string PostgresDuplicateKeyErrorCode = "23505";
 
         private readonly ApplicationDbContext context;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="MetadataService"/> class.
+        /// Initializes a new instance of the <see cref="DataService"/> class.
         /// </summary>
         /// <param name="context">An instance of <see cref="ApplicationDbContext"/> to communicate with underlying database</param>
-        public MetadataService(ApplicationDbContext context)
+        public DataService(ApplicationDbContext context)
         {
             this.context = context;
         }

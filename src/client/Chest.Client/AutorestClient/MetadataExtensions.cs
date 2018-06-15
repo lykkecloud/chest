@@ -26,9 +26,9 @@ namespace Chest.Client.AutorestClient
             /// </param>
             /// <param name='key'>
             /// </param>
-            public static MetadataModel GetMetadata(this IMetadata operations, string category, string collection, string key)
+            public static MetadataModel Get(this IMetadata operations, string category, string collection, string key)
             {
-                return operations.GetMetadataAsync(category, collection, key).GetAwaiter().GetResult();
+                return operations.GetAsync(category, collection, key).GetAwaiter().GetResult();
             }
 
             /// <param name='operations'>
@@ -43,7 +43,7 @@ namespace Chest.Client.AutorestClient
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
-            public static async Task<MetadataModel> GetMetadataAsync(this IMetadata operations, string category, string collection, string key, CancellationToken cancellationToken = default(CancellationToken))
+            public static async Task<MetadataModel> GetAsync(this IMetadata operations, string category, string collection, string key, CancellationToken cancellationToken = default(CancellationToken))
             {
                 using (var _result = await operations.GetMetadataWithHttpMessagesAsync(category, collection, key, null, cancellationToken).ConfigureAwait(false))
                 {

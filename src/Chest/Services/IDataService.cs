@@ -9,7 +9,7 @@ namespace Chest.Services
     /// <summary>
     /// Represents a service to store and retrieve keyvalue pairs in the data store
     /// </summary>
-    public interface IMetadataService
+    public interface IDataService
     {
 #pragma warning disable CA1716
         /// <summary>

@@ -64,7 +64,7 @@ namespace Chest
                 return settings;
             };
 
-            services.AddScoped<IMetadataService, MetadataService>();
+            services.AddScoped<IDataService, DataService>();
 
             services.AddCors(options =>
             {

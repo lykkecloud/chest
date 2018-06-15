@@ -9,7 +9,6 @@ namespace Chest.Tests.Integration
     using Chest.Client;
     using Chest.Client.AutorestClient;
     using Chest.Client.AutorestClient.Models;
-    using Chest.Tests;
     using Chest.Tests.Dto;
     using Chest.Tests.Sdk;
     using FluentAssertions;
@@ -44,7 +43,7 @@ namespace Chest.Tests.Integration
                 {
                     try
                     {
-                        await client.Metadata.GetMetadataAsync(category, collection, key).ConfigureAwait(false);
+                        await client.Metadata.GetAsync(category, collection, key).ConfigureAwait(false);
                     }
                     catch (HttpException exp)
                     {
@@ -92,7 +91,7 @@ namespace Chest.Tests.Integration
             $"When try to get metadata for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.Metadata.GetMetadataAsync(category, collection, key).ConfigureAwait(false);
+                    actual = await client.Metadata.GetAsync(category, collection, key).ConfigureAwait(false);
                 });
 
             "Then the fetched metadata should be same"
@@ -146,7 +145,7 @@ namespace Chest.Tests.Integration
             $"And try to get metadata for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.Metadata.GetMetadataAsync(category, collection, key).ConfigureAwait(false);
+                    actual = await client.Metadata.GetAsync(category, collection, key).ConfigureAwait(false);
                 });
 
             "Then the fetched metadata should be same as updated metadata"
@@ -197,7 +196,7 @@ namespace Chest.Tests.Integration
                 {
                     try
                     {
-                        actual = await client.Metadata.GetMetadataAsync(category, collection, key);
+                        actual = await client.Metadata.GetAsync(category, collection, key);
                     }
                     catch( HttpException exp)
                     {
@@ -342,7 +341,7 @@ namespace Chest.Tests.Integration
             $"When try to get AssetAccountMetadata for the key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.Metadata.GetMetadata<AssetAccountMetadata>(category, collection, key).ConfigureAwait(false);
+                    actual = await client.Metadata.Get<AssetAccountMetadata>(category, collection, key).ConfigureAwait(false);
                 });
 
             "Then the fetched AssetAccountMetadata should be same"
