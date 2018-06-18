@@ -14,7 +14,7 @@ namespace Ironclad.WebApi
     [Route("api")]
     public class RootController : Controller
     {
-        private static readonly RootModel Version =
+        private static readonly RootModel Root =
             new RootModel
             {
                 Title = typeof(Program).Assembly.Attribute<AssemblyTitleAttribute>(attribute => attribute.Title),
@@ -26,6 +26,6 @@ namespace Ironclad.WebApi
         [HttpGet]
         [SwaggerOperation("Root_Get")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(RootModel))]
-        public IActionResult Get() => this.Ok(Version);
+        public IActionResult Get() => this.Ok(Root);
     }
 }
