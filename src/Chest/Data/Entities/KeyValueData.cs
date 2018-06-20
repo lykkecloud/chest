@@ -3,6 +3,7 @@
 
 namespace Chest.Data
 {
+    using System.ComponentModel;
     using System.ComponentModel.DataAnnotations;
     using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,12 +14,39 @@ namespace Chest.Data
     internal class KeyValueData
     {
         /// <summary>
+        /// Gets or sets category
+        /// </summary>
+        [MaxLength(100)]
+        [Column("category", Order = 0)]
+        [DefaultValue("metadata")]
+        public string Category { get; set; }
+
+        /// <summary>
+        /// Gets or sets collection
+        /// </summary>
+        [MaxLength(100)]
+        [Column("collection", Order = 1)]
+        [DefaultValue("metadata")]
+        public string Collection { get; set; }
+
+        /// <summary>
         /// Gets or sets Key
         /// </summary>
-        [Key]
         [MaxLength(100)]
-        [Column("key")]
+        [Column("key", Order = 2)]
         public string Key { get; set; }
+
+        [Required]
+        [MaxLength(100)]
+        [Column("display_category")]
+        [DefaultValue("metadata")]
+        public string DisplayCategory { get; set; }
+
+        [Required]
+        [MaxLength(100)]
+        [Column("display_collection")]
+        [DefaultValue("metadata")]
+        public string DisplayCollection { get; set; }
 
         [Required]
         [MaxLength(100)]

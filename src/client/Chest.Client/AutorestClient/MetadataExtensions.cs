@@ -7,6 +7,8 @@
 namespace Chest.Client.AutorestClient
 {
     using Models;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -18,14 +20,18 @@ namespace Chest.Client.AutorestClient
             /// <param name='operations'>
             /// The operations group for this extension method.
             /// </param>
+            /// <param name='category'>
+            /// </param>
+            /// <param name='collection'>
+            /// </param>
             /// <param name='key'>
             /// </param>
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
-            public static async Task<MetadataModel> GetAsync(this IMetadata operations, string key, CancellationToken cancellationToken = default(CancellationToken))
+            public static async Task<MetadataModel> GetAsync(this IMetadata operations, string category, string collection, string key, CancellationToken cancellationToken = default(CancellationToken))
             {
-                using (var _result = await operations.GetWithHttpMessagesAsync(key, null, cancellationToken).ConfigureAwait(false))
+                using (var _result = await operations.GetWithHttpMessagesAsync(category, collection, key, null, cancellationToken).ConfigureAwait(false))
                 {
                     return _result.Body;
                 }
@@ -34,14 +40,104 @@ namespace Chest.Client.AutorestClient
             /// <param name='operations'>
             /// The operations group for this extension method.
             /// </param>
+            /// <param name='category'>
+            /// </param>
+            /// <param name='collection'>
+            /// </param>
+            /// <param name='key'>
+            /// </param>
             /// <param name='model'>
             /// </param>
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
-            public static async Task AddAsync(this IMetadata operations, MetadataModel model = default(MetadataModel), CancellationToken cancellationToken = default(CancellationToken))
+            public static async Task UpdateAsync(this IMetadata operations, string category, string collection, string key, MetadataModel model = default(MetadataModel), CancellationToken cancellationToken = default(CancellationToken))
             {
-                (await operations.AddWithHttpMessagesAsync(model, null, cancellationToken).ConfigureAwait(false)).Dispose();
+                (await operations.UpdateWithHttpMessagesAsync(category, collection, key, model, null, cancellationToken).ConfigureAwait(false)).Dispose();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='category'>
+            /// </param>
+            /// <param name='collection'>
+            /// </param>
+            /// <param name='key'>
+            /// </param>
+            /// <param name='model'>
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task AddAsync(this IMetadata operations, string category, string collection, string key, MetadataModel model = default(MetadataModel), CancellationToken cancellationToken = default(CancellationToken))
+            {
+                (await operations.AddWithHttpMessagesAsync(category, collection, key, model, null, cancellationToken).ConfigureAwait(false)).Dispose();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='category'>
+            /// </param>
+            /// <param name='collection'>
+            /// </param>
+            /// <param name='key'>
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task RemoveAsync(this IMetadata operations, string category, string collection, string key, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                (await operations.RemoveWithHttpMessagesAsync(category, collection, key, null, cancellationToken).ConfigureAwait(false)).Dispose();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task<IList<string>> GetCategoriesAsync(this IMetadata operations, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                using (var _result = await operations.GetCategoriesWithHttpMessagesAsync(null, cancellationToken).ConfigureAwait(false))
+                {
+                    return _result.Body;
+                }
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='category'>
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task<IList<string>> GetCollectionsAsync(this IMetadata operations, string category, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                using (var _result = await operations.GetCollectionsWithHttpMessagesAsync(category, null, cancellationToken).ConfigureAwait(false))
+                {
+                    return _result.Body;
+                }
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='category'>
+            /// </param>
+            /// <param name='collection'>
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task<IDictionary<string, IDictionary<string, string>>> GetKeysWithDataAsync(this IMetadata operations, string category, string collection, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                using (var _result = await operations.GetKeysWithDataWithHttpMessagesAsync(category, collection, null, cancellationToken).ConfigureAwait(false))
+                {
+                    return _result.Body;
+                }
             }
 
     }

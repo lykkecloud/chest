@@ -11,12 +11,6 @@ namespace Chest.Models
     /// </summary>
     public class MetadataModel
     {
-        /// <summary>
-        /// Gets or sets key
-        /// </summary>
-        [Required]
-        public string Key { get; set; }
-
 #pragma warning disable CA2227
 
         /// <summary>
