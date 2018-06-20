@@ -39,7 +39,7 @@ namespace Chest.Client.AutorestClient
         /// <exception cref="Microsoft.Rest.ValidationException">
         /// Thrown when a required parameter is null
         /// </exception>
-        Task<HttpOperationResponse<MetadataModel>> GetMetadataWithHttpMessagesAsync(string category, string collection, string key, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<HttpOperationResponse<MetadataModel>> GetWithHttpMessagesAsync(string category, string collection, string key, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <param name='category'>
         /// </param>
         /// <param name='collection'>

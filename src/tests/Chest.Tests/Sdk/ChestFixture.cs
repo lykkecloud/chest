@@ -137,8 +137,8 @@ namespace Chest.Tests.Sdk
                     Thread.Sleep(500);
                     try
                     {
-                        var response = client.Root.GetAsync().GetAwaiter().GetResult();
-                        processId = response.ProcessId;
+                        var response = client.Root.GetStatusAsync().GetAwaiter().GetResult();
+                        processId = response.ProcessId.Value;
                         break;
                     }
                     catch (HttpRequestException)

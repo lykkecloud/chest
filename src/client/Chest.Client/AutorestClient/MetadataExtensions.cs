@@ -26,45 +26,15 @@ namespace Chest.Client.AutorestClient
             /// </param>
             /// <param name='key'>
             /// </param>
-            public static MetadataModel Get(this IMetadata operations, string category, string collection, string key)
-            {
-                return operations.GetAsync(category, collection, key).GetAwaiter().GetResult();
-            }
-
-            /// <param name='operations'>
-            /// The operations group for this extension method.
-            /// </param>
-            /// <param name='category'>
-            /// </param>
-            /// <param name='collection'>
-            /// </param>
-            /// <param name='key'>
-            /// </param>
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
             public static async Task<MetadataModel> GetAsync(this IMetadata operations, string category, string collection, string key, CancellationToken cancellationToken = default(CancellationToken))
             {
-                using (var _result = await operations.GetMetadataWithHttpMessagesAsync(category, collection, key, null, cancellationToken).ConfigureAwait(false))
+                using (var _result = await operations.GetWithHttpMessagesAsync(category, collection, key, null, cancellationToken).ConfigureAwait(false))
                 {
                     return _result.Body;
                 }
-            }
-
-            /// <param name='operations'>
-            /// The operations group for this extension method.
-            /// </param>
-            /// <param name='category'>
-            /// </param>
-            /// <param name='collection'>
-            /// </param>
-            /// <param name='key'>
-            /// </param>
-            /// <param name='model'>
-            /// </param>
-            public static void Update(this IMetadata operations, string category, string collection, string key, MetadataModel model = default(MetadataModel))
-            {
-                operations.UpdateAsync(category, collection, key, model).GetAwaiter().GetResult();
             }
 
             /// <param name='operations'>
@@ -97,42 +67,12 @@ namespace Chest.Client.AutorestClient
             /// </param>
             /// <param name='model'>
             /// </param>
-            public static void Add(this IMetadata operations, string category, string collection, string key, MetadataModel model = default(MetadataModel))
-            {
-                operations.AddAsync(category, collection, key, model).GetAwaiter().GetResult();
-            }
-
-            /// <param name='operations'>
-            /// The operations group for this extension method.
-            /// </param>
-            /// <param name='category'>
-            /// </param>
-            /// <param name='collection'>
-            /// </param>
-            /// <param name='key'>
-            /// </param>
-            /// <param name='model'>
-            /// </param>
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
             public static async Task AddAsync(this IMetadata operations, string category, string collection, string key, MetadataModel model = default(MetadataModel), CancellationToken cancellationToken = default(CancellationToken))
             {
                 (await operations.AddWithHttpMessagesAsync(category, collection, key, model, null, cancellationToken).ConfigureAwait(false)).Dispose();
-            }
-
-            /// <param name='operations'>
-            /// The operations group for this extension method.
-            /// </param>
-            /// <param name='category'>
-            /// </param>
-            /// <param name='collection'>
-            /// </param>
-            /// <param name='key'>
-            /// </param>
-            public static void Remove(this IMetadata operations, string category, string collection, string key)
-            {
-                operations.RemoveAsync(category, collection, key).GetAwaiter().GetResult();
             }
 
             /// <param name='operations'>
@@ -155,14 +95,6 @@ namespace Chest.Client.AutorestClient
             /// <param name='operations'>
             /// The operations group for this extension method.
             /// </param>
-            public static IList<string> GetCategories(this IMetadata operations)
-            {
-                return operations.GetCategoriesAsync().GetAwaiter().GetResult();
-            }
-
-            /// <param name='operations'>
-            /// The operations group for this extension method.
-            /// </param>
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
@@ -179,16 +111,6 @@ namespace Chest.Client.AutorestClient
             /// </param>
             /// <param name='category'>
             /// </param>
-            public static IList<string> GetCollections(this IMetadata operations, string category)
-            {
-                return operations.GetCollectionsAsync(category).GetAwaiter().GetResult();
-            }
-
-            /// <param name='operations'>
-            /// The operations group for this extension method.
-            /// </param>
-            /// <param name='category'>
-            /// </param>
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
@@ -198,18 +120,6 @@ namespace Chest.Client.AutorestClient
                 {
                     return _result.Body;
                 }
-            }
-
-            /// <param name='operations'>
-            /// The operations group for this extension method.
-            /// </param>
-            /// <param name='category'>
-            /// </param>
-            /// <param name='collection'>
-            /// </param>
-            public static IDictionary<string, IDictionary<string, string>> GetKeysWithData(this IMetadata operations, string category, string collection)
-            {
-                return operations.GetKeysWithDataAsync(category, collection).GetAwaiter().GetResult();
             }
 
             /// <param name='operations'>
