@@ -56,7 +56,70 @@ namespace Chest.Tests.Unit
                 });
         }
 
+        [Scenario]
+        public void CanSerializeDeserializeWatchList()
+        {
+            WatchList expected = null;
+            WatchList actual = null;
+            Dictionary<string, string> dictionary = default(Dictionary<string, string>);
+
+            "Given an instance object of WatchList"
+                .x(() =>
+                {
+                    expected = new WatchList
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        Name = "Default",
+                        Assets = new List<string> { "EURUSD", "EURGBP" },
+                        ViewType = "FE"
+                    };
+                });
+
+            "When serialized to Dictionary<string, string>"
+                .x(() =>
+                {
+                    dictionary = expected.ToMetadataDictionary();
+                });
+
+            "And deserialized back to WatchList"
+                .x(() =>
+                {
+                    actual = dictionary.To<WatchList>();
+                });
+
+            "Then deserialized WatchList should be same as given WatchList"
+                .x(() =>
+                {
+                    actual.Should().BeEquivalentTo(expected);
+                });
+        }
+
 #pragma warning disable CA1034 // Nested types should not be visible
+        private class WatchList
+        {
+            /// <summary>
+            /// Gets or sets the watchlist unique identifier
+            /// </summary>
+            public string Id { get; set; }
+
+            /// <summary>
+            /// Gets or sets watchlist display name
+            /// </summary>
+            public string Name { get; set; }
+
+            /// <summary>
+            /// Gets or sets asset pair ids in this watchlist
+            /// </summary>
+#pragma warning disable CA2227 // Collection properties should be read only
+            public List<string> Assets { get; set; }
+#pragma warning restore CA2227 // Collection properties should be read only
+
+            /// <summary>
+            /// Gets or sets view type
+            /// </summary>
+            public string ViewType { get; set; }
+        }
+
         public class ExampleClass
         {
             public int Id { get; set; }
