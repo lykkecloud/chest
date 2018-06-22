@@ -37,14 +37,16 @@ namespace Chest.Client
 
             foreach (var property in properties)
             {
+                var value = property.GetValue(instance, null);
+
                 if (property.PropertyType.IsClass
                     && property.PropertyType != typeof(string))
                 {
-                    dictionary[property.Name] = JsonConvert.SerializeObject(property.GetValue(instance, null).ToMetadataDictionary());
+                    dictionary[property.Name] = JsonConvert.SerializeObject(value);
                     continue;
                 }
 
-                dictionary[property.Name] = Convert.ToString(property.GetValue(instance, null), CultureInfo.InvariantCulture);
+                dictionary[property.Name] = Convert.ToString(value, CultureInfo.InvariantCulture);
             }
 
             return dictionary;
@@ -86,12 +88,7 @@ namespace Chest.Client
                     continue;
                 }
 
-                var nestedDictionary = JsonConvert.DeserializeObject<Dictionary<string, string>>(value);
-
-                var objectValue = typeof(SerializationExtensions)
-                    .GetMethod(nameof(To), BindingFlags.Static | BindingFlags.Public)
-                    .MakeGenericMethod(property.PropertyType)
-                    .Invoke(null, new object[] { nestedDictionary });
+                var objectValue = JsonConvert.DeserializeObject(value, property.PropertyType);
 
                 property.SetValue(t, objectValue);
             }

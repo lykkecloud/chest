@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>0.2.1-RC3</Version>
+    <Version>0.2.1-RC5</Version>
     <Description>Provides a client on Chest.
 The chest is a metadata service which saves and fetches data against three keys. Category, Collection and Key.
 It also provides endpoints to fetch list of all categories, collections and keys in the system.</Description>
