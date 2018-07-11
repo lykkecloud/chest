@@ -4,15 +4,18 @@
 namespace Ironclad.WebApi
 {
     using System.Diagnostics;
+    using System.Net;
     using System.Reflection;
     using Chest;
+    using Chest.Models;
     using Microsoft.AspNetCore.Mvc;
+    using Swashbuckle.AspNetCore.SwaggerGen;
 
-    [Route("api")]
+    [Route("status")]
     public class RootController : Controller
     {
-        private static readonly object Version =
-            new
+        private static readonly RootModel Root =
+            new RootModel
             {
                 Title = typeof(Program).Assembly.Attribute<AssemblyTitleAttribute>(attribute => attribute.Title),
                 Version = typeof(Program).Assembly.Attribute<AssemblyInformationalVersionAttribute>(attribute => attribute.InformationalVersion),
@@ -21,6 +24,8 @@ namespace Ironclad.WebApi
             };
 
         [HttpGet]
-        public IActionResult Get() => this.Ok(Version);
+        [SwaggerOperation("Root_GetStatus")]
+        [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(RootModel))]
+        public IActionResult Get() => this.Ok(Root);
     }
 }

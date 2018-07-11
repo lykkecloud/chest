@@ -9,11 +9,9 @@ services:
       args:
         version: ${VERSION:-0.1.0-developer}
     container_name: chest
-    depends_on:
-      - postgres
     environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
-      - CHEST_CONNECTIONSTRING=${CHEST_CONNECTIONSTRING:-Host=postgres;Port=5432;Database=Chest;User Id=chest;Password=secret}
+      - ASPNETCORE_ENVIRONMENT=Deployment
+      - CHEST_CONNECTIONSTRING=${CHEST_CONNECTIONSTRING:-Host=http://postgres.mt.svc.cluster.local;Port=5432;Database=Chest;User Id=chest;Password=secret}
     env_file:
       - ./default.env
     image: chest:${TAG:-dev}

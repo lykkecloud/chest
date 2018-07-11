@@ -10,6 +10,9 @@ namespace Chest
     {
         public static Uri GetRelativeUrl(this HttpRequest request, string relativePath)
         {
+            relativePath = relativePath.TrimStart('~');
+            relativePath = relativePath.TrimStart('/');
+
             return new Uri($"{request.Scheme}://{request.Host}/{relativePath}");
         }
     }

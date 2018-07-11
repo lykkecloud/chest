@@ -13,5 +13,24 @@ namespace Chest.Data
         }
 
         internal DbSet<KeyValueData> KeyValues { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            // creating composite key as this is not possible with data annotations attribute
+            modelBuilder
+                .Entity<KeyValueData>()
+                .HasKey(k => new { k.Category, k.Collection, k.Key });
+
+            // assigning default value for backward compatibility
+            modelBuilder.Entity<KeyValueData>()
+                .Property(k => k.Category)
+                .HasDefaultValue("metadata");
+
+            modelBuilder.Entity<KeyValueData>()
+                .Property(k => k.Collection)
+                .HasDefaultValue("metadata");
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

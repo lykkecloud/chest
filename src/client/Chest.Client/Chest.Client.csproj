@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Version>0.2.1-RC5</Version>
+    <Description>Provides a client on Chest.
+The chest is a metadata service which saves and fetches data against three keys. Category, Collection and Key.
+It also provides endpoints to fetch list of all categories, collections and keys in the system.</Description>
+    <PackageReleaseNotes>Extended to store category, collection with key.
+Added update, delete and list methods.</PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.11" />
+  </ItemGroup>
+
+</Project>

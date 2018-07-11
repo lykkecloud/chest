@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>0.0.1-developer</Version>
+    <Version>0.2.1-developer</Version>
     <Authors>Chest Contributors</Authors>
     <Company>Lykke</Company>
     <Copyright>Copyright (c) Chest Contributors. All rights reserved.</Copyright>
@@ -41,6 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Lykke.Common.ApiLibrary" Version="1.7.1" />
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.5" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.0-beta2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.2" />
@@ -56,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.0.1" PrivateAssets="All" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="2.4.0" />
   </ItemGroup>
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.2" />
@@ -80,6 +82,9 @@
     <Content Update="appsettings.Custom.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Update="appsettings.Deployment.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Update="appsettings.Docker.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -96,9 +101,6 @@
     <None Update="appsettings.Docker.json">
       <DependentUpon>appsettings.json</DependentUpon>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="VisualStudio.Dockerfile">
-      <DependentUpon>Dockerfile</DependentUpon>
     </None>
   </ItemGroup>
 

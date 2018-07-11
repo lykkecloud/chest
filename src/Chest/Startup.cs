@@ -5,6 +5,7 @@ namespace Chest
 {
     using Chest.Data;
     using Chest.Services;
+    using Lykke.Common.ApiLibrary.Swagger;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.EntityFrameworkCore;
@@ -18,6 +19,9 @@ namespace Chest
     {
         private readonly IConfiguration configuration;
 
+        public string ApiVersion => "v1";
+        public string ApiTitle => "Chest API";
+
         public Startup(IConfiguration configuration)
         {
             this.configuration = configuration;
@@ -29,6 +33,7 @@ namespace Chest
 
             services
                 .AddMvcCore()
+                .AddApiExplorer()
                 .AddJsonFormatters()
                 .AddJsonOptions(
                     options =>
@@ -38,6 +43,12 @@ namespace Chest
                         options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                     })
                 .AddDataAnnotations();
+
+            services.AddSwaggerGen(options =>
+            {
+                options.DefaultLykkeConfiguration("v1", "Chest API");
+                options.SchemaFilter<NullableTypeSchemaFilter>();
+            });
 
             // Default settings for Newtonsoft Serializer
             JsonConvert.DefaultSettings = () =>
@@ -53,7 +64,7 @@ namespace Chest
                 return settings;
             };
 
-            services.AddScoped<IMetadataService, MetadataService>();
+            services.AddScoped<IDataService, DataService>();
 
             services.AddCors(options =>
             {
@@ -77,6 +88,16 @@ namespace Chest
 
             // app.UseCors("spa");
             app.UseMvcWithDefaultRoute();
+            app.UseSwagger(c =>
+            {
+                c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value);
+            });
+            app.UseSwaggerUI(x =>
+            {
+                x.RoutePrefix = "swagger/ui";
+                x.SwaggerEndpoint($"/swagger/{this.ApiVersion}/swagger.json", $"{this.ApiTitle} {this.ApiVersion}");
+                x.EnableValidator(null);
+            });
             app.InitializeDatabase();
         }
     }

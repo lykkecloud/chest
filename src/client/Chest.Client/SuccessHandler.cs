@@ -1,23 +1,19 @@
 ﻿// Copyright (c) Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using Newtonsoft.Json;
+
 namespace Chest.Client
 {
-    using System.Net.Http;
-    using System.Threading.Tasks;
-    using Newtonsoft.Json;
-
-    internal static class HttpResponseMessageExtensions
+    public class SuccessHandler : DelegatingHandler
     {
-        public static async Task<HttpResponseMessage> EnsureSuccess(this Task<HttpResponseMessage> responseTask)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            var response = await responseTask.ConfigureAwait(false);
-            return await EnsureSuccess(response).ConfigureAwait(false);
-        }
+            var response = await base.SendAsync(request, cancellationToken);
 
-        // LINK (Cameron): https://github.com/dotnet/corefx/blob/master/src/System.Net.Http/src/System/Net/Http/HttpResponseMessage.cs#L148
-        public static async Task<HttpResponseMessage> EnsureSuccess(this HttpResponseMessage response)
-        {
             if (response.IsSuccessStatusCode)
             {
                 return response;
@@ -40,7 +36,6 @@ namespace Chest.Client
                 contentMessage);
         }
 
-#pragma warning disable CA1812
         private class Content
         {
             public string Message { get; set; }
