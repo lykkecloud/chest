@@ -80,6 +80,13 @@ namespace Chest.Client
                     continue;
                 }
 
+                if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    property.SetValue(t, Convert.ChangeType(value, property.PropertyType.GetGenericArguments().First()));
+
+                    continue;
+                }
+
                 if (property.PropertyType == typeof(string)
                     || !property.PropertyType.IsClass)
                 {
