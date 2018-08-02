@@ -63,6 +63,9 @@ namespace Chest.Tests.Unit
             WatchList actual = null;
             Dictionary<string, string> dictionary = default(Dictionary<string, string>);
 
+            var now = DateTime.UtcNow;
+            now = new DateTime(now.Ticks - (now.Ticks % TimeSpan.TicksPerSecond), now.Kind);
+
             "Given an instance object of WatchList"
                 .x(() =>
                 {
@@ -71,7 +74,8 @@ namespace Chest.Tests.Unit
                         Id = Guid.NewGuid().ToString(),
                         Name = "Default",
                         Assets = new List<string> { "EURUSD", "EURGBP" },
-                        ViewType = "FE"
+                        ViewType = "FE",
+                        ModifiedTimestamp = now,
                     };
                 });
 
@@ -118,6 +122,8 @@ namespace Chest.Tests.Unit
             /// Gets or sets view type
             /// </summary>
             public string ViewType { get; set; }
+
+            public DateTime? ModifiedTimestamp { get; set; }
         }
 
         public class ExampleClass
