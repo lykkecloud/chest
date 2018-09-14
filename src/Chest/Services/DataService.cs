@@ -36,17 +36,19 @@ namespace Chest.Services
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
         /// <param name="key">The key for which to get the dictionary data</param>
-        /// <returns>A typed <see cref="Dictionary{TKey, TValue}"/> object</returns>
-        public async Task<Dictionary<string, string>> Get(string category, string collection, string key)
+        /// <returns>A tuple of <see cref="Dictionary{TKey, TValue}"/> the key value pairs and <see cref="List{T}"/> the keywords associated with the key value pairs</returns>
+        public async Task<(Dictionary<string, string> keyValuePairs, List<string> keywords)> Get(string category, string collection, string key)
         {
             var data = await this.context.KeyValues.FindAsync(category.ToUpperInvariant(), collection.ToUpperInvariant(), key.ToUpperInvariant());
 
             if (!string.IsNullOrEmpty(data?.MetaData))
             {
-                return JsonConvert.DeserializeObject<Dictionary<string, string>>(data.MetaData);
+                var keywords = string.IsNullOrWhiteSpace(data.Keywords) ? default(List<string>) : JsonConvert.DeserializeObject<List<string>>(data.Keywords);
+
+                return (JsonConvert.DeserializeObject<Dictionary<string, string>>(data.MetaData), keywords);
             }
 
-            return default(Dictionary<string, string>);
+            return (default(Dictionary<string, string>), default(List<string>));
         }
 
         /// <summary>
@@ -88,11 +90,13 @@ namespace Chest.Services
         /// <param name="collection">The collection</param>
         /// <param name="key">The key for which to store key value pair data</param>
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> object representing key value pair data</param>
+        /// <param name="keywords">Keywords associated with the data, these keywords will be used to search the data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
         /// <exception cref="DuplicateKeyException">if a record already exist against category, collection and key</exception>
-        public async Task Add(string category, string collection, string key, Dictionary<string, string> data)
+        public async Task Add(string category, string collection, string key, Dictionary<string, string> data, List<string> keywords)
         {
             var serializedData = JsonConvert.SerializeObject(data);
+            var serializedKeywords = keywords == null ? null : JsonConvert.SerializeObject(keywords);
 
             try
             {
@@ -104,7 +108,8 @@ namespace Chest.Services
                     DisplayCategory = category,
                     DisplayCollection = collection,
                     DisplayKey = key,
-                    MetaData = serializedData
+                    MetaData = serializedData,
+                    Keywords = serializedKeywords,
                 });
 
                 await this.context.SaveChangesAsync();
@@ -127,11 +132,13 @@ namespace Chest.Services
         /// <param name="collection">The collection</param>
         /// <param name="key">The key for which to store key value pair data</param>
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> object representing key value pair data</param>
+        /// <param name="keywords">Keywords associated with the data, these keywords will be used to search the data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
         /// <exception cref="NotFoundException">if no record found to update</exception>
-        public async Task Update(string category, string collection, string key, Dictionary<string, string> data)
+        public async Task Update(string category, string collection, string key, Dictionary<string, string> data, List<string> keywords)
         {
             var serializedData = JsonConvert.SerializeObject(data);
+            var serializedKeywords = keywords == null ? null : JsonConvert.SerializeObject(keywords);
 
             var existing = await this.context.KeyValues.FindAsync(category.ToUpperInvariant(), collection.ToUpperInvariant(), key.ToUpperInvariant());
 
@@ -141,6 +148,7 @@ namespace Chest.Services
             }
 
             existing.MetaData = serializedData;
+            existing.Keywords = serializedKeywords;
 
             await this.context.SaveChangesAsync();
         }

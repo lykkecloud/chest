@@ -19,5 +19,7 @@ namespace Chest.Models
         [Required]
         [MinLength(1, ErrorMessage = "Provide at least one key-value pair in data")]
         public Dictionary<string, string> Data { get; set; }
+
+        public List<string> Keywords { get; set; }
     }
 }
