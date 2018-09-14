@@ -129,12 +129,14 @@ namespace Chest.Client.AutorestClient
             /// </param>
             /// <param name='collection'>
             /// </param>
+            /// <param name='keyword'>
+            /// </param>
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
-            public static async Task<IDictionary<string, IDictionary<string, string>>> GetKeysWithDataAsync(this IMetadata operations, string category, string collection, CancellationToken cancellationToken = default(CancellationToken))
+            public static async Task<IDictionary<string, IDictionary<string, string>>> GetKeysWithDataAsync(this IMetadata operations, string category, string collection, string keyword = default(string), CancellationToken cancellationToken = default(CancellationToken))
             {
-                using (var _result = await operations.GetKeysWithDataWithHttpMessagesAsync(category, collection, null, cancellationToken).ConfigureAwait(false))
+                using (var _result = await operations.GetKeysWithDataWithHttpMessagesAsync(category, collection, keyword, null, cancellationToken).ConfigureAwait(false))
                 {
                     return _result.Body;
                 }

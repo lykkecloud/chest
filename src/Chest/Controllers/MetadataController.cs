@@ -36,7 +36,7 @@ namespace Chest.Controllers
 
             try
             {
-                await this.service.Add(category, collection, key, model.Data);
+                await this.service.Add(category, collection, key, model.Data, model.Keywords);
             }
             catch (DuplicateKeyException)
             {
@@ -60,7 +60,7 @@ namespace Chest.Controllers
 
             try
             {
-                await this.service.Update(category, collection, key, model.Data);
+                await this.service.Update(category, collection, key, model.Data, model.Keywords);
             }
             catch (NotFoundException)
             {
@@ -110,13 +110,13 @@ namespace Chest.Controllers
         [SwaggerOperation("Metadata_GetKeysWithData")]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(Dictionary<string, Dictionary<string, string>>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> GetKeysWithData(string category, string collection)
+        public async Task<IActionResult> GetKeysWithData(string category, string collection, [FromQuery]string keyword)
         {
-            var keyValueData = await this.service.GetKeyValues(category, collection);
+            var keyValueData = await this.service.GetKeyValues(category, collection, keyword);
 
             if (!keyValueData.Any())
             {
-                return this.NotFound(new { Message = $"No record found for Category: {category} and Collection: {collection}" });
+                return this.NotFound(new { Message = $"No record found for Category: {category} Collection: {collection} filtered by Keyword: {keyword}" });
             }
 
             return this.Ok(keyValueData);
@@ -128,14 +128,14 @@ namespace Chest.Controllers
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string category, string collection, string key)
         {
-            var keyValueData = await this.service.Get(category, collection, key);
+            var data = await this.service.Get(category, collection, key);
 
-            if (keyValueData == null)
+            if (data.keyValuePairs == null)
             {
                 return this.NotFound(new { Message = $"No data found for category: {category} collection: {collection} and key: {key}" });
             }
 
-            return this.Ok(new MetadataModel { Data = keyValueData });
+            return this.Ok(new MetadataModel { Data = data.keyValuePairs, Keywords = data.keywords });
         }
     }
 }

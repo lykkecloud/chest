@@ -5,7 +5,9 @@ namespace Chest.Tests.Integration
 {
     using System.Collections.Generic;
     using System.Globalization;
+    using System.Linq;
     using System.Net;
+    using System.Threading.Tasks;
     using Chest.Client;
     using Chest.Client.AutorestClient;
     using Chest.Client.AutorestClient.Models;
@@ -77,6 +79,11 @@ namespace Chest.Tests.Integration
                     { "marginAccount", "MA01" },
                     { "referenceAccount", "RF11" },
                     { "bankIdentificationReference", "BIR11" },
+                },
+                Keywords = new List<string>
+                {
+                    "MA01",
+                    "RF11"
                 }
             };
 
@@ -353,6 +360,88 @@ namespace Chest.Tests.Integration
         }
 
         [Scenario]
+        public void CanAddMetadataWithoutKeywords()
+        {
+            // arrange
+            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var category = "Integration";
+            var collection = "Tests";
+            var key = "456989";
+
+            var expected = new AssetAccountMetadata
+            {
+                AccountNumber = key,
+                MarginAccount = "MA02",
+                ReferenceAccount = "RF12",
+                BankIdentificationReference = "BIR12",
+            };
+
+            AssetAccountMetadata actual = null;
+
+            $"Given the metadata for category: {category} collection: {collection} key: {key}"
+                .x(async () =>
+                {
+                    await client.Metadata.Add(category, collection, key, expected).ConfigureAwait(false);
+                });
+
+            $"When try to get metadata for the category: {category} collection: {collection} key: {key}"
+                .x(async () =>
+                {
+                    actual = await client.Metadata.Get<AssetAccountMetadata>(category, collection, key).ConfigureAwait(false);
+                });
+
+            "Then the fetched metadata should be same"
+                .x(() =>
+                {
+                    Assert.NotNull(actual);
+                    actual.Should().BeEquivalentTo(expected);
+                });
+        }
+
+        [Scenario]
+        public void CanGetMetadataWithKeywords()
+        {
+            // arrange
+            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var category = "Integration";
+            var collection = "Tests";
+            var key = "456990";
+
+            var expected = new AssetAccountMetadata
+            {
+                AccountNumber = key,
+                MarginAccount = "MA04",
+                ReferenceAccount = "RF 14",
+                BankIdentificationReference = "BIR 14",
+            };
+
+            var expectedKeywords = new List<string> { expected.ReferenceAccount, expected.BankIdentificationReference };
+
+            (AssetAccountMetadata metadata, IList<string> keywords) actual = (null, null);
+
+            $"Given the metadata for category: {category} collection: {collection} key: {key}"
+                .x(async () =>
+                {
+                    await client.Metadata.Add(category, collection, key, expected, expectedKeywords).ConfigureAwait(false);
+                });
+
+            $"When try to get metadata with keywords for the category: {category} collection: {collection} key: {key}"
+                .x(async () =>
+                {
+                    actual = await client.Metadata.GetWithKeywords<AssetAccountMetadata>(category, collection, key).ConfigureAwait(false);
+                });
+
+            "Then the fetched metadata and keywords should be same"
+                .x(() =>
+                {
+                    Assert.NotNull(actual.metadata);
+                    Assert.NotNull(actual.keywords);
+                    actual.metadata.Should().BeEquivalentTo(expected);
+                    actual.keywords.Should().BeEquivalentTo(expectedKeywords);
+                });
+        }
+
+        [Scenario]
         public void CanGetKeysWithData()
         {
             var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
@@ -388,6 +477,57 @@ namespace Chest.Tests.Integration
                     Assert.NotNull(actualKeysWithData);
                     actualKeysWithData.Should().ContainKey(key);
                     actualKeysWithData.TryGetValue(key, out var actual);
+                    actual.Should().BeEquivalentTo(expected);
+                });
+        }
+
+        [Scenario]
+        public void ShouldGetCorrectKeysAndDataWithSearchKeyword()
+        {
+            // arrange
+            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var category = "Integration";
+            var collection = "Tests";
+            var keyword = "Lykke";
+
+            var keysWithData = new List<AssetAccountMetadata>
+            {
+                { new AssetAccountMetadata { AccountNumber = "key_1", MarginAccount = "MA101", ReferenceAccount = $"{keyword}_Corp.", BankIdentificationReference = "BIR111" } },
+                { new AssetAccountMetadata { AccountNumber = "key_2", MarginAccount = "MA102", ReferenceAccount = $"SomeRef102", BankIdentificationReference = $"BIR112" } },
+                { new AssetAccountMetadata { AccountNumber = "key_3", MarginAccount = "MA103", ReferenceAccount = $"SomeRef103", BankIdentificationReference = $"Lyk54" } },
+                { new AssetAccountMetadata { AccountNumber = "key_4", MarginAccount = "MA104", ReferenceAccount = $"SomeRef104", BankIdentificationReference = $"92{keyword}" } },
+                { new AssetAccountMetadata { AccountNumber = "key_5", MarginAccount = "MA105", ReferenceAccount = $"SomeRef105", BankIdentificationReference = $"92_{keyword} 01" } },
+            };
+
+            var expected = keysWithData
+                .Where(a => a.ReferenceAccount.Contains(keyword) || a.BankIdentificationReference.Contains(keyword))
+                .ToDictionary(k => k.AccountNumber, v => v);
+
+            IDictionary<string, AssetAccountMetadata> actual = null;
+
+            $"Given the list of AssetAccountMetadata for category: {category} collection: {collection}"
+                .x(async () =>
+                {
+                    var tasks = keysWithData.Select(item =>
+                    {
+                        var keywords = new List<string> { item.ReferenceAccount, item.BankIdentificationReference };
+
+                        return client.Metadata.Add(category, collection, item.AccountNumber, item, keywords);
+                    });
+
+                    await Task.WhenAll(tasks).ConfigureAwait(false);
+                });
+
+            $"When try to get all keys with data for category: {category} collection: {collection} with search keyword: {keyword}"
+                .x(async () =>
+                {
+                    actual = await client.Metadata.GetKeysWithData<AssetAccountMetadata>(category, collection, keyword).ConfigureAwait(false);
+                });
+
+            "Then the fetched metadata should be same"
+                .x(() =>
+                {
+                    Assert.NotNull(actual);
                     actual.Should().BeEquivalentTo(expected);
                 });
         }

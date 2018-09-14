@@ -26,7 +26,7 @@ namespace Chest.Client
         {
             var properties = instance
                 .GetType()
-                .GetProperties(BindingFlags.Instance | BindingFlags.Public);
+                .GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanRead);
 
             if (!properties.Any(p => p.PropertyType.IsClass && p.PropertyType != typeof(string)))
             {
@@ -63,7 +63,7 @@ namespace Chest.Client
         {
             var t = new T();
 
-            var properties = t.GetType().GetProperties();
+            var properties = t.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public).Where(p => p.CanWrite);
 
             foreach (var property in properties)
             {
