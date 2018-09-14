@@ -841,6 +841,8 @@ namespace Chest.Client.AutorestClient
         /// </param>
         /// <param name='collection'>
         /// </param>
+        /// <param name='keyword'>
+        /// </param>
         /// <param name='customHeaders'>
         /// Headers that will be added to request.
         /// </param>
@@ -862,7 +864,7 @@ namespace Chest.Client.AutorestClient
         /// <return>
         /// A response object containing the response body and response headers.
         /// </return>
-        public async Task<HttpOperationResponse<IDictionary<string, IDictionary<string, string>>>> GetKeysWithDataWithHttpMessagesAsync(string category, string collection, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<HttpOperationResponse<IDictionary<string, IDictionary<string, string>>>> GetKeysWithDataWithHttpMessagesAsync(string category, string collection, string keyword = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (category == null)
             {
@@ -881,6 +883,7 @@ namespace Chest.Client.AutorestClient
                 Dictionary<string, object> tracingParameters = new Dictionary<string, object>();
                 tracingParameters.Add("category", category);
                 tracingParameters.Add("collection", collection);
+                tracingParameters.Add("keyword", keyword);
                 tracingParameters.Add("cancellationToken", cancellationToken);
                 ServiceClientTracing.Enter(_invocationId, this, "GetKeysWithData", tracingParameters);
             }
@@ -889,6 +892,15 @@ namespace Chest.Client.AutorestClient
             var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/{category}/{collection}").ToString();
             _url = _url.Replace("{category}", System.Uri.EscapeDataString(category));
             _url = _url.Replace("{collection}", System.Uri.EscapeDataString(collection));
+            List<string> _queryParameters = new List<string>();
+            if (keyword != null)
+            {
+                _queryParameters.Add(string.Format("keyword={0}", System.Uri.EscapeDataString(keyword)));
+            }
+            if (_queryParameters.Count > 0)
+            {
+                _url += "?" + string.Join("&", _queryParameters);
+            }
             // Create HTTP transport objects
             var _httpRequest = new HttpRequestMessage();
             HttpResponseMessage _httpResponse = null;

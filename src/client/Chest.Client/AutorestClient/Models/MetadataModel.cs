@@ -24,9 +24,10 @@ namespace Chest.Client.AutorestClient.Models
         /// <summary>
         /// Initializes a new instance of the MetadataModel class.
         /// </summary>
-        public MetadataModel(IDictionary<string, string> data = default(IDictionary<string, string>))
+        public MetadataModel(IDictionary<string, string> data = default(IDictionary<string, string>), IList<string> keywords = default(IList<string>))
         {
             Data = data;
+            Keywords = keywords;
             CustomInit();
         }
 
@@ -39,6 +40,11 @@ namespace Chest.Client.AutorestClient.Models
         /// </summary>
         [JsonProperty(PropertyName = "data")]
         public IDictionary<string, string> Data { get; set; }
+
+        /// <summary>
+        /// </summary>
+        [JsonProperty(PropertyName = "keywords")]
+        public IList<string> Keywords { get; set; }
 
     }
 }
