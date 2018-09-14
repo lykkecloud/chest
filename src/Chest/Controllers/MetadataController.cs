@@ -110,9 +110,9 @@ namespace Chest.Controllers
         [SwaggerOperation("Metadata_GetKeysWithData")]
         [SwaggerResponse((int)HttpStatusCode.OK, typeof(Dictionary<string, Dictionary<string, string>>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> GetKeysWithData(string category, string collection)
+        public async Task<IActionResult> GetKeysWithData(string category, string collection, [FromQuery]string keyword)
         {
-            var keyValueData = await this.service.GetKeyValues(category, collection);
+            var keyValueData = await this.service.GetKeyValues(category, collection, keyword);
 
             if (!keyValueData.Any())
             {

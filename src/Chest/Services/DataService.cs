@@ -207,12 +207,14 @@ namespace Chest.Services
         /// </summary>
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
+        /// <param name="keyword">Optional param to search key value pairs</param>
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and metadata</returns>
-        public Task<Dictionary<string, Dictionary<string, string>>> GetKeyValues(string category, string collection)
+        public Task<Dictionary<string, Dictionary<string, string>>> GetKeyValues(string category, string collection, string keyword = null)
         {
             return this.context
                 .KeyValues
                 .Where(k => k.Category == category.ToUpperInvariant() && k.Collection == collection.ToUpperInvariant())
+                .Where(k => string.IsNullOrWhiteSpace(keyword) || k.Keywords.Contains(keyword))
                 .ToDictionaryAsync(
                     k => k.DisplayKey,
                     k => JsonConvert.DeserializeObject<Dictionary<string, string>>(k.MetaData));

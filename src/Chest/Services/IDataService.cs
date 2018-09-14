@@ -80,7 +80,8 @@ namespace Chest.Services
         /// </summary>
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
+        /// <param name="keyword">Optional param to search key value pairs</param>
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and metadata</returns>
-        Task<Dictionary<string, Dictionary<string, string>>> GetKeyValues(string category, string collection);
+        Task<Dictionary<string, Dictionary<string, string>>> GetKeyValues(string category, string collection, string keyword = null);
     }
 }
