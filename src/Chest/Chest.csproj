@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>2.1.0-developer</Version>
+    <Version>2.1.1-developer</Version>
     <Authors>Chest Contributors</Authors>
     <Company>Lykke</Company>
     <Copyright>Copyright (c) Chest Contributors. All rights reserved.</Copyright>
@@ -24,7 +24,7 @@
   <PropertyGroup>
     <NoWarn>1701;1702;1705;CA2007</NoWarn>
     <UserSecretsId>B70A29C8-A054-484A-B985-E5B2C0880DCC</UserSecretsId>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
+    <AssemblyVersion>2.1.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,9 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-using System;
-using System.Collections.Generic;
-
-namespace Chest.Migrations
+﻿namespace Chest.Migrations
 {
+    using System;
+    using System.Collections.Generic;
+    using Microsoft.EntityFrameworkCore.Migrations;
+
     public partial class AddKeywords : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)

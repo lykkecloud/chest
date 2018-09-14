@@ -93,7 +93,7 @@ namespace Chest.Client
         {
             var metadata = await operations.GetAsync(category, collection, key, cancellationToken).ConfigureAwait(false);
 
-            return (metadata?.Data?.To<T>(), metadata.Keywords);
+            return (metadata?.Data?.To<T>(), metadata?.Keywords);
         }
 
         /// <summary>

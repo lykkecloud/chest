@@ -116,7 +116,7 @@ namespace Chest.Controllers
 
             if (!keyValueData.Any())
             {
-                return this.NotFound(new { Message = $"No record found for Category: {category} and Collection: {collection}" });
+                return this.NotFound(new { Message = $"No record found for Category: {category} Collection: {collection} filtered by Keyword: {keyword}" });
             }
 
             return this.Ok(keyValueData);
