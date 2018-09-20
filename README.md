@@ -120,7 +120,7 @@ Content-Type: application/json
 
 Body:
 
-{"data": {["key_name": "value"]}}
+{"data": {["key_name": "value"]}, "keywords": ["keyword"]}
 
 2. Update existing metadata
 
@@ -130,7 +130,7 @@ Content-Type: application/json
 
 Body:
 
-{"data": {["key_name": "value"]}}
+{"data": {["key_name": "value"]}, "keywords": ["keyword"]}
 
 3. Delete metadata
 
@@ -142,11 +142,11 @@ GET /api/{category}/{collection}/{key}
 
 Response:
 
-{"data": {["key_name": "value"]}}
+{"data": {["key_name": "value"]}, "keywords": ["keyword"]}
 
 4. Get all key value pairs in a collection
 
-GET /api/{category}/{collection}
+GET /api/{category}/{collection}?keyword={searchKeyword}
 
 Response:
 
@@ -156,6 +156,8 @@ Response:
 ]
 
 5. Get all collections in a category
+
+GET /api/{category}
 
 Response:
 

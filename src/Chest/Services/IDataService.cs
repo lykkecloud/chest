@@ -18,8 +18,8 @@ namespace Chest.Services
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
         /// <param name="key">The key for which to get the dictionary data</param>
-        /// <returns>A typed <see cref="Dictionary{TKey, TValue}"/> object</returns>
-        Task<Dictionary<string, string>> Get(string category, string collection, string key);
+        /// <returns>A tuple of <see cref="Dictionary{TKey, TValue}"/> the key value pairs and <see cref="List{T}"/> the keywords associated with the key value pairs</returns>
+        Task<(Dictionary<string, string> keyValuePairs, List<string> keywords)> Get(string category, string collection, string key);
 
         /// <summary>
         /// Stores key value pair data against a given key
@@ -36,9 +36,10 @@ namespace Chest.Services
         /// <param name="collection">The collection</param>
         /// <param name="key">The key for which to store key value pair data</param>
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> object representing key value pair data</param>
+        /// <param name="keywords">Keywords associated with the data, these keywords will be used to search the data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
         /// <exception cref="DuplicateKeyException">if a record already exist against category, collection and key</exception>
-        Task Add(string category, string collection, string key, Dictionary<string, string> data);
+        Task Add(string category, string collection, string key, Dictionary<string, string> data, List<string> keywords);
 
         /// <summary>
         /// Updates key value pair data against a given category, collection and key
@@ -47,9 +48,10 @@ namespace Chest.Services
         /// <param name="collection">The collection</param>
         /// <param name="key">The key for which to store key value pair data</param>
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> object representing key value pair data</param>
+        /// <param name="keywords">Keywords associated with the data, these keywords will be used to search the data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
         /// <exception cref="NotFoundException">if no record found to update</exception>
-        Task Update(string category, string collection, string key, Dictionary<string, string> data);
+        Task Update(string category, string collection, string key, Dictionary<string, string> data, List<string> keywords);
 
         /// <summary>
         /// Deletes a record by category, collection, and key
@@ -78,7 +80,8 @@ namespace Chest.Services
         /// </summary>
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
+        /// <param name="keyword">Optional param to search key value pairs</param>
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and metadata</returns>
-        Task<Dictionary<string, Dictionary<string, string>>> GetKeyValues(string category, string collection);
+        Task<Dictionary<string, Dictionary<string, string>>> GetKeyValues(string category, string collection, string keyword = null);
     }
 }

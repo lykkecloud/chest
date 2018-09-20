@@ -136,6 +136,8 @@ namespace Chest.Client.AutorestClient
         /// </param>
         /// <param name='collection'>
         /// </param>
+        /// <param name='keyword'>
+        /// </param>
         /// <param name='customHeaders'>
         /// The headers that will be added to request.
         /// </param>
@@ -151,6 +153,6 @@ namespace Chest.Client.AutorestClient
         /// <exception cref="Microsoft.Rest.ValidationException">
         /// Thrown when a required parameter is null
         /// </exception>
-        Task<HttpOperationResponse<IDictionary<string, IDictionary<string, string>>>> GetKeysWithDataWithHttpMessagesAsync(string category, string collection, Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<HttpOperationResponse<IDictionary<string, IDictionary<string, string>>>> GetKeysWithDataWithHttpMessagesAsync(string category, string collection, string keyword = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

@@ -61,6 +61,13 @@ namespace Chest.Data
         [Column("meta_data")]
         public string MetaData { get; set; }
 
+        /// <summary>
+        /// Gets or sets json keywords associated with the meta data
+        /// </summary>
+        [MaxLength(1024)]
+        [Column("keywords")]
+        public string Keywords { get; set; }
+
         public override string ToString() => $"{this.Key}:{this.MetaData}";
     }
 }
