@@ -10,14 +10,14 @@ namespace Chest.Data
     /// <summary>
     /// Represents a key value pair to be stored in data store
     /// </summary>
-    [Table("key_value_data")]
+    [Table("tb_keyValueData", Schema = "chest")]
     internal class KeyValueData
     {
         /// <summary>
         /// Gets or sets category
         /// </summary>
         [MaxLength(100)]
-        [Column("category", Order = 0)]
+        [Column(Order = 0)]
         [DefaultValue("metadata")]
         public string Category { get; set; }
 
@@ -25,7 +25,7 @@ namespace Chest.Data
         /// Gets or sets collection
         /// </summary>
         [MaxLength(100)]
-        [Column("collection", Order = 1)]
+        [Column(Order = 1)]
         [DefaultValue("metadata")]
         public string Collection { get; set; }
 
@@ -33,24 +33,21 @@ namespace Chest.Data
         /// Gets or sets Key
         /// </summary>
         [MaxLength(100)]
-        [Column("key", Order = 2)]
+        [Column(Order = 2)]
         public string Key { get; set; }
 
         [Required]
         [MaxLength(100)]
-        [Column("display_category")]
         [DefaultValue("metadata")]
         public string DisplayCategory { get; set; }
 
         [Required]
         [MaxLength(100)]
-        [Column("display_collection")]
         [DefaultValue("metadata")]
         public string DisplayCollection { get; set; }
 
         [Required]
         [MaxLength(100)]
-        [Column("display_key")]
         public string DisplayKey { get; set; }
 
         /// <summary>
@@ -58,14 +55,12 @@ namespace Chest.Data
         /// </summary>
         [Required]
         [MaxLength(4096)]
-        [Column("meta_data")]
         public string MetaData { get; set; }
 
         /// <summary>
         /// Gets or sets json keywords associated with the meta data
         /// </summary>
         [MaxLength(1024)]
-        [Column("keywords")]
         public string Keywords { get; set; }
 
         public override string ToString() => $"{this.Key}:{this.MetaData}";

@@ -21,15 +21,6 @@ namespace Chest.Data
                 .Entity<KeyValueData>()
                 .HasKey(k => new { k.Category, k.Collection, k.Key });
 
-            // assigning default value for backward compatibility
-            modelBuilder.Entity<KeyValueData>()
-                .Property(k => k.Category)
-                .HasDefaultValue("metadata");
-
-            modelBuilder.Entity<KeyValueData>()
-                .Property(k => k.Collection)
-                .HasDefaultValue("metadata");
-
             base.OnModelCreating(modelBuilder);
         }
     }

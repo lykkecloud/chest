@@ -4,7 +4,6 @@
 namespace Chest.Data
 {
     using System.IO;
-    using Chest.Services;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
     using Microsoft.Extensions.Configuration;
@@ -19,7 +18,7 @@ namespace Chest.Data
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddEnvironmentSecrets(args).Build();
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-                .UseNpgsql(configuration.GetConnectionString("Chest"))
+                .UseSqlServer(configuration.GetConnectionString("Chest"))
                 .Options;
 
             return new ApplicationDbContext(options);

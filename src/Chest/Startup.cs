@@ -19,17 +19,18 @@ namespace Chest
     {
         private readonly IConfiguration configuration;
 
-        public string ApiVersion => "v1";
-        public string ApiTitle => "Chest API";
-
         public Startup(IConfiguration configuration)
         {
             this.configuration = configuration;
         }
 
+        public string ApiVersion => "v1";
+
+        public string ApiTitle => "Chest API";
+
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options => options.UseNpgsql(this.configuration.GetConnectionString("Chest")));
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(this.configuration.GetConnectionString("Chest")));
 
             services
                 .AddMvcCore()
@@ -50,7 +51,7 @@ namespace Chest
                 options.SchemaFilter<NullableTypeSchemaFilter>();
             });
 
-            // Default settings for Newtonsoft Serializer
+            // Default settings for NewtonSoft Serializer
             JsonConvert.DefaultSettings = () =>
             {
                 var settings = new JsonSerializerSettings
