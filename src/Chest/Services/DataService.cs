@@ -4,20 +4,20 @@
 namespace Chest.Services
 {
     using System.Collections.Generic;
+    using System.Data.SqlClient;
     using System.Linq;
     using System.Threading.Tasks;
     using Chest.Data;
     using Chest.Exceptions;
     using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json;
-    using Npgsql;
 
     /// <summary>
-    /// Represents a service to store and retrieve keyvalue pairs in the data store
+    /// Represents a service to store and retrieve key-value pairs in the data store
     /// </summary>
     public class DataService : IDataService
     {
-        private const string PostgresDuplicateKeyErrorCode = "23505";
+        private readonly int[] sqlDuplicateKeyErrorCodes = new[] { 2601, 2627, 547 };
 
         private readonly ApplicationDbContext context;
 
@@ -74,7 +74,7 @@ namespace Chest.Services
             }
             catch (DbUpdateException dbException)
             {
-                if (dbException.InnerException is PostgresException e && e.SqlState == PostgresDuplicateKeyErrorCode)
+                if (dbException.InnerException is SqlException e && this.sqlDuplicateKeyErrorCodes.Contains(e.Number))
                 {
                     throw new DuplicateKeyException("", "", key, $"Cannot add Key: {key} because it already exists.", dbException);
                 }
@@ -116,7 +116,7 @@ namespace Chest.Services
             }
             catch (DbUpdateException dbException)
             {
-                if (dbException.InnerException is PostgresException e && e.SqlState == PostgresDuplicateKeyErrorCode)
+                if (dbException.InnerException is SqlException e && this.sqlDuplicateKeyErrorCodes.Contains(e.Number))
                 {
                     throw new DuplicateKeyException(category, collection, key, $"Cannot insert duplicate for Category: {category} Collection: {collection} Key: {key}.", dbException);
                 }
