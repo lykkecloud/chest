@@ -116,7 +116,7 @@ Kestrel__Certificates__Default__Path:<path to .pfx file>
 Kestrel__Certificates__Default__Password:<certificate password>
 ```
 
-Update appsettings.json urls value in order locally to use http and https access to Donut
+Update appsettings.json urls value in order locally to use http and https access to Chest
  
  ``` 
  "urls": "http://*:5011;https://*:5110;"
