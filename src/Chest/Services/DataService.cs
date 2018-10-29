@@ -215,6 +215,7 @@ namespace Chest.Services
                 .KeyValues
                 .Where(k => k.Category == category.ToUpperInvariant() && k.Collection == collection.ToUpperInvariant())
                 .Where(k => string.IsNullOrWhiteSpace(keyword) || (k.Keywords != null && k.Keywords.ToUpperInvariant().Contains(keyword.ToUpperInvariant())))
+                .Distinct()
                 .ToDictionaryAsync(
                     k => k.DisplayKey,
                     k => JsonConvert.DeserializeObject<Dictionary<string, string>>(k.MetaData));
