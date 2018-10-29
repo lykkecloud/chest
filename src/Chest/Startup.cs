@@ -86,6 +86,10 @@ namespace Chest
                 app.UseBrowserLink();
                 app.UseDatabaseErrorPage();
             }
+            else
+            {
+                app.UseHsts();
+            }
 
             // app.UseCors("spa");
             app.UseMvcWithDefaultRoute();

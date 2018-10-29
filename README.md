@@ -106,6 +106,68 @@ This will run the project inside a docker container running behind nginx. Nginx 
 Navigate to the ```src/Chest``` folder and type ```dotnet run```.  
 This will run the project directly using dotnet.exe without attaching the debugger. You will need to use your debugger of choice to attach to the dotnet.exe process.
 
+
+### Add https enforcement for Chest
+
+Set environment variables
+
+```
+Kestrel__Certificates__Default__Path:</root/.aspnet/https/certFile.pfx>
+Kestrel__Certificates__Default__Password:<certificate password>
+```
+
+In order to map path of certificate we need to add additional volume to docker-compose.yml file
+
+```
+volumes:
+      - ./https/:/root/.aspnet/https/
+
+``` 
+
+Update appsettings.Deployment.json file and mention the https port
+ 
+ ``` 
+ "urls": "https://*:443;"
+ ```
+
+
+Configuration of secrets.json file in order to use https
+
+```json
+"Kestrel": {
+  "EndPoints": {
+    "HttpsInlineCertFile": {
+      "Url": "https://*:443",
+      "Certificate": {
+        "Path": "<path to .pfx file>",
+        "Password": "<certificate password>"
+      }
+    }
+}
+```
+
+Example of Dockerfile
+
+```
+FROM microsoft/dotnet:2.1.5-aspnetcore-runtime AS base
+WORKDIR /app
+EXPOSE 443
+
+FROM microsoft/dotnet:2.1.403-sdk AS build
+WORKDIR /src
+COPY . ./
+WORKDIR /src/Chest
+RUN dotnet build -c Release -r linux-x64 -o /app
+
+FROM build AS publish
+RUN dotnet publish -c Release -r linux-x64 -o /app
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app .
+ENTRYPOINT ["dotnet", "Chest.dll"]
+```
+
 ### It exposes following end-points
 
 You can view those end-points in swagger at the following url
