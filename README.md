@@ -9,14 +9,12 @@ It stores any key value pairs against a unique key. The key is composed of three
 
 ### Prerequisites
 
-This project requires a running instance of [Postgres](https://www.postgresql.org/) and the connection string to be configured (see configuration section below).  
+This project requires a running instance of [MS Sql Server](https://www.microsoft.com/en-us/sql-server/sql-server-2017) and the connection string to be configured (see configuration section below).  
 
-To download and install Postgres you can follow the instructions [here](https://www.postgresql.org/download/).
-It is further possible to install Postgres as a [stand-alone installation](http://www.postgresonline.com/journal/archives/172-Starting-PostgreSQL-in-windows-without-install.html) from the binaries or run postgres in a docker container using the following command:
-```
-docker run --name postgres -e POSTGRES_PASSWORD=<password> -e POSTGRES_DB=chest -d -p 5432:5432 postgres:10.1-alpine
-```
-NOTE: If you are running Chest inside a docker container pointing to Postgres running on your Windows machine then make sure to set the host in the connection string to ```docker.for.win.localhost```.
+To download and install MS Sql Server you can follow the [instructions here](https://www.microsoft.com/en-us/sql-server/sql-server-downloads).
+It is further possible to run MS Sql Server as per [instructions here](https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-docker?view=sql-server-2017)
+
+NOTE: If you are running Chest inside a docker container pointing to MS Sql Server running on your Windows machine then make sure to set the host in the connection string to ```docker.for.win.localhost```.
 
 ### Configuration
 
@@ -32,7 +30,7 @@ eg. (please note: secret values are invalid)
     ```json
     {
       "ConnectionStrings": {
-        "Chest": "Host=localhost;Database=chest;Username=username;Password=password;"
+        "Chest": "Server=tcp:database.url,1433;Initial Catalog=dbName;Persist Security Info=False;User ID=username;Password=password;MultipleActiveResultSets=True;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
       }
     }
     ```
@@ -41,7 +39,7 @@ eg. (please note: secret values are invalid)
 You need to configure the [user secrets](https://blogs.msdn.microsoft.com/mihansen/2017/09/10/managing-secrets-in-net-core-2-0-apps/) for the project. This can be done via the command line in either Windows or Linux. You can set the secrets using the following command from within the ```src/Chest``` folder. You may need to run a ```dotnet restore``` before you try the following commands.
 
     ```cmd
-    dotnet user-secrets set "ConnectionStrings:Chest" "Host=localhost;Database=chest;Username=username;Password=password;"
+    dotnet user-secrets set "ConnectionStrings:Chest" "Server=tcp:database.url,1433;Initial Catalog=dbName;Persist Security Info=False;User ID=username;Password=password;MultipleActiveResultSets=True;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
     ```
 
 
@@ -52,7 +50,7 @@ The contents of the `.env` configuration file should match the [expected require
 eg.  (please note: secret values are invalid)
 
     ```cmd
-    CHEST_CONNECTIONSTRING=Host=localhost;Database=chest;Username=username;Password=password;
+    CHEST_CONNECTIONSTRING=Server=tcp:database.url,1433;Initial Catalog=dbName;Persist Security Info=False;User ID=username;Password=password;MultipleActiveResultSets=True;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;
     ```
 
 #### Optional Machine Specific Configuration
@@ -232,3 +230,30 @@ GET /api
 Response:
 
 ["category1", "category2"]
+
+### How to Migrate from Postgres to MS Sql
+
+Before doing the migration, the new version needs to be deployed. EF automatic migration based on Code First will take place, creating the objects on MS Sql database.
+
+#### Using Migration script
+
+The `scripts/migratePostgresToMsSql.py` script can run in any python environment. It connects to source `Postgres` database and copy all the data to a target `MS Sql` database.
+
+Steps to successfully run it:
+
+  1. Open the `scripts/migratePostgresToMsSql.py` script in your preferred editor
+
+  2. Change the connection variables setting ServerURL, Port, DatabaseName, UserName and Password:
+
+    * postgresEngine = getSqlEngine('postgresql+psycopg2', 'postgres.server.url', '5432', 'dbName', 'username', 'password')
+    * msSqlEngine = getSqlEngine('mssql+pyodbc', 'mssql.server.url', '1433', 'dbName', 'username', 'password', 'SQL+Server')
+
+  3. Run the script and wait, it will take some minutes.
+
+  4. Check the table `chest.tb_keyValueData` inside the new MS Sql database, it should have the same data as your old Postgres database
+
+#### Using other tools
+
+There are a lot of other migration tools available out there, including the possibility to simply extract the data to a .csv file and import it on your new MS Sql database using the Import Wizard.
+
+Feel free to choose the one that best suits your needs.
