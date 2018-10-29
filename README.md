@@ -112,15 +112,24 @@ This will run the project directly using dotnet.exe without attaching the debugg
 Set environment variables
 
 ```
-Kestrel__Certificates__Default__Path:<path to .pfx file>
+Kestrel__Certificates__Default__Path:</root/.aspnet/https/certFile.pfx>
 Kestrel__Certificates__Default__Password:<certificate password>
 ```
 
-Update appsettings.json urls value in order locally to use http and https access to Chest
+In order to map path of certificate we need to add additional volume to docker-compose.yml file
+
+```
+volumes:
+      - ./https/:/root/.aspnet/https/
+
+``` 
+
+Update appsettings.Deployment.json file and mention the https port
  
  ``` 
- "urls": "http://*:5011;https://*:5110;"
+ "urls": "https://*:443;"
  ```
+
 
 Configuration of secrets.json file in order to use https
 
@@ -140,11 +149,11 @@ Configuration of secrets.json file in order to use https
 Example of Dockerfile
 
 ```
-FROM microsoft/dotnet:2.1.0-aspnetcore-runtime AS base
+FROM microsoft/dotnet:2.1.5-aspnetcore-runtime AS base
 WORKDIR /app
 EXPOSE 443
 
-FROM microsoft/dotnet:2.1.300-sdk AS build
+FROM microsoft/dotnet:2.1.403-sdk AS build
 WORKDIR /src
 COPY . ./
 WORKDIR /src/Chest
