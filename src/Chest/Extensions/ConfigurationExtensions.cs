@@ -8,6 +8,7 @@ namespace Chest
 {
     using System;
     using System.Collections.Generic;
+    using System.Data.SqlClient;
     using Microsoft.Extensions.Configuration;
     using Serilog;
 
@@ -89,6 +90,26 @@ namespace Chest
                 {
                     throw new InvalidOperationException("Validation of environment secrets failed.");
                 }
+            }
+        }
+
+        public static void ValidateConnectionString(this IConfigurationRoot configuration, string connectionStringName)
+        {
+            var connStr = configuration.GetConnectionString(connectionStringName);
+
+            var url = string.Empty;
+
+            try
+            {
+                using (var connection = new SqlConnection(connStr))
+                {
+                    url = connection.DataSource;
+                    connection.Open();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException($"No connection could be made to database '{connectionStringName}' on '{url}'", e);
             }
         }
     }
