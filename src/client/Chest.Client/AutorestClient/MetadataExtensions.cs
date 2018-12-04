@@ -95,6 +95,23 @@ namespace Chest.Client.AutorestClient
             /// <param name='operations'>
             /// The operations group for this extension method.
             /// </param>
+            /// <param name='category'>
+            /// </param>
+            /// <param name='collection'>
+            /// </param>
+            /// <param name='model'>
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task BulkUpdateAsync(this IMetadata operations, string category, string collection, IDictionary<string, MetadataModel> model = default(IDictionary<string, MetadataModel>), CancellationToken cancellationToken = default(CancellationToken))
+            {
+                (await operations.BulkUpdateWithHttpMessagesAsync(category, collection, model, null, cancellationToken).ConfigureAwait(false)).Dispose();
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
@@ -137,6 +154,28 @@ namespace Chest.Client.AutorestClient
             public static async Task<IDictionary<string, IDictionary<string, string>>> GetKeysWithDataAsync(this IMetadata operations, string category, string collection, string keyword = default(string), CancellationToken cancellationToken = default(CancellationToken))
             {
                 using (var _result = await operations.GetKeysWithDataWithHttpMessagesAsync(category, collection, keyword, null, cancellationToken).ConfigureAwait(false))
+                {
+                    return _result.Body;
+                }
+            }
+
+            /// <param name='operations'>
+            /// The operations group for this extension method.
+            /// </param>
+            /// <param name='category'>
+            /// </param>
+            /// <param name='collection'>
+            /// </param>
+            /// <param name='keys'>
+            /// </param>
+            /// <param name='keyword'>
+            /// </param>
+            /// <param name='cancellationToken'>
+            /// The cancellation token.
+            /// </param>
+            public static async Task<IDictionary<string, MetadataModel>> GetDataByKeysAsync(this IMetadata operations, string category, string collection, IList<string> keys = default(IList<string>), string keyword = default(string), CancellationToken cancellationToken = default(CancellationToken))
+            {
+                using (var _result = await operations.GetDataByKeysWithHttpMessagesAsync(category, collection, keys, keyword, null, cancellationToken).ConfigureAwait(false))
                 {
                     return _result.Body;
                 }

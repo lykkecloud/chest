@@ -54,6 +54,16 @@ namespace Chest.Services
         Task Update(string category, string collection, string key, Dictionary<string, string> data, List<string> keywords);
 
         /// <summary>
+        /// Updates multiple sets of key value pairs in a given category and collection
+        /// </summary>
+        /// <param name="category">The category</param>
+        /// <param name="collection">The collection</param>
+        /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to update the metadata and keywords for</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation </returns>
+        /// <exception cref="Chest.Exceptions.NotFoundException">Thrown when some of the keys weren't found</exception>
+        Task BulkUpdate(string category, string collection, Dictionary<string, (Dictionary<string, string> metadata, List<string> keywords)> data);
+
+        /// <summary>
         /// Deletes a record by category, collection, and key
         /// </summary>
         /// <param name="category">The category</param>
@@ -83,5 +93,16 @@ namespace Chest.Services
         /// <param name="keyword">Optional param to search key value pairs</param>
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and metadata</returns>
         Task<Dictionary<string, Dictionary<string, string>>> GetKeyValues(string category, string collection, string keyword = null);
+
+        /// <summary>
+        /// Looks up a set of metadata key value pairs in a specified category and collection using a set of keys to search for
+        /// </summary>
+        /// <param name="category">The category to search in</param>
+        /// <param name="collection">The collection to search in</param>
+        /// <param name="keys">The set of keys to search for</param>
+        /// <param name="keyword">An optional keyword to narrow down the search</param>
+        /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and metadata and keywords</returns>
+        Task<Dictionary<string, (Dictionary<string, string> metadata, List<string> keywords)>> GetMetadataByKeys(
+            string category, string collection, IEnumerable<string> keys, string keyword = null);
     }
 }

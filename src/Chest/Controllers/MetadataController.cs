@@ -4,6 +4,7 @@
 namespace Chest.Controllers
 {
     using System.Collections.Generic;
+    using System.ComponentModel.DataAnnotations;
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
@@ -70,6 +71,30 @@ namespace Chest.Controllers
             return this.Ok(new { Message = "Update successfully" });
         }
 
+        [HttpPut("api/{category}/{collection}/bulk")]
+        [SwaggerOperation("Metadata_BulkUpdate")]
+        [SwaggerResponse((int)HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> Update(string category, string collection, [FromBody, Required]Dictionary<string, MetadataModel> model)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.BadRequest();
+            }
+
+            try
+            {
+                await this.service.BulkUpdate(category, collection, model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords)));
+            }
+            catch (NotFoundException e)
+            {
+                return this.NotFound(new { e.Message });
+            }
+
+            return this.Ok();
+        }
+
         [HttpDelete("api/{category}/{collection}/{key}")]
         [SwaggerOperation("Metadata_Remove")]
         [SwaggerResponse((int)HttpStatusCode.OK)]
@@ -120,6 +145,36 @@ namespace Chest.Controllers
             }
 
             return this.Ok(keyValueData);
+        }
+
+        // NOTE: This is POST because passing around massive strings in a query parameter might
+        // hit some limitation along the way
+        [HttpPost("api/{category}/{collection}")]
+        [SwaggerOperation("Metadata_GetDataByKeys")]
+        [SwaggerResponse((int)HttpStatusCode.OK, typeof(IDictionary<string, MetadataModel>))]
+        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
+        public async Task<IActionResult> GetDataByKeys(
+            string category,
+            string collection,
+            [FromBody, Required]HashSet<string> keys,
+            [FromQuery]string keyword)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                return this.BadRequest();
+            }
+
+            var data = await this.service.GetMetadataByKeys(category, collection, keys.ToArray(), keyword);
+
+            var missingKeys = keys.Where(x => !data.ContainsKey(x)).ToArray();
+
+            if (missingKeys.Length > 0)
+            {
+                return this.NotFound(new { Message = $"No data found for category: {category} collection: {collection} and keys: {string.Join(", ", missingKeys)}" });
+            }
+
+            return this.Ok(data.ToDictionary(x => x.Key, x => new MetadataModel { Data = x.Value.metadata, Keywords = x.Value.keywords }));
         }
 
         [HttpGet("api/{category}/{collection}/{key}")]

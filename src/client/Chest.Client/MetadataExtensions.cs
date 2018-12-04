@@ -61,6 +61,26 @@ namespace Chest.Client
         }
 
         /// <summary>
+        /// Updates multiple sets of key value pairs in a given category and collection
+        /// </summary>
+        /// <typeparam name="T">The object type representing the metadata</typeparam>
+        /// <param name="operations">The operations group for this extension method</param>
+        /// <param name="category">The category</param>
+        /// <param name="collection">The collection</param>
+        /// <param name="cancellationToken">An optional cancellation token</param>
+        /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to update the metadata and keywords for</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public static async Task BulkUpdate<T>(this IMetadata operations, string category, string collection, IDictionary<string, (T metadata, IList<string> keywords)> data, CancellationToken cancellationToken = default(CancellationToken))
+            where T : class
+        {
+            await operations.BulkUpdateAsync(category, collection, data.ToDictionary(x => x.Key, x => new MetadataModel
+            {
+                Data = x.Value.metadata.ToMetadataDictionary(),
+                Keywords = x.Value.keywords
+            }));
+        }
+
+        /// <summary>
         /// Gets metadata for specified category, collection and key.
         /// </summary>
         /// <typeparam name="T">The type for which the metada was saved</typeparam>
@@ -94,6 +114,31 @@ namespace Chest.Client
             var metadata = await operations.GetAsync(category, collection, key, cancellationToken).ConfigureAwait(false);
 
             return (metadata?.Data?.To<T>(), metadata?.Keywords);
+        }
+
+        /// <summary>
+        /// Looks up a set of metadata using a set of keys to search for
+        /// </summary>
+        /// <typeparam name="T">The type which the metadata will be deserialized to</typeparam>
+        /// <param name="operations">The operations group for this extension method</param>
+        /// <param name="category">The category to search in</param>
+        /// <param name="collection">The collection to search in</param>
+        /// <param name="keys">The set of keys to search for</param>
+        /// <param name="keyword">An optional keyword to narrow down the search</param>
+        /// <param name="cancellationToken">An optional cancellation token</param>
+        /// <returns>A dictionary containing with metadata key as the key and deserialized metadata and keywords as the value</returns>
+        public static async Task<IDictionary<string, (T instance, IList<string> keywords)>> BulkGetWithKeywords<T>(
+            this IMetadata operations,
+            string category,
+            string collection,
+            IList<string> keys,
+            string keyword = null,
+            CancellationToken cancellationToken = default(CancellationToken))
+            where T : class, new()
+        {
+            var metadataDict = await operations.GetDataByKeysAsync(category, collection, keys, keyword, cancellationToken);
+
+            return metadataDict.ToDictionary(x => x.Key, x => (x.Value?.Data?.To<T>(), x.Value?.Keywords));
         }
 
         /// <summary>

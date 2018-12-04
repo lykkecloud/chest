@@ -3,6 +3,7 @@
 
 namespace Chest.Services
 {
+    using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Linq;
@@ -153,6 +154,35 @@ namespace Chest.Services
             await this.context.SaveChangesAsync();
         }
 
+        /// <inheritdoc />
+        public async Task BulkUpdate(string category, string collection, Dictionary<string, (Dictionary<string, string> metadata, List<string> keywords)> data)
+        {
+            var keyValueData = await this.GetKeyValueDataByKeys(category, collection, data.Keys).ToDictionaryAsync(
+                x => x.Key,
+                x => x);
+
+            var missingKeys = new HashSet<string>();
+
+            foreach (var kvp in data)
+            {
+                if (!keyValueData.TryGetValue(kvp.Key, out var keyValue))
+                {
+                    missingKeys.Add(kvp.Key);
+                    continue;
+                }
+
+                keyValue.MetaData = JsonConvert.SerializeObject(kvp.Value.metadata);
+                keyValue.Keywords = kvp.Value.keywords == null ? null : JsonConvert.SerializeObject(kvp.Value.keywords);
+            }
+
+            if (missingKeys.Count > 0)
+            {
+                throw new NotFoundException($"The following keys were not found in category '{category}' and collection '{collection}': {string.Join(", ", missingKeys)}");
+            }
+
+            await this.context.SaveChangesAsync();
+        }
+
         /// <summary>
         /// Deletes a record by category, collection, and key
         /// </summary>
@@ -218,6 +248,25 @@ namespace Chest.Services
                 .ToDictionaryAsync(
                     k => k.DisplayKey,
                     k => JsonConvert.DeserializeObject<Dictionary<string, string>>(k.MetaData));
+        }
+
+        /// <inheritdoc />
+        public Task<Dictionary<string, (Dictionary<string, string>, List<string>)>> GetMetadataByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)
+        {
+            return this.GetKeyValueDataByKeys(category, collection, keys, keyword)
+                .ToDictionaryAsync(
+                    k => k.DisplayKey,
+                    k => (JsonConvert.DeserializeObject<Dictionary<string, string>>(k.MetaData),
+                          k.Keywords == null ? null : JsonConvert.DeserializeObject<List<string>>(k.Keywords)));
+        }
+
+        private IQueryable<KeyValueData> GetKeyValueDataByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)
+        {
+            return this.context
+                .KeyValues
+                .Where(k => k.Category == category.ToUpperInvariant() && k.Collection == collection.ToUpperInvariant())
+                .Where(k => keys.Contains(k.Key))
+                .Where(k => string.IsNullOrWhiteSpace(keyword) || (k.Keywords != null && k.Keywords.ToUpperInvariant().Contains(keyword.ToUpperInvariant())));
         }
     }
 }

@@ -22,7 +22,7 @@ namespace Chest.Client.AutorestClient.Models
         /// <summary>
         /// Initializes a new instance of the RootModel class.
         /// </summary>
-        public RootModel(string title = default(string), string version = default(string), string os = default(string), int? processId = default(int?))
+        public RootModel(string title = default(string), string version = default(string), string os = default(string), int processId = default(int))
         {
             Title = title;
             Version = version;
@@ -54,7 +54,7 @@ namespace Chest.Client.AutorestClient.Models
         /// <summary>
         /// </summary>
         [JsonProperty(PropertyName = "process_id")]
-        public int? ProcessId { get; set; }
+        public int ProcessId { get; set; }
 
     }
 }
