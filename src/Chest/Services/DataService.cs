@@ -161,23 +161,19 @@ namespace Chest.Services
                 x => x.Key,
                 x => x);
 
-            var missingKeys = new HashSet<string>();
+            var missingKeys = data.Keys.Except(keyValueData.Keys);
+
+            if (missingKeys.Any())
+            {
+                throw new NotFoundException($"The following keys were not found in category '{category}' and collection '{collection}': {string.Join(", ", missingKeys)}");
+            }
 
             foreach (var kvp in data)
             {
-                if (!keyValueData.TryGetValue(kvp.Key, out var keyValue))
-                {
-                    missingKeys.Add(kvp.Key);
-                    continue;
-                }
+                var keyValue = keyValueData[kvp.Key];
 
                 keyValue.MetaData = JsonConvert.SerializeObject(kvp.Value.metadata);
                 keyValue.Keywords = kvp.Value.keywords == null ? null : JsonConvert.SerializeObject(kvp.Value.keywords);
-            }
-
-            if (missingKeys.Count > 0)
-            {
-                throw new NotFoundException($"The following keys were not found in category '{category}' and collection '{collection}': {string.Join(", ", missingKeys)}");
             }
 
             await this.context.SaveChangesAsync();
