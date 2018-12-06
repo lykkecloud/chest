@@ -37,6 +37,28 @@ namespace Chest.Client
         }
 
         /// <summary>
+        /// Adds a set of instances to a specified category and collection
+        /// </summary>
+        /// <typeparam name="T">Type of the instance object to store as metadata</typeparam>
+        /// <param name='operations'>The operations group for this extension method</typeparam>
+        /// <param name="category">The category</param>
+        /// <param name="collection">The collection</param>
+        /// <param name="data">A dictionary of keys and associated metadata instances and keywords</param>
+        /// <param name="cancellationToken">An optional cancellation token.</param>
+        /// <returns>A task object representing the asynchronous operation.</returns>
+        public static async Task BulkAdd<T>(this IMetadata operations, string category, string collection, Dictionary<string, (T instance, List<string> keywords)> data, CancellationToken cancellationToken = default(CancellationToken))
+            where T : class
+        {
+            var serializedDict = data.ToDictionary(x => x.Key, x => new MetadataModel
+            {
+                Data = x.Value.instance.ToMetadataDictionary(),
+                Keywords = x.Value.keywords,
+            });
+
+            await operations.BulkAddAsync(category, collection, serializedDict, cancellationToken).ConfigureAwait(false);
+        }
+
+        /// <summary>
         /// Updates the specified instance as metadata against the given category, collection and key.
         /// </summary>
         /// <typeparam name="T">Type of the instance object to store as metadata</typeparam>
@@ -126,8 +148,8 @@ namespace Chest.Client
         /// <param name="keys">The set of keys to search for</param>
         /// <param name="keyword">An optional keyword to narrow down the search</param>
         /// <param name="cancellationToken">An optional cancellation token</param>
-        /// <returns>A dictionary containing with metadata key as the key and deserialized metadata and keywords as the value</returns>
-        public static async Task<IDictionary<string, (T instance, IList<string> keywords)>> BulkGetWithKeywords<T>(
+        /// <returns>A dictionary of key and its metadata</returns>
+        public static async Task<IDictionary<string, T>> FindByKeys<T>(
             this IMetadata operations,
             string category,
             string collection,
@@ -136,9 +158,9 @@ namespace Chest.Client
             CancellationToken cancellationToken = default(CancellationToken))
             where T : class, new()
         {
-            var metadataDict = await operations.GetDataByKeysAsync(category, collection, keys, keyword, cancellationToken);
+            var metadataDict = await operations.FindByKeysAsync(category, collection, keys, keyword, cancellationToken);
 
-            return metadataDict.ToDictionary(x => x.Key, x => (x.Value?.Data?.To<T>(), x.Value?.Keywords));
+            return metadataDict.ToDictionary(x => x.Key, x => x.Value?.To<T>());
         }
 
         /// <summary>
