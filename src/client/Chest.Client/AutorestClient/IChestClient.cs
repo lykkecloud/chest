@@ -10,6 +10,7 @@ namespace Chest.Client.AutorestClient
     using Newtonsoft.Json;
 
     /// <summary>
+    /// Chest API
     /// </summary>
     public partial interface IChestClient : System.IDisposable
     {

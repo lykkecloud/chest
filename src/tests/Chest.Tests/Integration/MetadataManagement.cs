@@ -14,6 +14,7 @@ namespace Chest.Tests.Integration
     using Chest.Tests.Dto;
     using Chest.Tests.Sdk;
     using FluentAssertions;
+    using Newtonsoft.Json;
     using Xbehave;
     using Xunit;
 
@@ -73,18 +74,18 @@ namespace Chest.Tests.Integration
 
             var expected = new MetadataModel
             {
-                Data = new Dictionary<string, string>
+                Data = JsonConvert.SerializeObject(new Dictionary<string, string>
                 {
                     { "accountNumber", key },
                     { "marginAccount", "MA01" },
                     { "referenceAccount", "RF11" },
                     { "bankIdentificationReference", "BIR11" },
-                },
-                Keywords = new List<string>
+                }),
+                Keywords = JsonConvert.SerializeObject(new List<string>
                 {
                     "MA01",
                     "RF11"
-                }
+                })
             };
 
             MetadataModel actual = null;
@@ -120,13 +121,13 @@ namespace Chest.Tests.Integration
 
             var expected = new MetadataModel
             {
-                Data = new Dictionary<string, string>
+                Data = JsonConvert.SerializeObject(new Dictionary<string, string>
                 {
                     { "accountNumber", key },
                     { "marginAccount", "MA02" },
                     { "referenceAccount", "RF12" },
                     { "bankIdentificationReference", "BIR12" },
-                }
+                })
             };
 
             MetadataModel actual = null;
@@ -140,11 +141,11 @@ namespace Chest.Tests.Integration
             $"When try to update metadata for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    expected.Data = new Dictionary<string, string>
+                    expected.Data = JsonConvert.SerializeObject(new Dictionary<string, string>
                     {
                         { "accountNumber", key },
                         { "referenceAccount", "SomeNewRef" }
-                    };
+                    });
 
                     await client.Metadata.UpdateAsync(category, collection, key, expected).ConfigureAwait(false);
                 });
@@ -174,13 +175,13 @@ namespace Chest.Tests.Integration
 
             var expected = new MetadataModel
             {
-                Data = new Dictionary<string, string>
+                Data = JsonConvert.SerializeObject(new Dictionary<string, string>
                 {
                     { "accountNumber", key },
                     { "marginAccount", "MA01" },
                     { "referenceAccount", "RF11" },
                     { "bankIdentificationReference", "BIR11" },
-                }
+                })
             };
 
             MetadataModel actual = null;
@@ -229,13 +230,13 @@ namespace Chest.Tests.Integration
 
             var expected = new MetadataModel
             {
-                Data = new Dictionary<string, string>
+                Data = JsonConvert.SerializeObject(new Dictionary<string, string>
                 {
                     { "accountNumber", key },
                     { "marginAccount", "MA02" },
                     { "referenceAccount", "RF12" },
                     { "bankIdentificationReference", "BIR12" },
-                }
+                })
             };
 
             HttpException httpException = null;
@@ -278,13 +279,13 @@ namespace Chest.Tests.Integration
 
             var expected = new MetadataModel
             {
-                Data = new Dictionary<string, string>
+                Data = JsonConvert.SerializeObject(new Dictionary<string, string>
                 {
                     { "accountNumber", key },
                     { "marginAccount", "MA03" },
                     { "referenceAccount", "RF13" },
                     { "bankIdentificationReference", "BIR13" },
-                }
+                })
             };
 
             HttpException httpException = null;

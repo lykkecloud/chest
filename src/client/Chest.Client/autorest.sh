@@ -6,4 +6,4 @@
 # NPM version >= 3.10.10 - https://www.npmjs.com/get-npm
 # Autorest version >= 1.2.2 - https://www.npmjs.com/package/autorest
 
-autorest --input-file=http://localhost:5011/swagger/v1/swagger.json --csharp --output-folder=AutorestClient --namespace=Chest.Client.AutorestClient --override-client-name=ChestClient --sync-methods=none
+autorest --input-file=http://localhost:5011/swagger/v2/swagger.json --csharp --output-folder=AutorestClient --namespace=Chest.Client.AutorestClient --override-client-name=ChestClient --sync-methods=none

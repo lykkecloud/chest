@@ -8,6 +8,7 @@ namespace Chest.Tests.Unit
     using System.Globalization;
     using Chest.Client;
     using FluentAssertions;
+    using Newtonsoft.Json;
     using Xbehave;
 
     public class SerializationExtensionsTests
@@ -17,7 +18,7 @@ namespace Chest.Tests.Unit
         {
             ExampleClass expected = null;
             ExampleClass actual = null;
-            Dictionary<string, string> dictionary = default(Dictionary<string, string>);
+            var data = string.Empty;
 
             "Given an instance object of a class ExampleClass"
                 .x(() =>
@@ -40,13 +41,14 @@ namespace Chest.Tests.Unit
             "When serialized to Dictionary<string, string>"
                 .x(() =>
                 {
-                    dictionary = expected.ToMetadataDictionary();
+                    var dictionary = expected.ToMetadataDictionary();
+                    data = JsonConvert.SerializeObject(dictionary);
                 });
 
             "And deserialized back to ExampleClass"
                 .x(() =>
                 {
-                    actual = dictionary.To<ExampleClass>();
+                    actual = data.To<Dictionary<string, string>>().To<ExampleClass>();
                 });
 
             "Then deserialized ExampleClass should be same as given ExampleClass"
@@ -61,7 +63,7 @@ namespace Chest.Tests.Unit
         {
             WatchList expected = null;
             WatchList actual = null;
-            Dictionary<string, string> dictionary = default(Dictionary<string, string>);
+            var data = string.Empty;
 
             var now = DateTime.UtcNow;
             now = new DateTime(now.Ticks - (now.Ticks % TimeSpan.TicksPerSecond), now.Kind);
@@ -82,13 +84,14 @@ namespace Chest.Tests.Unit
             "When serialized to Dictionary<string, string>"
                 .x(() =>
                 {
-                    dictionary = expected.ToMetadataDictionary();
+                    var dictionary = expected.ToMetadataDictionary();
+                    data = JsonConvert.SerializeObject(dictionary);
                 });
 
             "And deserialized back to WatchList"
                 .x(() =>
                 {
-                    actual = dictionary.To<WatchList>();
+                    actual = data.To<Dictionary<string, string>>().To<WatchList>();
                 });
 
             "Then deserialized WatchList should be same as given WatchList"

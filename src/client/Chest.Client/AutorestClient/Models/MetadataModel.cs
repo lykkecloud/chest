@@ -6,9 +6,8 @@
 
 namespace Chest.Client.AutorestClient.Models
 {
+    using Microsoft.Rest;
     using Newtonsoft.Json;
-    using System.Collections;
-    using System.Collections.Generic;
     using System.Linq;
 
     public partial class MetadataModel
@@ -24,7 +23,7 @@ namespace Chest.Client.AutorestClient.Models
         /// <summary>
         /// Initializes a new instance of the MetadataModel class.
         /// </summary>
-        public MetadataModel(IDictionary<string, string> data = default(IDictionary<string, string>), IList<string> keywords = default(IList<string>))
+        public MetadataModel(string data, string keywords = default(string))
         {
             Data = data;
             Keywords = keywords;
@@ -39,12 +38,32 @@ namespace Chest.Client.AutorestClient.Models
         /// <summary>
         /// </summary>
         [JsonProperty(PropertyName = "data")]
-        public IDictionary<string, string> Data { get; set; }
+        public string Data { get; set; }
 
         /// <summary>
         /// </summary>
         [JsonProperty(PropertyName = "keywords")]
-        public IList<string> Keywords { get; set; }
+        public string Keywords { get; set; }
 
+        /// <summary>
+        /// Validate the object.
+        /// </summary>
+        /// <exception cref="ValidationException">
+        /// Thrown if validation fails
+        /// </exception>
+        public virtual void Validate()
+        {
+            if (Data == null)
+            {
+                throw new ValidationException(ValidationRules.CannotBeNull, "Data");
+            }
+            if (Data != null)
+            {
+                if (Data.Length < 1)
+                {
+                    throw new ValidationException(ValidationRules.MinLength, "Data", 1);
+                }
+            }
+        }
     }
 }

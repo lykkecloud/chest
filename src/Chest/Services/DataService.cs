@@ -10,8 +10,9 @@ namespace Chest.Services
     using System.Threading.Tasks;
     using Chest.Data;
     using Chest.Exceptions;
+    using EFSecondLevelCache.Core;
+    using EFSecondLevelCache.Core.Contracts;
     using Microsoft.EntityFrameworkCore;
-    using Newtonsoft.Json;
 
     /// <summary>
     /// Represents a service to store and retrieve key-value pairs in the data store
@@ -22,56 +23,52 @@ namespace Chest.Services
 
         private readonly ApplicationDbContext context;
 
+        private readonly IEFCacheServiceProvider cacheProvider;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DataService"/> class.
         /// </summary>
         /// <param name="context">An instance of <see cref="ApplicationDbContext"/> to communicate with underlying database</param>
-        public DataService(ApplicationDbContext context)
+        /// <param name="cacheProvider">An instance of <see cref="IEFCacheServiceProvider"/> to control EfCore 2nd level cache</param>
+        public DataService(ApplicationDbContext context, IEFCacheServiceProvider cacheProvider)
         {
             this.context = context;
+            this.cacheProvider = cacheProvider;
         }
 
         /// <summary>
-        /// Gets key value dictionary data for a given key
+        /// Gets data for a given key
         /// </summary>
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
-        /// <param name="key">The key for which to get the dictionary data</param>
-        /// <returns>A tuple of <see cref="Dictionary{TKey, TValue}"/> the key value pairs and <see cref="List{T}"/> the keywords associated with the key value pairs</returns>
-        public async Task<(Dictionary<string, string> keyValuePairs, List<string> keywords)> Get(string category, string collection, string key)
+        /// <param name="key">The key for which to get the data</param>
+        /// <returns>A tuple of <see cref="string"/> with the key data and <see cref="string"/> with the keywords associated with the key</returns>
+        public async Task<(string data, string keywords)> Get(string category, string collection, string key)
         {
             var data = await this.context.KeyValues.FindAsync(category.ToUpperInvariant(), collection.ToUpperInvariant(), key.ToUpperInvariant());
-
-            if (!string.IsNullOrEmpty(data?.MetaData))
-            {
-                var keywords = string.IsNullOrWhiteSpace(data.Keywords) ? default(List<string>) : JsonConvert.DeserializeObject<List<string>>(data.Keywords);
-
-                return (JsonConvert.DeserializeObject<Dictionary<string, string>>(data.MetaData), keywords);
-            }
-
-            return (default(Dictionary<string, string>), default(List<string>));
+            return (data?.MetaData, data?.Keywords);
         }
 
         /// <summary>
         /// Stores key value pair data against a given key
         /// </summary>
-        /// <param name="key">The key for which to store key value pair data</param>
-        /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> object representing key value pair data</param>
+        /// <param name="key">The key value for which to store key data</param>
+        /// <param name="data">A <see cref="string"/> representing key data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
-        public async Task Save(string key, Dictionary<string, string> data)
+        public async Task Save(string key, string data)
         {
-            var serializedData = JsonConvert.SerializeObject(data);
-
             try
             {
                 var isAdded = await this.context.AddAsync(new KeyValueData
                 {
                     Key = key.ToUpperInvariant(),
                     DisplayKey = key,
-                    MetaData = serializedData
+                    MetaData = data
                 });
 
                 await this.context.SaveChangesAsync();
+                this.cacheProvider.ClearAllCachedEntries();
+
             }
             catch (DbUpdateException dbException)
             {
@@ -89,16 +86,13 @@ namespace Chest.Services
         /// </summary>
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
-        /// <param name="key">The key for which to store key value pair data</param>
-        /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> object representing key value pair data</param>
-        /// <param name="keywords">Keywords associated with the data, these keywords will be used to search the data</param>
+        /// <param name="key">The key value for which to store key data</param>
+        /// <param name="data">A <see cref="string"/> representing the key data</param>
+        /// <param name="keywords">A <see cref="string"/> representing the Keywords associated with the data, these keywords will be used to search the data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
         /// <exception cref="DuplicateKeyException">if a record already exist against category, collection and key</exception>
-        public async Task Add(string category, string collection, string key, Dictionary<string, string> data, List<string> keywords)
+        public async Task Add(string category, string collection, string key, string data, string keywords)
         {
-            var serializedData = JsonConvert.SerializeObject(data);
-            var serializedKeywords = keywords == null ? null : JsonConvert.SerializeObject(keywords);
-
             try
             {
                 var isAdded = await this.context.AddAsync(new KeyValueData
@@ -109,11 +103,12 @@ namespace Chest.Services
                     DisplayCategory = category,
                     DisplayCollection = collection,
                     DisplayKey = key,
-                    MetaData = serializedData,
-                    Keywords = serializedKeywords,
+                    MetaData = data,
+                    Keywords = keywords,
                 });
 
                 await this.context.SaveChangesAsync();
+                this.cacheProvider.ClearAllCachedEntries();
             }
             catch (DbUpdateException dbException)
             {
@@ -127,15 +122,12 @@ namespace Chest.Services
         }
 
         /// <inheritdoc />
-        public async Task BulkAdd(string category, string collection, Dictionary<string, (Dictionary<string, string> metadata, List<string> keywords)> data)
+        public async Task BulkAdd(string category, string collection, Dictionary<string, (string metadata, string keywords)> data)
         {
             try
             {
                 foreach (var kvp in data)
                 {
-                    var serializedData = JsonConvert.SerializeObject(kvp.Value.metadata);
-                    var serializedKeywords = kvp.Value.keywords == null ? null : JsonConvert.SerializeObject(kvp.Value.keywords);
-
                     await this.context.AddAsync(new KeyValueData
                     {
                         Category = category.ToUpperInvariant(),
@@ -144,8 +136,8 @@ namespace Chest.Services
                         DisplayCategory = category,
                         DisplayCollection = collection,
                         DisplayKey = kvp.Key,
-                        MetaData = serializedData,
-                        Keywords = serializedKeywords,
+                        MetaData = kvp.Value.metadata,
+                        Keywords = kvp.Value.keywords,
                     });
                 }
 
@@ -167,31 +159,28 @@ namespace Chest.Services
         /// </summary>
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
-        /// <param name="key">The key for which to store key value pair data</param>
-        /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> object representing key value pair data</param>
-        /// <param name="keywords">Keywords associated with the data, these keywords will be used to search the data</param>
+        /// <param name="key">The key value for which to store key data</param>
+        /// <param name="data">A <see cref="string"/> representing the key data</param>
+        /// <param name="keywords">A <see cref="string"/> representing the Keywords associated with the data, these keywords will be used to search the data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
         /// <exception cref="NotFoundException">if no record found to update</exception>
-        public async Task Update(string category, string collection, string key, Dictionary<string, string> data, List<string> keywords)
+        public async Task Update(string category, string collection, string key, string data, string keywords)
         {
-            var serializedData = JsonConvert.SerializeObject(data);
-            var serializedKeywords = keywords == null ? null : JsonConvert.SerializeObject(keywords);
-
             var existing = await this.context.KeyValues.FindAsync(category.ToUpperInvariant(), collection.ToUpperInvariant(), key.ToUpperInvariant());
-
             if (existing == null)
             {
                 throw new NotFoundException(category, collection, key, $"No record found for Category: {category} Collection: {collection} and Key: {key}", null);
             }
 
-            existing.MetaData = serializedData;
-            existing.Keywords = serializedKeywords;
+            existing.MetaData = data;
+            existing.Keywords = keywords;
 
             await this.context.SaveChangesAsync();
+            this.cacheProvider.ClearAllCachedEntries();
         }
 
         /// <inheritdoc />
-        public async Task BulkUpdate(string category, string collection, Dictionary<string, (Dictionary<string, string> metadata, List<string> keywords)> data)
+        public async Task BulkUpdate(string category, string collection, Dictionary<string, (string metadata, string keywords)> data)
         {
             var keyValueData = await this.GetKeyValueDataByKeys(category, collection, data.Keys).ToDictionaryAsync(
                 x => x.Key,
@@ -208,8 +197,8 @@ namespace Chest.Services
             {
                 var keyValue = keyValueData[kvp.Key];
 
-                keyValue.MetaData = JsonConvert.SerializeObject(kvp.Value.metadata);
-                keyValue.Keywords = kvp.Value.keywords == null ? null : JsonConvert.SerializeObject(kvp.Value.keywords);
+                keyValue.MetaData = kvp.Value.metadata;
+                keyValue.Keywords = kvp.Value.keywords;
             }
 
             await this.context.SaveChangesAsync();
@@ -225,7 +214,6 @@ namespace Chest.Services
         public async Task Delete(string category, string collection, string key)
         {
             var existing = await this.context.KeyValues.FindAsync(category.ToUpperInvariant(), collection.ToUpperInvariant(), key.ToUpperInvariant());
-
             if (existing == null)
             {
                 return;
@@ -234,6 +222,7 @@ namespace Chest.Services
             this.context.KeyValues.Remove(existing);
 
             await this.context.SaveChangesAsync();
+            this.cacheProvider.ClearAllCachedEntries();
         }
 
         /// <inheritdoc />
@@ -257,6 +246,7 @@ namespace Chest.Services
                 .KeyValues
                 .Select(k => k.DisplayCategory)
                 .Distinct()
+                .Cacheable()
                 .ToListAsync();
         }
 
@@ -272,6 +262,7 @@ namespace Chest.Services
                 .Where(k => k.Category == category.ToUpperInvariant())
                 .Select(k => k.DisplayCollection)
                 .Distinct()
+                .Cacheable()
                 .ToListAsync();
         }
 
@@ -281,25 +272,26 @@ namespace Chest.Services
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
         /// <param name="keyword">Optional param to search key value pairs</param>
-        /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and metadata</returns>
-        public Task<Dictionary<string, Dictionary<string, string>>> GetKeyValues(string category, string collection, string keyword = null)
+        /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and data</returns>
+        public Task<Dictionary<string, string>> GetKeyValues(string category, string collection, string keyword = null)
         {
             return this.context
                 .KeyValues
                 .Where(k => k.Category == category.ToUpperInvariant() && k.Collection == collection.ToUpperInvariant())
                 .Where(k => string.IsNullOrWhiteSpace(keyword) || (k.Keywords != null && k.Keywords.ToUpperInvariant().Contains(keyword.ToUpperInvariant())))
+                .Cacheable()
                 .ToDictionaryAsync(
                     k => k.DisplayKey,
-                    k => JsonConvert.DeserializeObject<Dictionary<string, string>>(k.MetaData));
+                    k => k.MetaData);
         }
 
         /// <inheritdoc />
-        public Task<Dictionary<string, Dictionary<string, string>>> FindByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)
+        public Task<Dictionary<string, string>> FindByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)
         {
             return this.GetKeyValueDataByKeys(category, collection, keys, keyword)
                 .ToDictionaryAsync(
                     k => k.DisplayKey,
-                    k => JsonConvert.DeserializeObject<Dictionary<string, string>>(k.MetaData));
+                    k => k.MetaData);
         }
 
         private IQueryable<KeyValueData> GetKeyValueDataByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)

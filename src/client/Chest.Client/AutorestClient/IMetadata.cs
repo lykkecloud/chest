@@ -122,7 +122,7 @@ namespace Chest.Client.AutorestClient
         /// <exception cref="Microsoft.Rest.ValidationException">
         /// Thrown when a required parameter is null
         /// </exception>
-        Task<HttpOperationResponse<IDictionary<string, IDictionary<string, string>>>> GetKeysWithDataWithHttpMessagesAsync(string category, string collection, string keyword = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<HttpOperationResponse<IDictionary<string, string>>> GetKeysWithDataWithHttpMessagesAsync(string category, string collection, string keyword = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
         /// <param name='category'>
         /// </param>
         /// <param name='collection'>
@@ -234,6 +234,6 @@ namespace Chest.Client.AutorestClient
         /// <exception cref="Microsoft.Rest.ValidationException">
         /// Thrown when a required parameter is null
         /// </exception>
-        Task<HttpOperationResponse<IDictionary<string, IDictionary<string, string>>>> FindByKeysWithHttpMessagesAsync(string category, string collection, IList<string> keys = default(IList<string>), string keyword = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
+        Task<HttpOperationResponse<IDictionary<string, string>>> FindByKeysWithHttpMessagesAsync(string category, string collection, IList<string> keys = default(IList<string>), string keyword = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

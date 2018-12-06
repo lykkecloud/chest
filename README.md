@@ -1,7 +1,7 @@
 # Chest #
 
 Lykke Web API to store and retrieve key value data.
-It stores any key value pairs against a unique key. The key is composed of three parts and is case in-sensitive
+It stores any string value against a unique key. The key is composed of three parts and is case in-sensitive
 
 1. Category
 2. Collection
@@ -174,50 +174,50 @@ http://localhost:5011/swagger/ui/
 
 1. Add new metadata
 
-POST /api/{category}/{collection}/{key}
+POST /api/v2/{category}/{collection}/{key}
 
 Content-Type: application/json
 
 Body:
 
-{"data": {["key_name": "value"]}, "keywords": ["keyword"]}
+{"data": "data_value", "keywords": "keywords_value"}
 
 2. Update existing metadata
 
-PUT /api/{category}/{collection}/{key}
+PUT /api/v2/{category}/{collection}/{key}
 
 Content-Type: application/json
 
 Body:
 
-{"data": {["key_name": "value"]}, "keywords": ["keyword"]}
+{"data": "data_value", "keywords": "keywords_value"}
 
 3. Delete metadata
 
-DELETE /api/{category}/{collection}/{key}
+DELETE /api/v2/{category}/{collection}/{key}
 
 4. Get metadata
 
-GET /api/{category}/{collection}/{key}
+GET /api/v2/{category}/{collection}/{key}
 
 Response:
 
-{"data": {["key_name": "value"]}, "keywords": ["keyword"]}
+{"data": "data_value", "keywords": "keywords_value"}
 
 4. Get all key value pairs in a collection
 
-GET /api/{category}/{collection}?keyword={searchKeyword}
+GET /api/v2/{category}/{collection}?keyword={searchKeyword}
 
 Response:
 
 [
-  "key1": {["key_name": "value"]},
-  "key2": {["key_name": "value"]}
+  "key1": "key1_value",
+  "key2": "key2_value"
 ]
 
 5. Get all collections in a category
 
-GET /api/{category}
+GET /api/v2/{category}
 
 Response:
 
@@ -225,7 +225,7 @@ Response:
 
 6. Get all categories in the system
 
-GET /api
+GET /api/v2
 
 Response:
 
