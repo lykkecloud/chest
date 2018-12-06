@@ -126,6 +126,42 @@ namespace Chest.Services
             }
         }
 
+        /// <inheritdoc />
+        public async Task BulkAdd(string category, string collection, Dictionary<string, (Dictionary<string, string> metadata, List<string> keywords)> data)
+        {
+            try
+            {
+                foreach (var kvp in data)
+                {
+                    var serializedData = JsonConvert.SerializeObject(kvp.Value.metadata);
+                    var serializedKeywords = kvp.Value.keywords == null ? null : JsonConvert.SerializeObject(kvp.Value.keywords);
+
+                    await this.context.AddAsync(new KeyValueData
+                    {
+                        Category = category.ToUpperInvariant(),
+                        Collection = collection.ToUpperInvariant(),
+                        Key = kvp.Key.ToUpperInvariant(),
+                        DisplayCategory = category,
+                        DisplayCollection = collection,
+                        DisplayKey = kvp.Key,
+                        MetaData = serializedData,
+                        Keywords = serializedKeywords,
+                    });
+                }
+
+                await this.context.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbException)
+            {
+                if (dbException.InnerException is SqlException e && this.sqlDuplicateKeyErrorCodes.Contains(e.Number))
+                {
+                    throw new DuplicateKeyException($"Some of the keys already exist in Category: '{category}' Collection: '{collection}'", dbException);
+                }
+
+                throw;
+            }
+        }
+
         /// <summary>
         /// Updates key value pair data against a given category, collection and key
         /// </summary>
@@ -200,6 +236,17 @@ namespace Chest.Services
             await this.context.SaveChangesAsync();
         }
 
+        /// <inheritdoc />
+        public async Task BulkDelete(string category, string collection, IEnumerable<string> keys)
+        {
+            foreach (var elem in await this.GetKeyValueDataByKeys(category, collection, keys).ToArrayAsync())
+            {
+                this.context.KeyValues.Remove(elem);
+            }
+
+            await this.context.SaveChangesAsync();
+        }
+
         /// <summary>
         /// Gets all distinct categories in the system
         /// </summary>
@@ -247,13 +294,12 @@ namespace Chest.Services
         }
 
         /// <inheritdoc />
-        public Task<Dictionary<string, (Dictionary<string, string>, List<string>)>> GetMetadataByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)
+        public Task<Dictionary<string, Dictionary<string, string>>> FindByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)
         {
             return this.GetKeyValueDataByKeys(category, collection, keys, keyword)
                 .ToDictionaryAsync(
                     k => k.DisplayKey,
-                    k => (JsonConvert.DeserializeObject<Dictionary<string, string>>(k.MetaData),
-                          k.Keywords == null ? null : JsonConvert.DeserializeObject<List<string>>(k.Keywords)));
+                    k => JsonConvert.DeserializeObject<Dictionary<string, string>>(k.MetaData));
         }
 
         private IQueryable<KeyValueData> GetKeyValueDataByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)

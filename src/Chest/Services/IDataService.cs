@@ -42,6 +42,16 @@ namespace Chest.Services
         Task Add(string category, string collection, string key, Dictionary<string, string> data, List<string> keywords);
 
         /// <summary>
+        /// Stores a set of key value pair datas against a given category and collection
+        /// </summary>
+        /// <param name="category">The category</param>
+        /// <param name="collection">The collection</param>
+        /// <param name="data">The set of keys and associated metadata and keywords to store</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
+        /// <exception cref="Exceptions.DuplicateKeyException"> if one or more of the keys already exist in the collection</exception>
+        Task BulkAdd(string category, string collection, Dictionary<string, (Dictionary<string, string> metadata, List<string> keywords)> data);
+
+        /// <summary>
         /// Updates key value pair data against a given category, collection and key
         /// </summary>
         /// <param name="category">The category</param>
@@ -73,6 +83,15 @@ namespace Chest.Services
         Task Delete(string category, string collection, string key);
 
         /// <summary>
+        /// Deletes a set of records by category, collection, and keys
+        /// </summary>
+        /// <param name="category">The category</param>
+        /// <param name="collection">The collection</param>
+        /// <param name="keys">The keys</param>
+        /// <returns>A <see cref="Task"/> representing the operation</returns>
+        Task BulkDelete(string category, string collection, IEnumerable<string> keys);
+
+        /// <summary>
         /// Gets all distinct categories in the system
         /// </summary>
         /// <returns>A <see cref="List{T}"/> of unique categories in the system</returns>
@@ -101,8 +120,7 @@ namespace Chest.Services
         /// <param name="collection">The collection to search in</param>
         /// <param name="keys">The set of keys to search for</param>
         /// <param name="keyword">An optional keyword to narrow down the search</param>
-        /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and metadata and keywords</returns>
-        Task<Dictionary<string, (Dictionary<string, string> metadata, List<string> keywords)>> GetMetadataByKeys(
-            string category, string collection, IEnumerable<string> keys, string keyword = null);
+        /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and metadata</returns>
+        Task<Dictionary<string, Dictionary<string, string>>> FindByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null);
     }
 }
