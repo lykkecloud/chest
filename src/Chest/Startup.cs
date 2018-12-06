@@ -3,8 +3,10 @@
 
 namespace Chest
 {
+    using CacheManager.Core;
     using Chest.Data;
     using Chest.Services;
+    using EFSecondLevelCache.Core;
     using Lykke.Common.ApiLibrary.Swagger;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
@@ -30,11 +32,13 @@ namespace Chest
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(this.configuration.GetConnectionString("Chest")));
+            services.AddDbContext<ApplicationDbContext>(options => options
+                .UseSqlServer(this.configuration.GetConnectionString("Chest")));
 
             services
                 .AddMvcCore()
                 .AddApiExplorer()
+                .AddDataAnnotations()
                 .AddJsonFormatters()
                 .AddJsonOptions(
                     options =>
@@ -42,8 +46,16 @@ namespace Chest
                         options.SerializerSettings.ContractResolver = new DefaultContractResolver { NamingStrategy = new SnakeCaseNamingStrategy() };
                         options.SerializerSettings.Converters.Add(new StringEnumConverter());
                         options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                    })
-                .AddDataAnnotations();
+                    });
+
+            var cacheManagerConfiguration = new CacheManager.Core.ConfigurationBuilder()
+                .WithJsonSerializer()
+                .WithMicrosoftMemoryCacheHandle()
+                .Build();
+
+            services.AddEFSecondLevelCache();
+            services.AddSingleton(typeof(ICacheManager<>), typeof(BaseCacheManager<>));
+            services.AddSingleton(typeof(ICacheManagerConfiguration), cacheManagerConfiguration);
 
             services.AddSwaggerGen(options =>
             {
@@ -80,6 +92,8 @@ namespace Chest
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
+            app.UseEFSecondLevelCache();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
