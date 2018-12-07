@@ -31,7 +31,7 @@ namespace Chest.Client
             var model = new MetadataModel
             {
                 Data = JsonConvert.SerializeObject(instance.ToMetadataDictionary()),
-                Keywords = JsonConvert.SerializeObject(keywords),
+                Keywords = keywords == null ? null : JsonConvert.SerializeObject(keywords),
             };
 
             await operations.AddAsync(category, collection, key, model, cancellationToken).ConfigureAwait(false);
@@ -53,7 +53,7 @@ namespace Chest.Client
             var serializedDict = data.ToDictionary(x => x.Key, x => new MetadataModel
             {
                 Data = JsonConvert.SerializeObject(x.Value.instance.ToMetadataDictionary()),
-                Keywords = JsonConvert.SerializeObject(x.Value.keywords),
+                Keywords = x.Value.keywords == null ? null : JsonConvert.SerializeObject(x.Value.keywords),
             });
 
             await operations.BulkAddAsync(category, collection, serializedDict, cancellationToken).ConfigureAwait(false);
@@ -77,7 +77,7 @@ namespace Chest.Client
             var model = new MetadataModel
             {
                 Data = JsonConvert.SerializeObject(instance.ToMetadataDictionary()),
-                Keywords = JsonConvert.SerializeObject(keywords),
+                Keywords = keywords == null ? null : JsonConvert.SerializeObject(keywords),
             };
 
             await operations.UpdateAsync(category, collection, key, model, cancellationToken).ConfigureAwait(false);
@@ -99,7 +99,7 @@ namespace Chest.Client
             await operations.BulkUpdateAsync(category, collection, data.ToDictionary(x => x.Key, x => new MetadataModel
             {
                 Data = JsonConvert.SerializeObject(x.Value.metadata.ToMetadataDictionary()),
-                Keywords = JsonConvert.SerializeObject(x.Value.keywords)
+                Keywords = x.Value.keywords == null ? null : JsonConvert.SerializeObject(x.Value.keywords)
             }));
         }
 

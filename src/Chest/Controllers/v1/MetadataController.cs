@@ -45,7 +45,7 @@ namespace Chest.Controllers.v1
             try
             {
                 var serializedData = JsonConvert.SerializeObject(model.Data);
-                var serializedKeywords = JsonConvert.SerializeObject(model.Keywords);
+                var serializedKeywords = model.Keywords == null ? null : JsonConvert.SerializeObject(model.Keywords);
                 await this.service.Add(category, collection, key, serializedData, serializedKeywords);
             }
             catch (DuplicateKeyException)
@@ -71,7 +71,7 @@ namespace Chest.Controllers.v1
             try
             {
                 var serializedData = JsonConvert.SerializeObject(model.Data);
-                var serializedKeywords = JsonConvert.SerializeObject(model.Keywords);
+                var serializedKeywords = model.Keywords == null ? null : JsonConvert.SerializeObject(model.Keywords);
                 await this.service.Update(category, collection, key, serializedData, serializedKeywords);
             }
             catch (NotFoundException)
@@ -131,7 +131,7 @@ namespace Chest.Controllers.v1
                 return this.NotFound(new { Message = $"No record found for Category: {category} Collection: {collection} filtered by Keyword: {keyword}" });
             }
 
-            return this.Ok(keyValueData);
+            return this.Ok(keyValueData.ToDictionary(x => x.Key, x => JsonConvert.DeserializeObject<IDictionary<string, string>>(x.Value)));
         }
 
         [HttpGet("{category}/{collection}/{key}")]

@@ -142,6 +142,7 @@ namespace Chest.Services
                 }
 
                 await this.context.SaveChangesAsync();
+                this.cacheProvider.ClearAllCachedEntries();
             }
             catch (DbUpdateException dbException)
             {
@@ -202,6 +203,7 @@ namespace Chest.Services
             }
 
             await this.context.SaveChangesAsync();
+            this.cacheProvider.ClearAllCachedEntries();
         }
 
         /// <summary>
@@ -234,6 +236,7 @@ namespace Chest.Services
             }
 
             await this.context.SaveChangesAsync();
+            this.cacheProvider.ClearAllCachedEntries();
         }
 
         /// <summary>
