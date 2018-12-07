@@ -257,3 +257,11 @@ Steps to successfully run it:
 There are a lot of other migration tools available out there, including the possibility to simply extract the data to a .csv file and import it on your new MS Sql database using the Import Wizard.
 
 Feel free to choose the one that best suits your needs.
+
+### How to run integration tests
+
+* Stop `Chest` service
+* Remove `Chest` connection string from user secrets
+* Create an empty new database in sql server (probaly in your local dev machine's SQL Server)
+* Correct `Chest` connection string in the `testsettings.json`
+* Run the integration test

@@ -1,4 +1,6 @@
 ﻿{
   "serviceUrl": "http://localhost:5011",
-  "postgresPassword": "postgres"
+  "ConnectionStrings": {
+    "Chest": "Server=.\\SQLEXPRESS2012;Initial Catalog=ChestTest;User ID=username;Password=password;"
+  }
 }
