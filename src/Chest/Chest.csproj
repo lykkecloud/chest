@@ -60,10 +60,6 @@
     <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.1.2" />
     <PackageReference Include="CacheManager.Serialization.Json" Version="1.1.2" />
   </ItemGroup>
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.3" />
-    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
-  </ItemGroup>
 
   <ItemGroup>
     <AdditionalFiles Include="../stylecop.json" />
