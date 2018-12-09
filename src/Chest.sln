@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Chest.ruleset = Chest.ruleset
 		NuGet.config = NuGet.config
 		..\README.md = ..\README.md
+		..\CHANGELOG.md = ..\CHANGELOG.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chest", "Chest\Chest.csproj", "{85F0DBFC-0836-4A29-9DC8-4F49A08BA815}"
