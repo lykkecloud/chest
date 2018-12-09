@@ -197,7 +197,7 @@ namespace Chest.Services
                 x => x.Key,
                 x => x);
 
-            var missingKeys = data.Keys.Except(keyValueData.Keys);
+            var missingKeys = data.Keys.Select(k => k.ToUpperInvariant()).Except(keyValueData.Keys);
 
             if (missingKeys.Any())
             {
@@ -206,7 +206,7 @@ namespace Chest.Services
 
             foreach (var kvp in data)
             {
-                var keyValue = keyValueData[kvp.Key];
+                var keyValue = keyValueData[kvp.Key.ToUpperInvariant()];
 
                 keyValue.MetaData = JsonConvert.SerializeObject(kvp.Value.metadata);
                 keyValue.Keywords = kvp.Value.keywords == null ? null : JsonConvert.SerializeObject(kvp.Value.keywords);
