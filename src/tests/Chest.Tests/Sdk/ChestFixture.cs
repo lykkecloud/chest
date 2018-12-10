@@ -20,7 +20,9 @@ namespace Chest.Tests.Sdk
 
     public sealed class ChestFixture : IDisposable
     {
-        private const string ConnectionString = "Host=localhost;Database=Chest;Username=postgres;Password=postgres;";
+        private readonly string ConnectionString;
+
+        private readonly string PostgresPassword;
 
         private static readonly string DockerContainerId = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture).Substring(12);
 
@@ -32,6 +34,9 @@ namespace Chest.Tests.Sdk
             var config = new ConfigurationBuilder().AddJsonFile("testsettings.json").Build();
 
             this.ServiceUrl = new Uri(config.GetValue<string>("serviceUrl"));
+
+            PostgresPassword = config.GetValue<string>("PostgresPassword");
+            ConnectionString = $"Host=localhost;Database=Chest;Username=postgres;Password={PostgresPassword};";
 
             this.postgresProcess = this.StartPostgres();
             this.chestProcess = this.StartChest();
@@ -82,7 +87,7 @@ namespace Chest.Tests.Sdk
         private Process StartPostgres()
         {
             var process = Process.Start(
-                new ProcessStartInfo("docker", $"run --rm --name {DockerContainerId} -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=Chest -p 5432:5432 postgres:10.1-alpine")
+                new ProcessStartInfo("docker", $"run --rm --name {DockerContainerId} -e POSTGRES_PASSWORD={PostgresPassword} -e POSTGRES_DB=Chest -p 5432:5432 postgres:10.1-alpine")
                 {
                     UseShellExecute = true,
                 });

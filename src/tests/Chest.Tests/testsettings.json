@@ -1,3 +1,4 @@
 ﻿{
-  "serviceUrl": "http://localhost:5011"
+  "serviceUrl": "http://localhost:5011",
+  "postgresPassword": "postgres"
 }

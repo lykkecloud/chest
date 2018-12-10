@@ -52,6 +52,7 @@ namespace Chest
             Console.Title = $"{title} [{version}]";
 
             configuration.ValidateEnvironmentSecrets(Log.Logger);
+            configuration.ValidateConnectionString("Chest");
 
             try
             {

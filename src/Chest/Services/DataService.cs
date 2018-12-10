@@ -3,6 +3,7 @@
 
 namespace Chest.Services
 {
+    using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
     using System.Linq;
@@ -125,6 +126,42 @@ namespace Chest.Services
             }
         }
 
+        /// <inheritdoc />
+        public async Task BulkAdd(string category, string collection, Dictionary<string, (Dictionary<string, string> metadata, List<string> keywords)> data)
+        {
+            try
+            {
+                foreach (var kvp in data)
+                {
+                    var serializedData = JsonConvert.SerializeObject(kvp.Value.metadata);
+                    var serializedKeywords = kvp.Value.keywords == null ? null : JsonConvert.SerializeObject(kvp.Value.keywords);
+
+                    await this.context.AddAsync(new KeyValueData
+                    {
+                        Category = category.ToUpperInvariant(),
+                        Collection = collection.ToUpperInvariant(),
+                        Key = kvp.Key.ToUpperInvariant(),
+                        DisplayCategory = category,
+                        DisplayCollection = collection,
+                        DisplayKey = kvp.Key,
+                        MetaData = serializedData,
+                        Keywords = serializedKeywords,
+                    });
+                }
+
+                await this.context.SaveChangesAsync();
+            }
+            catch (DbUpdateException dbException)
+            {
+                if (dbException.InnerException is SqlException e && this.sqlDuplicateKeyErrorCodes.Contains(e.Number))
+                {
+                    throw new DuplicateKeyException($"Some of the keys already exist in Category: '{category}' Collection: '{collection}'", dbException);
+                }
+
+                throw;
+            }
+        }
+
         /// <summary>
         /// Updates key value pair data against a given category, collection and key
         /// </summary>
@@ -153,6 +190,31 @@ namespace Chest.Services
             await this.context.SaveChangesAsync();
         }
 
+        /// <inheritdoc />
+        public async Task BulkUpdate(string category, string collection, Dictionary<string, (Dictionary<string, string> metadata, List<string> keywords)> data)
+        {
+            var keyValueData = await this.GetKeyValueDataByKeys(category, collection, data.Keys).ToDictionaryAsync(
+                x => x.Key,
+                x => x);
+
+            var missingKeys = data.Keys.Select(k => k.ToUpperInvariant()).Except(keyValueData.Keys);
+
+            if (missingKeys.Any())
+            {
+                throw new NotFoundException($"The following keys were not found in category '{category}' and collection '{collection}': {string.Join(", ", missingKeys)}");
+            }
+
+            foreach (var kvp in data)
+            {
+                var keyValue = keyValueData[kvp.Key.ToUpperInvariant()];
+
+                keyValue.MetaData = JsonConvert.SerializeObject(kvp.Value.metadata);
+                keyValue.Keywords = kvp.Value.keywords == null ? null : JsonConvert.SerializeObject(kvp.Value.keywords);
+            }
+
+            await this.context.SaveChangesAsync();
+        }
+
         /// <summary>
         /// Deletes a record by category, collection, and key
         /// </summary>
@@ -170,6 +232,17 @@ namespace Chest.Services
             }
 
             this.context.KeyValues.Remove(existing);
+
+            await this.context.SaveChangesAsync();
+        }
+
+        /// <inheritdoc />
+        public async Task BulkDelete(string category, string collection, IEnumerable<string> keys)
+        {
+            foreach (var elem in await this.GetKeyValueDataByKeys(category, collection, keys).ToArrayAsync())
+            {
+                this.context.KeyValues.Remove(elem);
+            }
 
             await this.context.SaveChangesAsync();
         }
@@ -218,6 +291,24 @@ namespace Chest.Services
                 .ToDictionaryAsync(
                     k => k.DisplayKey,
                     k => JsonConvert.DeserializeObject<Dictionary<string, string>>(k.MetaData));
+        }
+
+        /// <inheritdoc />
+        public Task<Dictionary<string, Dictionary<string, string>>> FindByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)
+        {
+            return this.GetKeyValueDataByKeys(category, collection, keys, keyword)
+                .ToDictionaryAsync(
+                    k => k.DisplayKey,
+                    k => JsonConvert.DeserializeObject<Dictionary<string, string>>(k.MetaData));
+        }
+
+        private IQueryable<KeyValueData> GetKeyValueDataByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)
+        {
+            return this.context
+                .KeyValues
+                .Where(k => k.Category == category.ToUpperInvariant() && k.Collection == collection.ToUpperInvariant())
+                .Where(k => keys.Contains(k.Key))
+                .Where(k => string.IsNullOrWhiteSpace(keyword) || (k.Keywords != null && k.Keywords.ToUpperInvariant().Contains(keyword.ToUpperInvariant())));
         }
     }
 }
