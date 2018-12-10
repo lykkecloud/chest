@@ -8,7 +8,10 @@
 
 ### Configuration changes:
 
-Update serilogs configuration. Exaple settings json configuration
+- Recommended to change timeout for SQL connection from default 30s value to at least 300s to avoid timeout problems during reports creation. 
+Property in connection string: Connection Timeout=300;
+
+- Update serilogs configuration. Exaple settings json configuration
 
 ```json 
 {  
