@@ -1,6 +1,6 @@
 ﻿{
   "serviceUrl": "http://localhost:5011",
   "ConnectionStrings": {
-    "Chest": "Server=.\\SQLEXPRESS2012;Initial Catalog=ChestTest;User ID=username;Password=password;"
+    "Chest": "Server=tcp:localhost,1433;Initial Catalog=ChestTest;User ID=sa;Password=53n8@P@55w0rd1234;MultipleActiveResultSets=true;TrustServerCertificate=True;Connection Timeout=30;"
   }
 }
