@@ -48,10 +48,6 @@ namespace Chest.Tests.Sdk
             }
 
             this.chestProcess.Dispose();
-
-            // NOTE (Cameron): Remove the docker container.
-            Process.Start(new ProcessStartInfo("docker", $"stop {DockerContainerId}"))
-                .WaitForExit(10000);
         }
 
         private static JsonSerializerSettings GetJsonSerializerSettings()
@@ -76,7 +72,7 @@ namespace Chest.Tests.Sdk
                 Path.DirectorySeparatorChar);
 
             Process.Start(
-                new ProcessStartInfo("dotnet", $"run -p {path} --connectionString \"{connectionString}\"")
+                new ProcessStartInfo("dotnet", $"run -p {path} --connectionStrings:chest \"{connectionString}\"")
                 {
                     UseShellExecute = true,
                 });
@@ -91,7 +87,7 @@ namespace Chest.Tests.Sdk
                     try
                     {
                         var response = client.Root.GetStatusAsync().GetAwaiter().GetResult();
-                        processId = response.ProcessId.Value;
+                        processId = response.ProcessId;
                         break;
                     }
                     catch (HttpRequestException)
