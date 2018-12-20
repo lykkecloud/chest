@@ -1,3 +1,8 @@
+## 2.8.1 (December 20, 2018)
+
+* BUGS-188: Implementing second level cache for EF
+* LT-620 fixed integration tests to run on SQL server database
+
 ## 2.8.0 (December 10, 2018)
 
 * LT-466: Moved postgres password to test settings for chest fixture
