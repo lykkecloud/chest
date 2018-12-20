@@ -10,6 +10,8 @@ namespace Chest.Services
     using System.Threading.Tasks;
     using Chest.Data;
     using Chest.Exceptions;
+    using EFSecondLevelCache.Core;
+    using EFSecondLevelCache.Core.Contracts;
     using Microsoft.EntityFrameworkCore;
     using Newtonsoft.Json;
 
@@ -22,13 +24,17 @@ namespace Chest.Services
 
         private readonly ApplicationDbContext context;
 
+        private readonly IEFCacheServiceProvider cacheProvider;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DataService"/> class.
         /// </summary>
         /// <param name="context">An instance of <see cref="ApplicationDbContext"/> to communicate with underlying database</param>
-        public DataService(ApplicationDbContext context)
+        /// <param name="cacheProvider">An instance of <see cref="IEFCacheServiceProvider"/> to control EfCore 2nd level cache</param>
+        public DataService(ApplicationDbContext context, IEFCacheServiceProvider cacheProvider)
         {
             this.context = context;
+            this.cacheProvider = cacheProvider;
         }
 
         /// <summary>
@@ -72,6 +78,7 @@ namespace Chest.Services
                 });
 
                 await this.context.SaveChangesAsync();
+                this.cacheProvider.ClearAllCachedEntries();
             }
             catch (DbUpdateException dbException)
             {
@@ -114,6 +121,7 @@ namespace Chest.Services
                 });
 
                 await this.context.SaveChangesAsync();
+                this.cacheProvider.ClearAllCachedEntries();
             }
             catch (DbUpdateException dbException)
             {
@@ -150,6 +158,7 @@ namespace Chest.Services
                 }
 
                 await this.context.SaveChangesAsync();
+                this.cacheProvider.ClearAllCachedEntries();
             }
             catch (DbUpdateException dbException)
             {
@@ -188,6 +197,7 @@ namespace Chest.Services
             existing.Keywords = serializedKeywords;
 
             await this.context.SaveChangesAsync();
+            this.cacheProvider.ClearAllCachedEntries();
         }
 
         /// <inheritdoc />
@@ -213,6 +223,7 @@ namespace Chest.Services
             }
 
             await this.context.SaveChangesAsync();
+            this.cacheProvider.ClearAllCachedEntries();
         }
 
         /// <summary>
@@ -234,6 +245,7 @@ namespace Chest.Services
             this.context.KeyValues.Remove(existing);
 
             await this.context.SaveChangesAsync();
+            this.cacheProvider.ClearAllCachedEntries();
         }
 
         /// <inheritdoc />
@@ -245,6 +257,7 @@ namespace Chest.Services
             }
 
             await this.context.SaveChangesAsync();
+            this.cacheProvider.ClearAllCachedEntries();
         }
 
         /// <summary>
@@ -257,6 +270,7 @@ namespace Chest.Services
                 .KeyValues
                 .Select(k => k.DisplayCategory)
                 .Distinct()
+                .Cacheable()
                 .ToListAsync();
         }
 
@@ -272,6 +286,7 @@ namespace Chest.Services
                 .Where(k => k.Category == category.ToUpperInvariant())
                 .Select(k => k.DisplayCollection)
                 .Distinct()
+                .Cacheable()
                 .ToListAsync();
         }
 
@@ -287,6 +302,7 @@ namespace Chest.Services
             return this.context
                 .KeyValues
                 .Where(k => k.Category == category.ToUpperInvariant() && k.Collection == collection.ToUpperInvariant())
+                .Cacheable()
                 .Where(k => string.IsNullOrWhiteSpace(keyword) || (k.Keywords != null && k.Keywords.ToUpperInvariant().Contains(keyword.ToUpperInvariant())))
                 .ToDictionaryAsync(
                     k => k.DisplayKey,
@@ -307,6 +323,7 @@ namespace Chest.Services
             return this.context
                 .KeyValues
                 .Where(k => k.Category == category.ToUpperInvariant() && k.Collection == collection.ToUpperInvariant())
+                .Cacheable()
                 .Where(k => keys.Contains(k.Key))
                 .Where(k => string.IsNullOrWhiteSpace(keyword) || (k.Keywords != null && k.Keywords.ToUpperInvariant().Contains(keyword.ToUpperInvariant())));
         }
