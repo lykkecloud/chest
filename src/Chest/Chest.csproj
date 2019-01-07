@@ -14,7 +14,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>2.8.0</Version>
+    <Version>2.8.1</Version>
     <Authors>Chest Contributors</Authors>
     <Company>Lykke</Company>
     <Copyright>Copyright (c) Chest Contributors. All rights reserved.</Copyright>
@@ -54,10 +54,10 @@
     <PackageReference Include="Serilog.Sinks.File" Version="4.0.0" />
     <PackageReference Include="StyleCop.Analyzers" Version="1.0.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="2.4.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.3" />
-    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.0.0" />
+    <PackageReference Include="EFSecondLevelCache.Core" Version="1.6.3" />
+    <PackageReference Include="CacheManager.Core" Version="1.1.2" />
+    <PackageReference Include="CacheManager.Microsoft.Extensions.Caching.Memory" Version="1.1.2" />
+    <PackageReference Include="CacheManager.Serialization.Json" Version="1.1.2" />
   </ItemGroup>
 
   <ItemGroup>
