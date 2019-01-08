@@ -15,6 +15,9 @@ namespace Chest.Client.AutorestClient
     using System.Net;
     using System.Net.Http;
 
+    /// <summary>
+    /// Chest API
+    /// </summary>
     public partial class ChestClient : ServiceClient<ChestClient>, IChestClient
     {
         /// <summary>

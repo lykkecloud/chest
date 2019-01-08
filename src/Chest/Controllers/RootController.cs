@@ -11,6 +11,8 @@ namespace Ironclad.WebApi
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.SwaggerGen;
 
+    [ApiVersion("1")]
+    [ApiVersion("2")]
     [Route("status")]
     public class RootController : Controller
     {

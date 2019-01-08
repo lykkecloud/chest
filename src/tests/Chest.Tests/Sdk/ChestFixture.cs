@@ -87,7 +87,7 @@ namespace Chest.Tests.Sdk
                     try
                     {
                         var response = client.Root.GetStatusAsync().GetAwaiter().GetResult();
-                        processId = response.ProcessId;
+                        processId = response.ProcessId.Value;
                         break;
                     }
                     catch (HttpRequestException)

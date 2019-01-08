@@ -1,3 +1,7 @@
+## Unreleased
+
+* LT-665: Moving (de)serialization to client to improve performance
+
 ## 2.8.1 (December 20, 2018)
 
 * BUGS-188: Implementing second level cache for EF
