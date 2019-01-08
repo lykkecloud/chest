@@ -68,7 +68,7 @@ namespace Chest.Tests.Sdk
         {
             var path = string.Format(
                 CultureInfo.InvariantCulture,
-                "..{0}..{0}..{0}..{0}..{0}Chest{0}Chest.csproj",
+                "..{0}..{0}..{0}..{0}Chest{0}Chest.csproj",
                 Path.DirectorySeparatorChar);
 
             Process.Start(

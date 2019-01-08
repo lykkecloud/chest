@@ -7,4 +7,4 @@
 # Autorest version >= 1.2.2 - https://www.npmjs.com/package/autorest
 
 # Run this file if your use Execute as Script command of Visual Studio's PowerShell Tools extension
-autorest --input-file=http://localhost:5011/swagger/v1/swagger.json --csharp --output-folder=./client/Chest.Client/AutorestClient --namespace=Chest.Client.AutorestClient --override-client-name=ChestClient --sync-methods=none
+autorest --input-file=http://localhost:5011/swagger/v1/swagger.json --csharp --output-folder=./Chest.Client/AutorestClient --namespace=Chest.Client.AutorestClient --override-client-name=ChestClient --sync-methods=none
