@@ -104,7 +104,7 @@ namespace Chest.Client.AutorestClient
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
-            public static async Task<IDictionary<string, IDictionary<string, string>>> GetKeysWithDataAsync(this IMetadata operations, string category, string collection, string keyword = default(string), CancellationToken cancellationToken = default(CancellationToken))
+            public static async Task<IDictionary<string, string>> GetKeysWithDataAsync(this IMetadata operations, string category, string collection, string keyword = default(string), CancellationToken cancellationToken = default(CancellationToken))
             {
                 using (var _result = await operations.GetKeysWithDataWithHttpMessagesAsync(category, collection, keyword, null, cancellationToken).ConfigureAwait(false))
                 {
@@ -207,7 +207,7 @@ namespace Chest.Client.AutorestClient
             /// <param name='cancellationToken'>
             /// The cancellation token.
             /// </param>
-            public static async Task<IDictionary<string, IDictionary<string, string>>> FindByKeysAsync(this IMetadata operations, string category, string collection, IList<string> keys = default(IList<string>), string keyword = default(string), CancellationToken cancellationToken = default(CancellationToken))
+            public static async Task<IDictionary<string, string>> FindByKeysAsync(this IMetadata operations, string category, string collection, IList<string> keys = default(IList<string>), string keyword = default(string), CancellationToken cancellationToken = default(CancellationToken))
             {
                 using (var _result = await operations.FindByKeysWithHttpMessagesAsync(category, collection, keys, keyword, null, cancellationToken).ConfigureAwait(false))
                 {

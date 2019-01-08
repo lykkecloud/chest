@@ -54,7 +54,7 @@ namespace Chest.Client.AutorestClient.Models
         /// <summary>
         /// </summary>
         [JsonProperty(PropertyName = "process_id")]
-        public int ProcessId { get; set; }
+        public int? ProcessId { get; set; }
 
     }
 }

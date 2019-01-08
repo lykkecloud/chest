@@ -1,3 +1,7 @@
+## Unreleased
+
+* LT-665: Moving (de)serialization to client to improve performance
+
 ## 2.10.0 (February 5, 2019)
 
 * LT-834: Fixed BulkUpdate endpoint.

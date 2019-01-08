@@ -102,7 +102,7 @@ namespace Chest.Client.AutorestClient
             }
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
-            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/{category}/{collection}/{key}").ToString();
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/v2/{category}/{collection}/{key}").ToString();
             _url = _url.Replace("{category}", System.Uri.EscapeDataString(category));
             _url = _url.Replace("{collection}", System.Uri.EscapeDataString(collection));
             _url = _url.Replace("{key}", System.Uri.EscapeDataString(key));
@@ -233,6 +233,10 @@ namespace Chest.Client.AutorestClient
             {
                 throw new ValidationException(ValidationRules.CannotBeNull, "key");
             }
+            if (model != null)
+            {
+                model.Validate();
+            }
             // Tracing
             bool _shouldTrace = ServiceClientTracing.IsEnabled;
             string _invocationId = null;
@@ -249,7 +253,7 @@ namespace Chest.Client.AutorestClient
             }
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
-            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/{category}/{collection}/{key}").ToString();
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/v2/{category}/{collection}/{key}").ToString();
             _url = _url.Replace("{category}", System.Uri.EscapeDataString(category));
             _url = _url.Replace("{collection}", System.Uri.EscapeDataString(collection));
             _url = _url.Replace("{key}", System.Uri.EscapeDataString(key));
@@ -368,6 +372,10 @@ namespace Chest.Client.AutorestClient
             {
                 throw new ValidationException(ValidationRules.CannotBeNull, "key");
             }
+            if (model != null)
+            {
+                model.Validate();
+            }
             // Tracing
             bool _shouldTrace = ServiceClientTracing.IsEnabled;
             string _invocationId = null;
@@ -384,7 +392,7 @@ namespace Chest.Client.AutorestClient
             }
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
-            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/{category}/{collection}/{key}").ToString();
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/v2/{category}/{collection}/{key}").ToString();
             _url = _url.Replace("{category}", System.Uri.EscapeDataString(category));
             _url = _url.Replace("{collection}", System.Uri.EscapeDataString(collection));
             _url = _url.Replace("{key}", System.Uri.EscapeDataString(key));
@@ -516,7 +524,7 @@ namespace Chest.Client.AutorestClient
             }
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
-            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/{category}/{collection}/{key}").ToString();
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/v2/{category}/{collection}/{key}").ToString();
             _url = _url.Replace("{category}", System.Uri.EscapeDataString(category));
             _url = _url.Replace("{collection}", System.Uri.EscapeDataString(collection));
             _url = _url.Replace("{key}", System.Uri.EscapeDataString(key));
@@ -616,7 +624,7 @@ namespace Chest.Client.AutorestClient
         /// <return>
         /// A response object containing the response body and response headers.
         /// </return>
-        public async Task<HttpOperationResponse<IDictionary<string, IDictionary<string, string>>>> GetKeysWithDataWithHttpMessagesAsync(string category, string collection, string keyword = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<HttpOperationResponse<IDictionary<string, string>>> GetKeysWithDataWithHttpMessagesAsync(string category, string collection, string keyword = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (category == null)
             {
@@ -641,7 +649,7 @@ namespace Chest.Client.AutorestClient
             }
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
-            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/{category}/{collection}").ToString();
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/v2/{category}/{collection}").ToString();
             _url = _url.Replace("{category}", System.Uri.EscapeDataString(category));
             _url = _url.Replace("{collection}", System.Uri.EscapeDataString(collection));
             List<string> _queryParameters = new List<string>();
@@ -712,7 +720,7 @@ namespace Chest.Client.AutorestClient
                 throw ex;
             }
             // Create Result
-            var _result = new HttpOperationResponse<IDictionary<string, IDictionary<string, string>>>();
+            var _result = new HttpOperationResponse<IDictionary<string, string>>();
             _result.Request = _httpRequest;
             _result.Response = _httpResponse;
             // Deserialize Response
@@ -721,7 +729,7 @@ namespace Chest.Client.AutorestClient
                 _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
                 try
                 {
-                    _result.Body = Microsoft.Rest.Serialization.SafeJsonConvert.DeserializeObject<IDictionary<string, IDictionary<string, string>>>(_responseContent, Client.DeserializationSettings);
+                    _result.Body = Microsoft.Rest.Serialization.SafeJsonConvert.DeserializeObject<IDictionary<string, string>>(_responseContent, Client.DeserializationSettings);
                 }
                 catch (JsonException ex)
                 {
@@ -774,6 +782,16 @@ namespace Chest.Client.AutorestClient
             {
                 throw new ValidationException(ValidationRules.CannotBeNull, "collection");
             }
+            if (model != null)
+            {
+                foreach (var valueElement in model.Values)
+                {
+                    if (valueElement != null)
+                    {
+                        valueElement.Validate();
+                    }
+                }
+            }
             // Tracing
             bool _shouldTrace = ServiceClientTracing.IsEnabled;
             string _invocationId = null;
@@ -789,7 +807,7 @@ namespace Chest.Client.AutorestClient
             }
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
-            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/{category}/{collection}").ToString();
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/v2/{category}/{collection}").ToString();
             _url = _url.Replace("{category}", System.Uri.EscapeDataString(category));
             _url = _url.Replace("{collection}", System.Uri.EscapeDataString(collection));
             // Create HTTP transport objects
@@ -916,7 +934,7 @@ namespace Chest.Client.AutorestClient
             }
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
-            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/{category}/{collection}").ToString();
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/v2/{category}/{collection}").ToString();
             _url = _url.Replace("{category}", System.Uri.EscapeDataString(category));
             _url = _url.Replace("{collection}", System.Uri.EscapeDataString(collection));
             // Create HTTP transport objects
@@ -1043,7 +1061,7 @@ namespace Chest.Client.AutorestClient
             }
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
-            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/{category}/{collection}").ToString();
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/v2/{category}/{collection}").ToString();
             _url = _url.Replace("{category}", System.Uri.EscapeDataString(category));
             _url = _url.Replace("{collection}", System.Uri.EscapeDataString(collection));
             // Create HTTP transport objects
@@ -1150,7 +1168,7 @@ namespace Chest.Client.AutorestClient
             }
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
-            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api").ToString();
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/v2").ToString();
             // Create HTTP transport objects
             var _httpRequest = new HttpRequestMessage();
             HttpResponseMessage _httpResponse = null;
@@ -1280,7 +1298,7 @@ namespace Chest.Client.AutorestClient
             }
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
-            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/{category}").ToString();
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/v2/{category}").ToString();
             _url = _url.Replace("{category}", System.Uri.EscapeDataString(category));
             // Create HTTP transport objects
             var _httpRequest = new HttpRequestMessage();
@@ -1398,7 +1416,7 @@ namespace Chest.Client.AutorestClient
         /// <return>
         /// A response object containing the response body and response headers.
         /// </return>
-        public async Task<HttpOperationResponse<IDictionary<string, IDictionary<string, string>>>> FindByKeysWithHttpMessagesAsync(string category, string collection, IList<string> keys = default(IList<string>), string keyword = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<HttpOperationResponse<IDictionary<string, string>>> FindByKeysWithHttpMessagesAsync(string category, string collection, IList<string> keys = default(IList<string>), string keyword = default(string), Dictionary<string, List<string>> customHeaders = null, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (category == null)
             {
@@ -1424,7 +1442,7 @@ namespace Chest.Client.AutorestClient
             }
             // Construct URL
             var _baseUrl = Client.BaseUri.AbsoluteUri;
-            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/{category}/{collection}/find").ToString();
+            var _url = new System.Uri(new System.Uri(_baseUrl + (_baseUrl.EndsWith("/") ? "" : "/")), "api/v2/{category}/{collection}/find").ToString();
             _url = _url.Replace("{category}", System.Uri.EscapeDataString(category));
             _url = _url.Replace("{collection}", System.Uri.EscapeDataString(collection));
             List<string> _queryParameters = new List<string>();
@@ -1501,7 +1519,7 @@ namespace Chest.Client.AutorestClient
                 throw ex;
             }
             // Create Result
-            var _result = new HttpOperationResponse<IDictionary<string, IDictionary<string, string>>>();
+            var _result = new HttpOperationResponse<IDictionary<string, string>>();
             _result.Request = _httpRequest;
             _result.Response = _httpResponse;
             // Deserialize Response
@@ -1510,7 +1528,7 @@ namespace Chest.Client.AutorestClient
                 _responseContent = await _httpResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
                 try
                 {
-                    _result.Body = Microsoft.Rest.Serialization.SafeJsonConvert.DeserializeObject<IDictionary<string, IDictionary<string, string>>>(_responseContent, Client.DeserializationSettings);
+                    _result.Body = Microsoft.Rest.Serialization.SafeJsonConvert.DeserializeObject<IDictionary<string, string>>(_responseContent, Client.DeserializationSettings);
                 }
                 catch (JsonException ex)
                 {

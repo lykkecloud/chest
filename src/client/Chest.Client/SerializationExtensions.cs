@@ -117,5 +117,10 @@ namespace Chest.Client
 
             return t;
         }
+
+        public static T To<T>(this string metadataString)
+        {
+            return JsonConvert.DeserializeObject<T>(metadataString);
+        }
     }
 }
