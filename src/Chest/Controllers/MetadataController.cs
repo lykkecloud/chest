@@ -229,13 +229,13 @@ namespace Chest.Controllers
             var data = await this.service.FindByKeys(category, collection, keys, keyword);
 
             var missingKeys = keys.Where(x => !data.ContainsKey(x)).ToArray();
-
             if (missingKeys.Length > 0)
             {
                 return this.NotFound(new { Message = $"No data found for category: {category} collection: {collection} and keys: {string.Join(", ", missingKeys)}" });
             }
 
-            return this.Ok(data);
+            var deserializedData = data.Select(keyValue => new Dictionary<string, Dictionary<string, string>> { { keyValue.Key, JsonConvert.DeserializeObject<Dictionary<string, string>>(keyValue.Value) } });
+            return this.Ok(deserializedData);
         }
 
         [HttpGet("{category}/{collection}/{key}")]
