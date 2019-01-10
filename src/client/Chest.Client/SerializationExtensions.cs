@@ -5,6 +5,7 @@ namespace Chest.Client
 {
     using System;
     using System.Collections.Generic;
+    using System.ComponentModel;
     using System.Globalization;
     using System.Linq;
     using System.Reflection;
@@ -80,9 +81,23 @@ namespace Chest.Client
                     continue;
                 }
 
+                if (Nullable.GetUnderlyingType(property.PropertyType)?.IsEnum == true)
+                {
+                    property.SetValue(t, Enum.Parse(property.PropertyType.GetGenericArguments().First(), value));
+                    continue;
+                }
+
                 if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
                 {
                     property.SetValue(t, Convert.ChangeType(value, property.PropertyType.GetGenericArguments().First()));
+
+                    continue;
+                }
+
+                if (property.PropertyType == typeof(TimeSpan))
+                {
+                    var converter = TypeDescriptor.GetConverter(property.PropertyType);
+                    property.SetValue(t, converter.ConvertFrom(value));
 
                     continue;
                 }
