@@ -203,7 +203,7 @@ namespace Chest.Controllers
                 return this.NotFound(new { Message = $"No record found for Category: {category} Collection: {collection} filtered by Keyword: {keyword}" });
             }
 
-            var deserializedKeyValueData = keyValueData.Select(keyValue => new Dictionary<string, Dictionary<string, string>> { { keyValue.Key, JsonConvert.DeserializeObject<Dictionary<string, string>>(keyValue.Value) } });
+            var deserializedKeyValueData = keyValueData.ToDictionary(keyValue => keyValue.Key, keyValue => JsonConvert.DeserializeObject<Dictionary<string, string>>(keyValue.Value));
 
             return this.Ok(deserializedKeyValueData);
         }
@@ -234,7 +234,7 @@ namespace Chest.Controllers
                 return this.NotFound(new { Message = $"No data found for category: {category} collection: {collection} and keys: {string.Join(", ", missingKeys)}" });
             }
 
-            var deserializedData = data.Select(keyValue => new Dictionary<string, Dictionary<string, string>> { { keyValue.Key, JsonConvert.DeserializeObject<Dictionary<string, string>>(keyValue.Value) } });
+            var deserializedData = data.ToDictionary(keyValue => keyValue.Key, keyValue => JsonConvert.DeserializeObject<Dictionary<string, string>>(keyValue.Value));
             return this.Ok(deserializedData);
         }
 
