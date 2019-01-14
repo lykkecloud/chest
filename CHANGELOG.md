@@ -1,3 +1,7 @@
+## 2.9.0 (January 14, 2019)
+
+* LT-703 fixes for client serialization issues
+
 ## 2.8.1 (December 20, 2018)
 
 * BUGS-188: Implementing second level cache for EF

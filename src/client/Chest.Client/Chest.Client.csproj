@@ -2,12 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <Version>2.1.1</Version>
+    <Version>2.2.1</Version>
     <Description>Provides a client on Chest.
 The chest is a metadata service which saves and fetches data against three keys. Category, Collection and Key.
 It also provides endpoints to fetch list of all categories, collections and keys in the system.</Description>
-    <PackageReleaseNotes>Added keywords with each object of metadata.
-Added ability to search by keywords when getting data at collection level.</PackageReleaseNotes>
+    <PackageReleaseNotes>Fixed deserialization issues for nullable enum types</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
