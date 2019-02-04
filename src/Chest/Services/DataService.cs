@@ -220,9 +220,11 @@ namespace Chest.Services
 
                 keyValue.MetaData = JsonConvert.SerializeObject(kvp.Value.metadata);
                 keyValue.Keywords = kvp.Value.keywords == null ? null : JsonConvert.SerializeObject(kvp.Value.keywords);
+
+                this.context.Update(keyValue);
             }
 
-            await this.context.SaveChangesAsync();
+            var affectedRows = await this.context.SaveChangesAsync();
             this.cacheProvider.ClearAllCachedEntries();
         }
 
