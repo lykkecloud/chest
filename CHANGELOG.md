@@ -1,3 +1,7 @@
+## 2.10.0 (February 5, 2019)
+
+* LT-834: Fixed BulkUpdate endpoint.
+
 ## 2.9.0 (January 14, 2019)
 
 * LT-703 fixes for client serialization issues
