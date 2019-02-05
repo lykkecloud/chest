@@ -1,4 +1,4 @@
-## 2.10.0 (February 4, 2019)
+## 2.10.0 (February 5, 2019)
 
 * LT-834: Fixed BulkUpdate endpoint.
 
