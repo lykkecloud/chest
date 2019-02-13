@@ -4,8 +4,12 @@
 namespace Chest
 {
     using System;
+    using System.Collections.Generic;
     using System.Reflection;
     using System.Runtime.InteropServices;
+    using System.Threading.Tasks;
+    using Chest.Settings;
+    using Lykke.Snow.Common.Startup;
     using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
@@ -14,7 +18,13 @@ namespace Chest
 
     public static class Program
     {
-        public static int Main(string[] args)
+        private static readonly List<(string, string, string)> EnvironmentSecretConfig = new List<(string, string, string)>
+        {
+            /* secrets.json Key             // Environment Variable        // default value (optional) */
+            ("ConnectionStrings:Chest",     "CHEST_CONNECTIONSTRING",       null),
+        };
+
+        public static async Task<int> Main(string[] args)
         {
             AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
             {
@@ -26,11 +36,12 @@ namespace Chest
             // LINK (Cameron): https://github.com/aspnet/KestrelHttpServer/issues/1334
             var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var configuration = new ConfigurationBuilder()
+                .AddEnvironmentSecrets<Startup>(EnvironmentSecretConfig)
                 .AddJsonFile("appsettings.json")
                 .AddJsonFile($"appsettings.Custom.json", optional: true)
                 .AddJsonFile($"appsettings.{environmentName}.json", optional: true)
+                .AddEnvironmentVariables()
                 .AddCommandLine(args)
-                .AddEnvironmentSecrets(args)
                 .Build();
 
             // LINK (Cameron): https://mitchelsellers.com/blogs/2017/10/09/real-world-aspnet-core-logging-configuration
@@ -51,11 +62,12 @@ namespace Chest
 
             Console.Title = $"{title} [{version}]";
 
-            configuration.ValidateEnvironmentSecrets(Log.Logger);
-            configuration.ValidateConnectionString("Chest");
+            configuration.ValidateEnvironmentSecrets(EnvironmentSecretConfig, Log.Logger);
 
             try
             {
+                await configuration.ValidateSettings<AppSettings>();
+
                 Log.Information($"Starting {title} web API");
                 BuildWebHost(args, configuration).Run();
                 Log.Information($"{title} web API stopped");

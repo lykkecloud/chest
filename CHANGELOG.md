@@ -1,6 +1,11 @@
 ## Unreleased
 
 * LT-665: Moving (de)serialization to client to improve performance
+* LT-391: Enhancing documentation for service requirements, including more detailed descriptions
+
+### Configuration changes:
+
+  - Added ability to specify Secrets variables via `appSettings.json`
 
 ## 2.10.0 (February 5, 2019)
 
