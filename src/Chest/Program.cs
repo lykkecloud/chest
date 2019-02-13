@@ -44,19 +44,19 @@ namespace Chest
                 .AddCommandLine(args)
                 .Build();
 
-            // LINK (Cameron): https://mitchelsellers.com/blogs/2017/10/09/real-world-aspnet-core-logging-configuration
-            Log.Logger = new LoggerConfiguration()
-                .WriteTo.Async(a => a.Console())
-                .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-                .Enrich.FromLogContext()
-                .Enrich.WithMachineName()
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger();
-
             var assembly = typeof(Program).Assembly;
             var title = assembly.Attribute<AssemblyTitleAttribute>(attribute => attribute.Title);
             var version = assembly.Attribute<AssemblyInformationalVersionAttribute>(attribute => attribute.InformationalVersion);
             var copyright = assembly.Attribute<AssemblyCopyrightAttribute>(attribute => attribute.Copyright);
+
+            // LINK (Cameron): https://mitchelsellers.com/blogs/2017/10/09/real-world-aspnet-core-logging-configuration
+            Log.Logger = new LoggerConfiguration()
+                .ReadFrom.Configuration(configuration)
+                .Enrich.WithProperty("Application", title)
+                .Enrich.WithProperty("Version", version)
+                .Enrich.WithProperty("Environment", environmentName)
+                .CreateLogger();
+
             Log.Information($"{title} [{version}] {copyright}");
             Log.Information($"Running on: {RuntimeInformation.OSDescription}");
 
