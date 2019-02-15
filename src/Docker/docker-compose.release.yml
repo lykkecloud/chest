@@ -4,5 +4,5 @@ services:
 
   chest:
     build:
-      context: ../
-      dockerfile: Chest/Dockerfile
+      context: ../../
+      dockerfile: src/Chest/Dockerfile
