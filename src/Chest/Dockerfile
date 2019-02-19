@@ -3,8 +3,8 @@ WORKDIR /app
 EXPOSE 80
 
 FROM microsoft/dotnet:2.1.403-sdk AS build
-WORKDIR /src
 COPY . ./
+RUN cp NuGet.*onfig /usr/local/share/NuGet.Config 2>/dev/null || :
 WORKDIR /src/Chest
 RUN dotnet build -c Release -r linux-x64 -o /app
 
