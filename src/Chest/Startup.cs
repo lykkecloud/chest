@@ -6,8 +6,11 @@ namespace Chest
     using System.Linq;
     using CacheManager.Core;
     using Chest.Data;
+    using Chest.Mappers;
     using Chest.Services;
     using EFSecondLevelCache.Core;
+    using Lykke.Middlewares;
+    using Lykke.Middlewares.Mappers;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
@@ -46,7 +49,10 @@ namespace Chest
                         options.SerializerSettings.ContractResolver = new DefaultContractResolver { NamingStrategy = new SnakeCaseNamingStrategy() };
                         options.SerializerSettings.Converters.Add(new StringEnumConverter());
                         options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                    });
+                    });            
+
+            services.AddSingleton<IHttpStatusCodeMapper, HttpStatusCodeMapper>();
+            services.AddSingleton<ILogLevelMapper, DefaultLogLevelMapper>();
 
             var cacheManagerConfiguration = new CacheManager.Core.ConfigurationBuilder()
                 .WithJsonSerializer()
@@ -137,6 +143,9 @@ namespace Chest
             {
                 app.UseHsts();
             }
+            
+            app.UseMiddleware<LogHandlerMiddleware>();
+            app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             // app.UseCors("spa");
             app.UseMvcWithDefaultRoute();

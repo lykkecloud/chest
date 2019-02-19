@@ -22,6 +22,7 @@ namespace Chest.Controllers
     [Obsolete("MetadataController is obsolete, please use v2/MetadataController instead.")]
     [ApiVersion("1")]
     [Route("api")]
+    [ApiController]
     public class MetadataController : ControllerBase
     {
         private readonly IDataService service;
@@ -38,21 +39,9 @@ namespace Chest.Controllers
         [SwaggerResponse((int)HttpStatusCode.Conflict)]
         public async Task<IActionResult> Create(string category, string collection, string key, [FromBody]MetadataModel model)
         {
-            if (!this.ModelState.IsValid)
-            {
-                return this.BadRequest();
-            }
-
-            try
-            {
-                var serializedData = JsonConvert.SerializeObject(model.Data);
-                var serializedKeywords = model.Keywords == null ? string.Empty : JsonConvert.SerializeObject(model.Keywords);
-                await this.service.Add(category, collection, key, serializedData, serializedKeywords);
-            }
-            catch (DuplicateKeyException)
-            {
-                return this.StatusCode((int)HttpStatusCode.Conflict, new { Message = $"Data already exists for category: {category} collection: {collection} key: {key}" });
-            }
+            var serializedData = JsonConvert.SerializeObject(model.Data);
+            var serializedKeywords = model.Keywords == null ? string.Empty : JsonConvert.SerializeObject(model.Keywords);
+            await this.service.Add(category, collection, key, serializedData, serializedKeywords);
 
             return this.Created(this.Request.GetRelativeUrl($"api/{category}/{collection}/{key}"), model);
         }
@@ -64,25 +53,13 @@ namespace Chest.Controllers
         [SwaggerResponse((int)HttpStatusCode.Conflict)]
         public async Task<IActionResult> BulkCreate(string category, string collection, [FromBody]Dictionary<string, MetadataModel> model)
         {
-            if (!this.ModelState.IsValid)
+            var serializedModel = model.ToDictionary(x => x.Key, x =>
             {
-                return this.BadRequest();
-            }
-
-            try
-            {
-                var serializedModel = model.ToDictionary(x => x.Key, x =>
-                {
-                    var serializedData = JsonConvert.SerializeObject(x.Value.Data);
-                    var serializedKeywords = x.Value.Keywords == null ? string.Empty : JsonConvert.SerializeObject(x.Value.Keywords);
-                    return (serializedData, serializedKeywords);
-                });
-                await this.service.BulkAdd(category, collection, serializedModel);
-            }
-            catch (DuplicateKeyException e)
-            {
-                return this.StatusCode((int)HttpStatusCode.Conflict, new { e.Message });
-            }
+                var serializedData = JsonConvert.SerializeObject(x.Value.Data);
+                var serializedKeywords = x.Value.Keywords == null ? string.Empty : JsonConvert.SerializeObject(x.Value.Keywords);
+                return (serializedData, serializedKeywords);
+            });
+            await this.service.BulkAdd(category, collection, serializedModel);
 
             // Opted for 200 OK instead of 201 Created since you can't specify multiple items
             return this.Ok();
@@ -95,21 +72,9 @@ namespace Chest.Controllers
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Update(string category, string collection, string key, [FromBody]MetadataModel model)
         {
-            if (!this.ModelState.IsValid)
-            {
-                return this.BadRequest();
-            }
-
-            try
-            {
-                var serializedData = JsonConvert.SerializeObject(model.Data);
-                var serializedKeywords = model.Keywords == null ? string.Empty : JsonConvert.SerializeObject(model.Keywords);
-                await this.service.Update(category, collection, key, serializedData, serializedKeywords);
-            }
-            catch (NotFoundException)
-            {
-                return this.NotFound(new { Message = $"No record found against category: {category} collection: {collection} key: {key}" });
-            }
+            var serializedData = JsonConvert.SerializeObject(model.Data);
+            var serializedKeywords = model.Keywords == null ? string.Empty : JsonConvert.SerializeObject(model.Keywords);
+            await this.service.Update(category, collection, key, serializedData, serializedKeywords);
 
             return this.Ok(new { Message = "Update successfully" });
         }
@@ -121,25 +86,13 @@ namespace Chest.Controllers
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> BulkUpdate(string category, string collection, [FromBody, Required]Dictionary<string, MetadataModel> model)
         {
-            if (!this.ModelState.IsValid)
+            var serializedModel = model.ToDictionary(x => x.Key, x =>
             {
-                return this.BadRequest();
-            }
-
-            try
-            {
-                var serializedModel = model.ToDictionary(x => x.Key, x =>
-                {
-                    var serializedData = JsonConvert.SerializeObject(x.Value.Data);
-                    var serializedKeywords = x.Value.Keywords == null ? string.Empty : JsonConvert.SerializeObject(x.Value.Keywords);
-                    return (serializedData, serializedKeywords);
-                });
-                await this.service.BulkUpdate(category, collection, serializedModel);
-            }
-            catch (NotFoundException e)
-            {
-                return this.NotFound(new { e.Message });
-            }
+                var serializedData = JsonConvert.SerializeObject(x.Value.Data);
+                var serializedKeywords = x.Value.Keywords == null ? string.Empty : JsonConvert.SerializeObject(x.Value.Keywords);
+                return (serializedData, serializedKeywords);
+            });
+            await this.service.BulkUpdate(category, collection, serializedModel);
 
             return this.Ok();
         }
@@ -221,11 +174,6 @@ namespace Chest.Controllers
             [FromBody, Required]HashSet<string> keys,
             [FromQuery]string keyword)
         {
-            if (!this.ModelState.IsValid)
-            {
-                return this.BadRequest();
-            }
-
             var data = await this.service.FindByKeys(category, collection, keys, keyword);
 
             var missingKeys = keys.Where(x => !data.ContainsKey(x)).ToArray();

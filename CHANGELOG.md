@@ -2,6 +2,7 @@
 
 * LT-665: Moving (de)serialization to client to improve performance
 * LT-391: Enhancing documentation for service requirements, including more detailed descriptions
+* LT-397: Enhancing logging with correct app version and with Lykke middleware and standards
 
 ### Configuration changes:
 
