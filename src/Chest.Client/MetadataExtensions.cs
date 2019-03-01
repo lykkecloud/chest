@@ -93,14 +93,14 @@ namespace Chest.Client
         /// <param name="cancellationToken">An optional cancellation token</param>
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to update the metadata and keywords for</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public static async Task BulkUpdate<T>(this IMetadata operations, string category, string collection, IDictionary<string, (T metadata, IList<string> keywords)> data, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task BulkUpdate<T>(this IMetadata operations, string category, string collection, Dictionary<string, (T metadata, List<string> keywords)> data, CancellationToken cancellationToken = default(CancellationToken))
             where T : class
         {
             await operations.BulkUpdateAsync(category, collection, data.ToDictionary(x => x.Key, x => new MetadataModel
             {
                 Data = JsonConvert.SerializeObject(x.Value.metadata.ToMetadataDictionary()),
                 Keywords = x.Value.keywords == null ? string.Empty : JsonConvert.SerializeObject(x.Value.keywords)
-            }));
+            }), cancellationToken);
         }
 
         /// <summary>
