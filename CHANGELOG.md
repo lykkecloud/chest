@@ -1,4 +1,4 @@
-## Unreleased
+## 2.11.0 (March 8, 2019)
 
 * LT-665: Moving (de)serialization to client to improve performance
 * LT-391: Enhancing documentation for service requirements, including more detailed descriptions
