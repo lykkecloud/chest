@@ -1,14 +1,18 @@
 ﻿// Copyright (c) Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-namespace Chest.Models
+#pragma warning disable SA1300 // Element must begin with upper-case letter
+
+namespace Chest.Models.v1
 {
+    using System;
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
 
     /// <summary>
     /// Represents the data model
     /// </summary>
+    [Obsolete("MetadataModel is obsolete, please use v2/MetadataModel instead.")]
     public class MetadataModel
     {
 #pragma warning disable CA2227

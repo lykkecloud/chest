@@ -68,7 +68,7 @@ namespace Chest.Tests.Sdk
         {
             var path = string.Format(
                 CultureInfo.InvariantCulture,
-                "..{0}..{0}..{0}..{0}..{0}Chest{0}Chest.csproj",
+                "..{0}..{0}..{0}..{0}Chest{0}Chest.csproj",
                 Path.DirectorySeparatorChar);
 
             Process.Start(
@@ -87,7 +87,7 @@ namespace Chest.Tests.Sdk
                     try
                     {
                         var response = client.Root.GetStatusAsync().GetAwaiter().GetResult();
-                        processId = response.ProcessId;
+                        processId = response.ProcessId.Value;
                         break;
                     }
                     catch (HttpRequestException)

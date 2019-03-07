@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <CodeAnalysisRuleSet>../../Chest.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>../Chest.ruleset</CodeAnalysisRuleSet>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
@@ -28,11 +28,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="../../stylecop.json" />
+    <AdditionalFiles Include="../stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\client\Chest.Client\Chest.Client.csproj" />
+    <ProjectReference Include="../Chest.Client/Chest.Client.csproj" />
   </ItemGroup>
 
   <ItemGroup>

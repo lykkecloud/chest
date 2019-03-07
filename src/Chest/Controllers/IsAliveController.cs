@@ -11,10 +11,12 @@ namespace Ironclad.WebApi
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.SwaggerGen;
 
-    [Route("status")]
+    [ApiVersion("1")]
+    [ApiVersion("2")]
+    [Route("api/isAlive")]
     public class RootController : Controller
     {
-        private static readonly RootModel Root =
+        private static readonly RootModel Version =
             new RootModel
             {
                 Title = typeof(Program).Assembly.Attribute<AssemblyTitleAttribute>(attribute => attribute.Title),
@@ -24,8 +26,7 @@ namespace Ironclad.WebApi
             };
 
         [HttpGet]
-        [SwaggerOperation("Root_GetStatus")]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(RootModel))]
-        public IActionResult Get() => this.Ok(Root);
+        public IActionResult Get() => this.Ok(Version);
     }
 }

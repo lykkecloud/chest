@@ -4,8 +4,8 @@ services:
 
   chest:
     build:
-      context: ../
-      dockerfile: Chest/Dockerfile
+      context: ../../
+      dockerfile: src/Chest/Dockerfile
       args:
         version: ${VERSION:-0.1.0-developer}
     container_name: chest

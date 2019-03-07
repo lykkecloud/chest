@@ -3,7 +3,9 @@
 
 namespace Chest.Data
 {
+    using System.Collections.Generic;
     using System.IO;
+    using Lykke.Snow.Common.Startup;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Design;
     using Microsoft.Extensions.Configuration;
@@ -12,11 +14,19 @@ namespace Chest.Data
     // LINK (Cameron): https://docs.microsoft.com/en-us/ef/core/miscellaneous/cli/dbcontext-creation
     public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
     {
+        private static readonly List<(string, string, string)> EnvironmentSecretConfig = new List<(string, string, string)>
+        {
+            /* secrets.json Key             // Environment Variable         // default value (optional) */
+            ("ConnectionStrings:Chest",     "CHEST_CONNECTIONSTRING",       null)
+        };
+
         public ApplicationDbContext CreateDbContext(string[] args)
         {
             var configuration = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddEnvironmentSecrets(args).Build();
+                .AddEnvironmentSecrets<Startup>(EnvironmentSecretConfig)
+                .Build();
+
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseSqlServer(configuration.GetConnectionString("Chest"))
                 .Options;

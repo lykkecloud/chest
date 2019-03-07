@@ -1,3 +1,24 @@
+## 2.11.0 (March 8, 2019)
+
+* LT-665: Moving (de)serialization to client to improve performance
+* LT-391: Enhancing documentation for service requirements, including more detailed descriptions
+* LT-397: Enhancing logging with correct app version and with Lykke middleware and standards
+* LT-907: Removing private nuget sources from Nuget.config
+
+### Chest Service
+
+#### Configuration changes:
+
+  - Added ability to specify Secrets variables via `appSettings.json`
+  - Added ability to read global Nuget.config file injected in workspace folder and apply during docker image build
+
+### Chest.Client
+
+Chest Client was modified
+
+ - Consolidated Bulk methods signature.
+ - Moved (de)serialization to client to improve performance
+
 ## 2.10.0 (February 5, 2019)
 
 * LT-834: Fixed BulkUpdate endpoint.

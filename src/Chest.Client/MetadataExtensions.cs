@@ -9,6 +9,7 @@ namespace Chest.Client
     using System.Threading.Tasks;
     using Chest.Client.AutorestClient;
     using Chest.Client.AutorestClient.Models;
+    using Newtonsoft.Json;
 
     public static class MetadataExtensions
     {
@@ -25,12 +26,12 @@ namespace Chest.Client
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns>A task object representing the asynchronous operation.</returns>
         public static async Task Add<T>(this IMetadata operations, string category, string collection, string key, T instance, List<string> keywords = null, CancellationToken cancellationToken = default(CancellationToken))
-            where T : class
+                where T : class
         {
             var model = new MetadataModel
             {
-                Data = instance.ToMetadataDictionary(),
-                Keywords = keywords,
+                Data = JsonConvert.SerializeObject(instance.ToMetadataDictionary()),
+                Keywords = keywords == null ? string.Empty : JsonConvert.SerializeObject(keywords),
             };
 
             await operations.AddAsync(category, collection, key, model, cancellationToken).ConfigureAwait(false);
@@ -51,8 +52,8 @@ namespace Chest.Client
         {
             var serializedDict = data.ToDictionary(x => x.Key, x => new MetadataModel
             {
-                Data = x.Value.instance.ToMetadataDictionary(),
-                Keywords = x.Value.keywords,
+                Data = JsonConvert.SerializeObject(x.Value.instance.ToMetadataDictionary()),
+                Keywords = x.Value.keywords == null ? string.Empty : JsonConvert.SerializeObject(x.Value.keywords),
             });
 
             await operations.BulkAddAsync(category, collection, serializedDict, cancellationToken).ConfigureAwait(false);
@@ -75,8 +76,8 @@ namespace Chest.Client
         {
             var model = new MetadataModel
             {
-                Data = instance.ToMetadataDictionary(),
-                Keywords = keywords,
+                Data = JsonConvert.SerializeObject(instance.ToMetadataDictionary()),
+                Keywords = keywords == null ? string.Empty : JsonConvert.SerializeObject(keywords),
             };
 
             await operations.UpdateAsync(category, collection, key, model, cancellationToken).ConfigureAwait(false);
@@ -92,14 +93,14 @@ namespace Chest.Client
         /// <param name="cancellationToken">An optional cancellation token</param>
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to update the metadata and keywords for</param>
         /// <returns>A task representing the asynchronous operation.</returns>
-        public static async Task BulkUpdate<T>(this IMetadata operations, string category, string collection, IDictionary<string, (T metadata, IList<string> keywords)> data, CancellationToken cancellationToken = default(CancellationToken))
+        public static async Task BulkUpdate<T>(this IMetadata operations, string category, string collection, Dictionary<string, (T metadata, List<string> keywords)> data, CancellationToken cancellationToken = default(CancellationToken))
             where T : class
         {
             await operations.BulkUpdateAsync(category, collection, data.ToDictionary(x => x.Key, x => new MetadataModel
             {
-                Data = x.Value.metadata.ToMetadataDictionary(),
-                Keywords = x.Value.keywords
-            }));
+                Data = JsonConvert.SerializeObject(x.Value.metadata.ToMetadataDictionary()),
+                Keywords = x.Value.keywords == null ? string.Empty : JsonConvert.SerializeObject(x.Value.keywords)
+            }), cancellationToken);
         }
 
         /// <summary>
@@ -115,9 +116,8 @@ namespace Chest.Client
         public static async Task<T> Get<T>(this IMetadata operations, string category, string collection, string key, CancellationToken cancellationToken = default(CancellationToken))
             where T : class, new()
         {
-            var metadata = await operations.GetWithKeywords<T>(category, collection, key, cancellationToken);
-
-            return metadata.instance;
+            var (instance, keywords) = await operations.GetWithKeywords<T>(category, collection, key, cancellationToken);
+            return instance;
         }
 
         /// <summary>
@@ -134,8 +134,7 @@ namespace Chest.Client
             where T : class, new()
         {
             var metadata = await operations.GetAsync(category, collection, key, cancellationToken).ConfigureAwait(false);
-
-            return (metadata?.Data?.To<T>(), metadata?.Keywords);
+            return (metadata?.Data?.To<IDictionary<string, string>>().To<T>(), metadata?.Keywords.To<IList<string>>());
         }
 
         /// <summary>
@@ -160,7 +159,7 @@ namespace Chest.Client
         {
             var metadataDict = await operations.FindByKeysAsync(category, collection, keys, keyword, cancellationToken);
 
-            return metadataDict.ToDictionary(x => x.Key, x => x.Value?.To<T>());
+            return metadataDict.ToDictionary(x => x.Key, x => x.Value?.To<IDictionary<string, string>>().To<T>());
         }
 
         /// <summary>
@@ -175,9 +174,7 @@ namespace Chest.Client
             where T : class, new()
         {
             var list = await operations.GetKeysWithDataAsync(category, collection, keyword, cancellationToken).ConfigureAwait(false);
-
-            return list
-                ?.ToDictionary(d => d.Key, d => d.Value.To<T>());
+            return list?.ToDictionary(d => d.Key, d => d.Value?.To<IDictionary<string, string>>().To<T>());
         }
     }
 }
