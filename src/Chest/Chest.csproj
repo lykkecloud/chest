@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>2.11.0</Version>
+    <Version>2.11.1</Version>
     <Authors>Chest Contributors</Authors>
     <Company>Lykke</Company>
     <Copyright>Copyright (c) Chest Contributors. All rights reserved.</Copyright>
@@ -49,7 +49,7 @@
     <PackageReference Include="Lykke.Common.ApiLibrary" Version="1.7.1" />
     <PackageReference Include="Lykke.Middlewares" Version="1.0.0-1537228216" />
     <PackageReference Include="Lykke.Snow.Common.Startup" Version="1.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.All" Version="2.1.5" />
+    <PackageReference Include="Microsoft.AspNetCore.All" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="2.2.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.0-beta2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.1.4" />
