@@ -1,3 +1,6 @@
+## Unreleased
+* LT-1120: Fixed warnings for packages version and misusage, which also led to app crash in first web request
+
 ## 2.11.0 (March 8, 2019)
 
 * LT-665: Moving (de)serialization to client to improve performance
