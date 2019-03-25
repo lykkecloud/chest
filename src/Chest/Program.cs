@@ -36,11 +36,11 @@ namespace Chest
             // LINK (Cameron): https://github.com/aspnet/KestrelHttpServer/issues/1334
             var environmentName = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var configuration = new ConfigurationBuilder()
-                .AddEnvironmentSecrets<Startup>(EnvironmentSecretConfig)
                 .AddJsonFile("appsettings.json")
                 .AddJsonFile($"appsettings.Custom.json", optional: true)
                 .AddJsonFile($"appsettings.{environmentName}.json", optional: true)
                 .AddEnvironmentVariables()
+                .AddEnvironmentSecrets<Startup>(EnvironmentSecretConfig)
                 .AddCommandLine(args)
                 .Build();
 
