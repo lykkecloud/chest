@@ -48,7 +48,7 @@
     <PackageReference Include="EFSecondLevelCache.Core" Version="1.6.3" />
     <PackageReference Include="Lykke.Common.ApiLibrary" Version="1.7.1" />
     <PackageReference Include="Lykke.Middlewares" Version="1.0.0-1537228216" />
-    <PackageReference Include="Lykke.Snow.Common.Startup" Version="1.2.2" />
+    <PackageReference Include="Lykke.Snow.Common.Startup" Version="1.2.6" />
     <PackageReference Include="Microsoft.AspNetCore.All" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="2.2.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.6.2">

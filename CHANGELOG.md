@@ -1,6 +1,13 @@
 ## 2.12.0 (March 27, 2019)
 
 * LT-1120: Fixed warnings for packages version and misusage, which also led to app crash in first web request
+* LT-1210: Removed wrong error message when secrets provided from appsettings.json instead of user secrets
+
+### Lykke.Snow.Common.Startup
+
+Lykke.Snow.Common.Startup was updated and a new nuget version is published (Version 1.2.6)
+
+Missing secret wrong error message is removed and a few more improvements made while adding environment variables and secrets
 
 ## 2.11.0 (March 8, 2019)
 
