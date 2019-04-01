@@ -1,5 +1,4 @@
-﻿// Copyright (c) Lykke Corp.
-// See the LICENSE file in the project root for more information.
+﻿// (c) Lykke Corporation 2019 - All rights reserved. No copying, adaptation, decompiling, distribution or any other form of use permitted.
 
 #pragma warning disable SA1008 // Opening parenthesis must be spaced correctly
 #pragma warning disable SA1300 // Element must begin with upper-case letter

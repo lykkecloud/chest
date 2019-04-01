@@ -1,4 +1,6 @@
-﻿{
+﻿// (c) Lykke Corporation 2019 - All rights reserved. No copying, adaptation, decompiling, distribution or any other form of use permitted.
+
+{
   "serviceUrl": "http://localhost:5011",
   "ConnectionStrings": {
     "Chest": "Server=.\\SQLEXPRESS2012;Initial Catalog=ChestTest;User ID=username;Password=password;"
