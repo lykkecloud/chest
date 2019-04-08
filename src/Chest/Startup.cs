@@ -1,5 +1,4 @@
-﻿// Copyright (c) Lykke Corp.
-// See the LICENSE file in the project root for more information.
+﻿// (c) Lykke Corporation 2019 - All rights reserved. No copying, adaptation, decompiling, distribution or any other form of use permitted.
 
 namespace Chest
 {
@@ -172,7 +171,7 @@ namespace Chest
                 Version = apiVersion,
                 Description = this.ApiTitle,
                 Contact = new Contact(),
-                TermsOfService = "Copyright (c) Lykke Corp. See the LICENSE file in the project root for more information.",
+                TermsOfService = "(c) Lykke Corporation 2019 - All rights reserved. No copying, adaptation, decompiling, distribution or any other form of use permitted.",
                 License = new License() { Name = "MIT", Url = "https://opensource.org/licenses/MIT" }
             };
 

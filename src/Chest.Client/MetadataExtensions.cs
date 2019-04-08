@@ -1,5 +1,4 @@
-﻿// Copyright 2017 Lykke Corp.
-// See LICENSE file in the project root for full license information.
+﻿// (c) Lykke Corporation 2019 - All rights reserved. No copying, adaptation, decompiling, distribution or any other form of use permitted.
 
 namespace Chest.Client
 {

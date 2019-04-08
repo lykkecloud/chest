@@ -1,3 +1,7 @@
+## 2.13.0 (April 10, 2019)
+
+* LT-1240: Update Licenses.
+
 ## 2.12.0 (March 27, 2019)
 
 * LT-1120: Fixed warnings for packages version and misusage, which also led to app crash in first web request
