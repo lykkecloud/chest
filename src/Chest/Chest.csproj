@@ -15,10 +15,10 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>2.13.0</Version>
+    <Version>2.14.0</Version>
     <Authors>Chest Contributors</Authors>
     <Company>Lykke</Company>
-    <Copyright>Copyright (c) Chest Contributors. All rights reserved.</Copyright>
+    <Copyright>Copyright (c) 2019 Lykke Corp. See the LICENSE file in the project root for more information.</Copyright>
   </PropertyGroup>
 
   <PropertyGroup>
