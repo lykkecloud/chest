@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Microsoft.AspNetCore.Authorization;
+
 #pragma warning disable SA1008 // Opening parenthesis must be spaced correctly
 #pragma warning disable SA1300 // Element must begin with upper-case letter
 
@@ -20,6 +22,7 @@ namespace Chest.Controllers.v2
     [ApiVersion("2")]
     [Route("api/v{version:apiVersion}/")]
     [ApiController]
+    [Authorize]
     public class MetadataController : ControllerBase
     {
         private readonly IDataService service;
