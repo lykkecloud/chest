@@ -104,4 +104,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Chest.Client\Chest.Client.csproj" />
+  </ItemGroup>
+
 </Project>
