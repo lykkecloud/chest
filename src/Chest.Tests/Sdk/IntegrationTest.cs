@@ -16,6 +16,6 @@ namespace Chest.Tests.Sdk
             this.fixture = fixture;
         }
 
-        protected Uri ServiceUrl => this.fixture.ServiceUrl;
+//        protected Uri ServiceUrl => this.fixture.ServiceUrl;
     }
 }
