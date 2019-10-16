@@ -15,6 +15,10 @@ namespace Chest.Client
         [UsedImplicitly]
         public static T Get<T>(this MetadataModelContract metadata)
             => JsonConvert.DeserializeObject<T>(metadata.Data);
+        
+        public static (T metadata, IList<string> keywords) GetWithKeywords<T>(this MetadataModelContract metadata)
+            => (JsonConvert.DeserializeObject<T>(metadata.Data), 
+                JsonConvert.DeserializeObject<IList<string>>(metadata.Keywords));
 
         [UsedImplicitly]
         public static Dictionary<string, T> Get<T>(this Dictionary<string, string> data)

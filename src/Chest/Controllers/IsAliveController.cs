@@ -1,6 +1,10 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System.Threading.Tasks;
+using Chest.Client;
+#pragma warning disable 1998
+
 namespace Ironclad.WebApi
 {
     using System.Diagnostics;
@@ -27,6 +31,6 @@ namespace Ironclad.WebApi
 
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(RootModel))]
-        public IActionResult Get() => this.Ok(Version);
+        public async Task<IActionResult> Get() => this.Ok(Version);
     }
 }
