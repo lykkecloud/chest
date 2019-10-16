@@ -1,10 +1,10 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-namespace Chest.Models
-{
-    using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
+namespace Chest.Client
+{
     /// <summary>
     /// Represents the data model
     /// </summary>
