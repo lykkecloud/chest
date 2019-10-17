@@ -3,6 +3,7 @@
 
 using System.Linq;
 using MoreLinq;
+using Newtonsoft.Json;
 
 namespace Chest.Client.AutorestClient 
 { 
@@ -34,11 +35,12 @@ namespace Chest.Client.AutorestClient
             {
                 var result = await operations.RefitClient.Get(category, collection, key);
                 
-                return new MetadataModel
-                {
-                    Data = result.Data,
-                    Keywords = result.Keywords,
-                };
+                var deserializedData = JsonConvert.DeserializeObject<Dictionary<string, string>>(result.Data);
+                var deserializedKeywords = string.IsNullOrWhiteSpace(result.Keywords) 
+                    ? default(List<string>) 
+                    : JsonConvert.DeserializeObject<List<string>>(result.Keywords);
+
+                return new MetadataModel { Data = deserializedData, Keywords = deserializedKeywords };
             } 
  
             /// <param name='operations'> 
