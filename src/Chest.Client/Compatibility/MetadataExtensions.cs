@@ -148,7 +148,10 @@ namespace Chest.Client
             where T : class, new() 
         { 
             var metadata = await operations.RefitClient.Get(category, collection, key);
-            return (metadata?.Data?.To<IDictionary<string, string>>().To<T>(), metadata?.Keywords.To<IList<string>>()); 
+            return (metadata?.Data?.To<IDictionary<string, string>>().To<T>(),
+                string.IsNullOrWhiteSpace(metadata?.Keywords)
+                    ? new List<string>()
+                    : metadata.Keywords.To<IList<string>>()); 
         } 
  
         /// <summary> 
