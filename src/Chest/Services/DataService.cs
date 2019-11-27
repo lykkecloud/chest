@@ -13,14 +13,13 @@ namespace Chest.Services
     using EFSecondLevelCache.Core;
     using EFSecondLevelCache.Core.Contracts;
     using Microsoft.EntityFrameworkCore;
+    using Serilog;
 
     /// <summary>
     /// Represents a service to store and retrieve key-value pairs in the data store
     /// </summary>
     public class DataService : IDataService
     {
-        private readonly int[] sqlDuplicateKeyErrorCodes = new[] { 2601, 2627, 547 };
-
         private readonly ApplicationDbContext context;
 
         private readonly IEFCacheServiceProvider cacheProvider;
@@ -61,7 +60,7 @@ namespace Chest.Services
         /// <exception cref="DuplicateKeyException">if a record already exist against category, collection and key</exception>
         public async Task Add(string category, string collection, string key, string data, string keywords)
         {
-            try
+            if (!(await KeyExistsIncludingWarning(category, collection, key)))
             {
                 var isAdded = await this.context.AddAsync(new KeyValueData
                 {
@@ -78,21 +77,20 @@ namespace Chest.Services
                 await this.context.SaveChangesAsync();
                 this.cacheProvider.ClearAllCachedEntries();
             }
-            catch (DbUpdateException dbException)
-            {
-                if (dbException.InnerException is SqlException e && this.sqlDuplicateKeyErrorCodes.Contains(e.Number))
-                {
-                    throw new DuplicateKeyException(category, collection, key, $"Cannot insert duplicate for Category: {category} Collection: {collection} Key: {key}.", dbException);
-                }
-
-                throw;
-            }
         }
 
         /// <inheritdoc />
         public async Task BulkAdd(string category, string collection, Dictionary<string, (string metadata, string keywords)> data)
         {
-            try
+            var existingKeysResult = await AnyKeyExistsIncludingWarning(category, collection, data.Keys.ToList());
+
+            if (existingKeysResult.anyExists)
+            {
+                var keysToExclude = existingKeysResult.existingKeys.ToHashSet();
+                data = data.Where(x => !keysToExclude.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value);
+            }
+
+            if (data.Any())
             {
                 foreach (var kvp in data)
                 {
@@ -111,15 +109,6 @@ namespace Chest.Services
 
                 await this.context.SaveChangesAsync();
                 this.cacheProvider.ClearAllCachedEntries();
-            }
-            catch (DbUpdateException dbException)
-            {
-                if (dbException.InnerException is SqlException e && this.sqlDuplicateKeyErrorCodes.Contains(e.Number))
-                {
-                    throw new DuplicateKeyException($"Some of the keys already exist in Category: '{category}' Collection: '{collection}'", dbException);
-                }
-
-                throw;
             }
         }
 
@@ -275,6 +264,28 @@ namespace Chest.Services
                 .Cacheable()
                 .Where(k => keys.Contains(k.Key))
                 .Where(k => string.IsNullOrWhiteSpace(keyword) || (k.Keywords != null && k.Keywords.ToUpperInvariant().Contains(keyword.ToUpperInvariant())));
+        }
+
+        private async Task<bool> KeyExistsIncludingWarning(string category, string collection, string key)
+        {
+            return (await AnyKeyExistsIncludingWarning(category, collection, new List<string> { key })).anyExists;
+        }
+
+        private async Task<(bool anyExists, IEnumerable<string> existingKeys)> AnyKeyExistsIncludingWarning(
+            string category,
+            string collection,
+            IEnumerable<string> keys)
+        {
+            var existingKeys = await this.GetKeyValueDataByKeys(category, collection, keys)
+                .Select(x => x.Key)
+                .ToListAsync();
+
+            if (existingKeys.Any())
+            {
+                Log.Warning($"Key(s) {string.Join(",", existingKeys)} already exist(s) in Category: '{category}' Collection: '{collection}'");
+            }
+
+            return (existingKeys.Any(), existingKeys);
         }
     }
 }
