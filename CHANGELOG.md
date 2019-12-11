@@ -1,3 +1,8 @@
+## 2.14.1 (December 11, 2019)
+
+* LT-1754: Check that all services have .net core 2.2 in projects and docker
+* LT-1823: [Logs Improvement] - Chest - Product Insertion
+
 ## 2.14.0 (July 08, 2019)
 
 * LT-1541: Update licenses headers and add LICENSE  file

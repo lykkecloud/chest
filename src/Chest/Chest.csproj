@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
-    <Version>2.14.0</Version>
+    <Version>2.14.1</Version>
     <Authors>Chest Contributors</Authors>
     <Company>Lykke</Company>
     <Copyright>Copyright (c) 2019 Lykke Corp. See the LICENSE file in the project root for more information.</Copyright>
