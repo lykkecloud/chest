@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information. 
 
 using System.Linq;
+using Chest.Client.Extensions;
 using MoreLinq;
 using Newtonsoft.Json;
 
