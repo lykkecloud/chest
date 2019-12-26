@@ -1,5 +1,4 @@
 using System;
-using Chest.Client.AutorestClient;
 using JetBrains.Annotations;
 using Lykke.HttpClientGenerator;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +35,7 @@ namespace Chest.Client.Extensions
 
             var clientGenerator = builder.Create();
 
-            services.AddSingleton<IChestClient>(provider => new ChestClientAdapter(clientGenerator));
+            services.AddSingleton<IChestClient>(provider => new ChestClient(clientGenerator));
         }
     }
 }

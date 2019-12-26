@@ -1,4 +1,4 @@
-using Chest.Client;
+using Chest.Client.Models;
 using Chest.Models.v2;
 
 namespace Chest.Mappers

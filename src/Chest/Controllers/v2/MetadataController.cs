@@ -1,30 +1,27 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using Chest.Client;
 using Microsoft.AspNetCore.Authorization;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using Chest.Client.Models;
+using Chest.Services;
+using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 #pragma warning disable SA1008 // Opening parenthesis must be spaced correctly
 #pragma warning disable SA1300 // Element must begin with upper-case letter
 
 namespace Chest.Controllers.v2
 {
-    using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
-    using System.Linq;
-    using System.Net;
-    using System.Threading.Tasks;
-    using Chest.Exceptions;
-    using Chest.Models.v2;
-    using Chest.Services;
-    using Microsoft.AspNetCore.Mvc;
-    using Swashbuckle.AspNetCore.SwaggerGen;
-
     [ApiVersion("2")]
     [Route("api/v{version:apiVersion}/")]
     [ApiController]
     [Authorize]
-    public class MetadataController : ControllerBase //,IMetadata
+    public class MetadataController : ControllerBase
     {
         private readonly IDataService service;
 

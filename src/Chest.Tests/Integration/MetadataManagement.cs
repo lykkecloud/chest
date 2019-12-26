@@ -1,26 +1,26 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Chest.Client.Api;
 using Chest.Client.Extensions;
+using Chest.Client.Models;
 using Common;
 using Lykke.HttpClientGenerator;
 using Refit;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Net;
+using System.Threading.Tasks;
+using Chest.Tests.Dto;
+using Chest.Tests.Sdk;
+using FluentAssertions;
+using Newtonsoft.Json;
+using Xbehave;
+using Xunit;
 
 namespace Chest.Tests.Integration
 {
-    using System.Collections.Generic;
-    using System.Globalization;
-    using System.Linq;
-    using System.Net;
-    using System.Threading.Tasks;
-    using Chest.Client;
-    using Chest.Tests.Dto;
-    using Chest.Tests.Sdk;
-    using FluentAssertions;
-    using Newtonsoft.Json;
-    using Xbehave;
-    using Xunit;
-
     public class MetadataManagement : IntegrationTest
     {
         public MetadataManagement(ChestFixture fixture)
@@ -54,7 +54,7 @@ namespace Chest.Tests.Integration
                 {
                     try
                     {
-                        await client.Get(category, collection, key);
+                        await client.GetAsync(category, collection, key);
                     }
                     catch (ApiException exp)
                     {
@@ -101,13 +101,13 @@ namespace Chest.Tests.Integration
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Create(category, collection, key, expected);
+                    await client.CreateAsync(category, collection, key, expected);
                 });
 
             $"When try to get metadata for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.Get(category, collection, key);
+                    actual = await client.GetAsync(category, collection, key);
                 });
 
             "Then the fetched metadata should be same"
@@ -143,7 +143,7 @@ namespace Chest.Tests.Integration
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Create(category, collection, key, expected);
+                    await client.CreateAsync(category, collection, key, expected);
                 });
 
             $"When try to update metadata for the category: {category} collection: {collection} key: {key}"
@@ -161,7 +161,7 @@ namespace Chest.Tests.Integration
             $"And try to get metadata for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.Get(category, collection, key);
+                    actual = await client.GetAsync(category, collection, key);
                 });
 
             "Then the fetched metadata should be same as updated metadata"
@@ -198,13 +198,13 @@ namespace Chest.Tests.Integration
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Create(category, collection, key, expected);
+                    await client.CreateAsync(category, collection, key, expected);
                 });
 
             $"When try to delete metadata for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Delete(category, collection, key);
+                    await client.DeleteAsync(category, collection, key);
                 });
 
             $"And try to get the metadata for the category: {category} collection: {collection} key: {key}"
@@ -212,7 +212,7 @@ namespace Chest.Tests.Integration
                 {
                     try
                     {
-                        actual = await client.Get(category, collection, key);
+                        actual = await client.GetAsync(category, collection, key);
                     }
                     catch(ApiException exp)
                     {
@@ -252,7 +252,7 @@ namespace Chest.Tests.Integration
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Create(category, collection, key, expected);
+                    await client.CreateAsync(category, collection, key, expected);
                 });
 
             $"When try to add metadata again for category: {category} collection: {collection} key: {key}"
@@ -260,7 +260,7 @@ namespace Chest.Tests.Integration
                 {
                     try
                     {
-                        await client.Create(category, collection, key, expected);
+                        await client.CreateAsync(category, collection, key, expected);
                     }
                     catch (ApiException exp)
                     {
@@ -301,7 +301,7 @@ namespace Chest.Tests.Integration
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Create(category, collection, key, expected);
+                    await client.CreateAsync(category, collection, key, expected);
                 });
 
 #pragma warning disable CA1308 // Normalize strings to uppercase
@@ -313,7 +313,7 @@ namespace Chest.Tests.Integration
                 {
                     try
                     {
-                        await client.Create(category, collection, key, expected);
+                        await client.CreateAsync(category, collection, key, expected);
                     }
                     catch (ApiException exp)
                     {
@@ -351,7 +351,7 @@ namespace Chest.Tests.Integration
             $"Given the AssetAccountMetadata for key: {key}"
                 .x(async () =>
                 {
-                    await client.Create(category, collection, key, new MetadataModelContract
+                    await client.CreateAsync(category, collection, key, new MetadataModelContract
                     {
                         Data = expected.ToJson(),
                     });
@@ -360,7 +360,7 @@ namespace Chest.Tests.Integration
             $"When try to get AssetAccountMetadata for the key: {key}"
                 .x(async () =>
                 {
-                    actual = (await client.Get(category, collection, key)).Get<AssetAccountMetadata>();
+                    actual = (await client.GetAsync(category, collection, key)).Get<AssetAccountMetadata>();
                 });
 
             "Then the fetched AssetAccountMetadata should be same"
@@ -393,13 +393,13 @@ namespace Chest.Tests.Integration
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Create(category, collection, key, expected.ToChestContract());
+                    await client.CreateAsync(category, collection, key, expected.ToChestContract());
                 });
 
             $"When try to get metadata for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    actual = (await client.Get(category, collection, key)).Get<AssetAccountMetadata>();
+                    actual = (await client.GetAsync(category, collection, key)).Get<AssetAccountMetadata>();
                 });
 
             "Then the fetched metadata should be same"
@@ -434,13 +434,13 @@ namespace Chest.Tests.Integration
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Create(category, collection, key, expected.ToChestContract(expectedKeywords));
+                    await client.CreateAsync(category, collection, key, expected.ToChestContract(expectedKeywords));
                 });
 
             $"When try to get metadata with keywords for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    actual = (await client.Get(category, collection, key)).GetWithKeywords<AssetAccountMetadata>();
+                    actual = (await client.GetAsync(category, collection, key)).GetWithKeywords<AssetAccountMetadata>();
                 });
 
             "Then the fetched metadata and keywords should be same"
@@ -474,13 +474,13 @@ namespace Chest.Tests.Integration
             $"Given the AssetAccountMetadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Create(category, collection, key, expected.ToChestContract());
+                    await client.CreateAsync(category, collection, key, expected.ToChestContract());
                 });
 
             $"When try to get all keys with data for category: {category} collection: {collection}"
                 .x(async () =>
                 {
-                    actualKeysWithData = (await client.GetKeysWithData(category, collection, null))
+                    actualKeysWithData = (await client.GetKeysWithDataAsync(category, collection, null))
                         .Get<AssetAccountMetadata>();
                 });
 
@@ -525,7 +525,7 @@ namespace Chest.Tests.Integration
                     {
                         var keywords = new List<string> { item.ReferenceAccount, item.BankIdentificationReference };
 
-                        return client.Create(category, collection, item.AccountNumber, item.ToChestContract(keywords));
+                        return client.CreateAsync(category, collection, item.AccountNumber, item.ToChestContract(keywords));
                     });
 
                     await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -534,7 +534,7 @@ namespace Chest.Tests.Integration
             $"When try to get all keys with data for category: {category} collection: {collection} with search keyword: {keyword}"
                 .x(async () =>
                 {
-                    actual = (await client.GetKeysWithData(category, collection, keyword))
+                    actual = (await client.GetKeysWithDataAsync(category, collection, keyword))
                         .Get<AssetAccountMetadata>();
                 });
 
@@ -567,13 +567,13 @@ namespace Chest.Tests.Integration
             $"Given the AssetAccountMetadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Create(category, collection, key, expected.ToChestContract());
+                    await client.CreateAsync(category, collection, key, expected.ToChestContract());
                 });
 
             $"When try to get all collections for category: {category}"
                 .x(async () =>
                 {
-                    actualCollections = await client.GetCollections(category);
+                    actualCollections = await client.GetCollectionsAsync(category);
                 });
 
             "Then the fetched collections should contain the added collection"
@@ -605,13 +605,13 @@ namespace Chest.Tests.Integration
             $"Given the AssetAccountMetadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Create(category, collection, key, expected.ToChestContract());
+                    await client.CreateAsync(category, collection, key, expected.ToChestContract());
                 });
 
             $"When try to get all categories"
                 .x(async () =>
                 {
-                    actualCategories = await client.GetCategories();
+                    actualCategories = await client.GetCategoriesAsync();
                 });
 
             "Then the fetched categories should contain the added category"

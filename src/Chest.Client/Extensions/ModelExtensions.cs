@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Chest.Client.Models;
 using Common;
 using JetBrains.Annotations;
 using Newtonsoft.Json;

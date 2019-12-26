@@ -4,7 +4,7 @@
 #pragma warning disable CA2227
 #pragma warning disable SA1300 // Element must begin with upper-case letter
 
-namespace Chest.Client
+namespace Chest.Client.Models
 {
     using System.ComponentModel.DataAnnotations;
 

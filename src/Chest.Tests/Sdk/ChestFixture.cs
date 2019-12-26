@@ -86,8 +86,6 @@ namespace Chest.Tests.Sdk
                 .BuildForUrl(this.ServiceUrl)
                 .Create();
 
-            var client = clientGenerator.Generate<IIsAlive>();
-
             var attempt = 0;
             while (true)
             {
@@ -95,8 +93,6 @@ namespace Chest.Tests.Sdk
                 try
                 {
                     throw new NotImplementedException();//todo it's all not working..
-                    var response = client.Get().GetAwaiter().GetResult();
-                    processId = response.ProcessId;
                     break;
                 }
                 catch (HttpRequestException)
