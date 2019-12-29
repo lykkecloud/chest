@@ -28,6 +28,7 @@ This project requires specification of the [following user secrets](src/Chest/Pr
   | Parameter | Description
   | --- | --- |
   | ConnectionStrings:Chest / CHEST_CONNECTIONSTRING | Connection string to sql database |
+  | ChestClientSettings:ApiKey / CHEST_API_KEY | Api key for Chest service |
 
 As mentioned before, these secrets can also be set via ```appSettings.json``` file OR by environment variables, there is no strict requirement to provide them via secrets file
 
@@ -101,6 +102,7 @@ All the configuration above can be set via ```appSettings.json```, but if you do
     ```json
     {
       "ConnectionStrings:Chest": "<chest-db-connection-string>",
+      "ChestClientSettings:ApiKey": "<api-key-for-chest-service>"
     }
     ```
 
@@ -129,6 +131,7 @@ All the configuration above can be set via ```appSettings.json```, but if you do
 
     ```cmd
       CHEST_CONNECTIONSTRING: <Chest DB connection string>
+      CHEST_API_KEY: <Api key for Chest service>
     ```
 
 ### Add https enforcement for Chest

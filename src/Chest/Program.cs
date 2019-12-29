@@ -20,8 +20,9 @@ namespace Chest
     {
         private static readonly List<(string, string, string)> EnvironmentSecretConfig = new List<(string, string, string)>
         {
-            /* secrets.json Key             // Environment Variable        // default value (optional) */
-            ("ConnectionStrings:Chest",     "CHEST_CONNECTIONSTRING",       null),
+            /* secrets.json Key                // Environment Variable         // default value (optional) */
+            ("ConnectionStrings:Chest",        "CHEST_CONNECTIONSTRING",       null),
+            ("ChestClientSettings:ApiKey",     "CHEST_API_KEY",                string.Empty)
         };
 
         public static async Task<int> Main(string[] args)
