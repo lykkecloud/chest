@@ -1,7 +1,9 @@
 // Copyright (c) 2019 Lykke Corp. 
 // See the LICENSE file in the project root for more information. 
 
+using System.Net;
 using MoreLinq;
+using Refit;
 
 namespace Chest.Client
 { 
@@ -145,9 +147,19 @@ namespace Chest.Client
         public static async Task<(T instance, IList<string> keywords)> GetWithKeywords<T>(
             this Chest.Client.AutorestClient.IMetadata operations, string category, string collection, string key, 
             CancellationToken cancellationToken = default(CancellationToken)) 
-            where T : class, new() 
-        { 
-            var metadata = await operations.RefitClient.Get(category, collection, key);
+            where T : class, new()
+        {
+            MetadataModelContract metadata;
+
+            try
+            {
+                metadata = await operations.RefitClient.Get(category, collection, key);
+            }
+            catch (ApiException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
+            {
+                return (null, null);
+            }
+            
             return (metadata?.Data?.To<IDictionary<string, string>>().To<T>(),
                 string.IsNullOrWhiteSpace(metadata?.Keywords)
                     ? new List<string>()
@@ -174,9 +186,18 @@ namespace Chest.Client
             CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class, new() 
         { 
-            var metadataDict = await operations.RefitClient.FindByKeys(category, collection, keys.ToHashSet(), keyword);
- 
-            return metadataDict.ToDictionary(x => x.Key, x => x.Value?.To<IDictionary<string, string>>().To<T>()); 
+            IDictionary<string, string> data;
+
+            try
+            {
+                data = await operations.RefitClient.FindByKeys(category, collection, keys.ToHashSet(), keyword);
+            }
+            catch (ApiException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            return data.ToDictionary(x => x.Key, x => x.Value?.To<IDictionary<string, string>>().To<T>()); 
         } 
  
         /// <summary> 
@@ -190,10 +211,20 @@ namespace Chest.Client
         public static async Task<IDictionary<string, T>> GetKeysWithData<T>(
             this Chest.Client.AutorestClient.IMetadata operations, string category, string collection, 
             string keyword = null, CancellationToken cancellationToken = default(CancellationToken)) 
-            where T : class, new() 
-        { 
-            var list = await operations.RefitClient.GetKeysWithData(category, collection, keyword);
-            return list?.ToDictionary(d => d.Key, d => d.Value?.To<IDictionary<string, string>>().To<T>()); 
+            where T : class, new()
+        {
+            Dictionary<string, string> data;
+
+            try
+            {
+                data = await operations.RefitClient.GetKeysWithData(category, collection, keyword);
+            }
+            catch (ApiException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            return data?.ToDictionary(d => d.Key, d => d.Value?.To<IDictionary<string, string>>().To<T>()); 
         } 
     } 
 } 
