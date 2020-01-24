@@ -1,6 +1,10 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Lykke.Common.ApiLibrary.Swagger;
+using Lykke.Snow.Common.Startup;
+using Lykke.Snow.Common.Startup.ApiKey;
+
 namespace Chest
 {
     using System.Linq;
@@ -70,6 +74,9 @@ namespace Chest
                 o.DefaultApiVersion = new ApiVersion(1, 0);
             });
 
+            var clientSettings = this.configuration.GetSection("ChestClientSettings").Get<ClientSettings>();
+            services.AddApiKeyAuth(clientSettings);
+
             // Configure swagger
             services.AddSwaggerGen(options =>
             {
@@ -99,6 +106,11 @@ namespace Chest
 
                     return versions.Any(v => $"v{v.ToString()}" == version) && (maps.Length == 0 || maps.Any(v => $"v{v.ToString()}" == version));
                 });
+
+                if (!string.IsNullOrWhiteSpace(clientSettings?.ApiKey))
+                {
+                    options.OperationFilter<ApiKeyHeaderOperationFilter>();
+                }
             });
 
             // Default settings for NewtonSoft Serializer
@@ -148,6 +160,7 @@ namespace Chest
             app.UseMiddleware<ExceptionHandlerMiddleware>();
 
             // app.UseCors("spa");
+            app.UseAuthentication();
             app.UseMvcWithDefaultRoute();
             app.UseSwagger(c =>
             {
@@ -164,7 +177,7 @@ namespace Chest
             app.InitializeDatabase();
         }
 
-        public Info CreateInfoForApiVersion(string apiVersion, bool isObsolete)
+        private Info CreateInfoForApiVersion(string apiVersion, bool isObsolete)
         {
             var info = new Info()
             {

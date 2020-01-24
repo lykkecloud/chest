@@ -1,6 +1,11 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Chest.Client.Extensions;
+using Common;
+using Lykke.HttpClientGenerator;
+using Refit;
+
 namespace Chest.Tests.Integration
 {
     using System.Collections.Generic;
@@ -9,8 +14,6 @@ namespace Chest.Tests.Integration
     using System.Net;
     using System.Threading.Tasks;
     using Chest.Client;
-    using Chest.Client.AutorestClient;
-    using Chest.Client.AutorestClient.Models;
     using Chest.Tests.Dto;
     using Chest.Tests.Sdk;
     using FluentAssertions;
@@ -24,17 +27,22 @@ namespace Chest.Tests.Integration
             : base(fixture)
         {
         }
+        
+        public IMetadata GetClient() => HttpClientGenerator
+            .BuildForUrl(this.ServiceUrl)
+            .Create()
+            .Generate<IMetadata>();
 
         [Scenario]
         public void GetShouldReturnNotFound()
         {
             // arrange
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "UnknownCategory";
             var collection = "UnknownCollection";
             var key = "Unknown";
 
-            HttpException exception = null;
+            ApiException exception = null;
 
             $"Given a category: {category} collection: {collection} key: {key} that was never added to the metadata service before"
                 .x(() =>
@@ -46,9 +54,9 @@ namespace Chest.Tests.Integration
                 {
                     try
                     {
-                        await client.Metadata.GetAsync(category, collection, key).ConfigureAwait(false);
+                        await client.Get(category, collection, key);
                     }
-                    catch (HttpException exp)
+                    catch (ApiException exp)
                     {
                         exception = exp;
                     }
@@ -59,7 +67,7 @@ namespace Chest.Tests.Integration
                 {
                     Assert.NotNull(exception);
                     Assert.Equal(HttpStatusCode.NotFound, exception.StatusCode);
-                    Assert.NotNull(exception.ContentMessage);
+                    Assert.NotNull(exception.Message);
                 });
         }
 
@@ -67,12 +75,12 @@ namespace Chest.Tests.Integration
         public void CanAddMetadata()
         {
             // arrange
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var key = "456987";
 
-            var expected = new MetadataModel
+            var expected = new MetadataModelContract
             {
                 Data = JsonConvert.SerializeObject(new Dictionary<string, string>
                 {
@@ -88,18 +96,18 @@ namespace Chest.Tests.Integration
                 })
             };
 
-            MetadataModel actual = null;
+            MetadataModelContract actual = null;
 
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.AddAsync(category, collection, key, expected).ConfigureAwait(false);
+                    await client.Create(category, collection, key, expected);
                 });
 
             $"When try to get metadata for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.Metadata.GetAsync(category, collection, key).ConfigureAwait(false);
+                    actual = await client.Get(category, collection, key);
                 });
 
             "Then the fetched metadata should be same"
@@ -114,12 +122,12 @@ namespace Chest.Tests.Integration
         public void CanUpdateMetadata()
         {
             // arrange
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var key = "456988";
 
-            var expected = new MetadataModel
+            var expected = new MetadataModelContract
             {
                 Data = JsonConvert.SerializeObject(new Dictionary<string, string>
                 {
@@ -130,12 +138,12 @@ namespace Chest.Tests.Integration
                 })
             };
 
-            MetadataModel actual = null;
+            MetadataModelContract actual = null;
 
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.AddAsync(category, collection, key, expected).ConfigureAwait(false);
+                    await client.Create(category, collection, key, expected);
                 });
 
             $"When try to update metadata for the category: {category} collection: {collection} key: {key}"
@@ -147,13 +155,13 @@ namespace Chest.Tests.Integration
                         { "referenceAccount", "SomeNewRef" }
                     });
 
-                    await client.Metadata.UpdateAsync(category, collection, key, expected).ConfigureAwait(false);
+                    await client.Update(category, collection, key, expected);
                 });
 
             $"And try to get metadata for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.Metadata.GetAsync(category, collection, key).ConfigureAwait(false);
+                    actual = await client.Get(category, collection, key);
                 });
 
             "Then the fetched metadata should be same as updated metadata"
@@ -168,12 +176,12 @@ namespace Chest.Tests.Integration
         public void CanDeleteMetadata()
         {
             // arrange
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var key = "486987";
 
-            var expected = new MetadataModel
+            var expected = new MetadataModelContract
             {
                 Data = JsonConvert.SerializeObject(new Dictionary<string, string>
                 {
@@ -184,19 +192,19 @@ namespace Chest.Tests.Integration
                 })
             };
 
-            MetadataModel actual = null;
-            HttpException httpException = null;
+            MetadataModelContract actual = null;
+            ApiException httpException = null;
 
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.AddAsync(category, collection, key, expected).ConfigureAwait(false);
+                    await client.Create(category, collection, key, expected);
                 });
 
             $"When try to delete metadata for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.RemoveAsync(category, collection, key).ConfigureAwait(false);
+                    await client.Delete(category, collection, key);
                 });
 
             $"And try to get the metadata for the category: {category} collection: {collection} key: {key}"
@@ -204,9 +212,9 @@ namespace Chest.Tests.Integration
                 {
                     try
                     {
-                        actual = await client.Metadata.GetAsync(category, collection, key);
+                        actual = await client.Get(category, collection, key);
                     }
-                    catch( HttpException exp)
+                    catch(ApiException exp)
                     {
                         httpException = exp;
                     }
@@ -223,12 +231,12 @@ namespace Chest.Tests.Integration
         [Scenario]
         public void ShouldNotAddKeyMultipleTimes()
         {
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var key = "Some-Unique-Key";
 
-            var expected = new MetadataModel
+            var expected = new MetadataModelContract
             {
                 Data = JsonConvert.SerializeObject(new Dictionary<string, string>
                 {
@@ -239,12 +247,12 @@ namespace Chest.Tests.Integration
                 })
             };
 
-            HttpException httpException = null;
+            ApiException httpException = null;
 
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.AddAsync(category, collection, key, expected).ConfigureAwait(false);
+                    await client.Create(category, collection, key, expected);
                 });
 
             $"When try to add metadata again for category: {category} collection: {collection} key: {key}"
@@ -252,9 +260,9 @@ namespace Chest.Tests.Integration
                 {
                     try
                     {
-                        await client.Metadata.AddAsync(category, collection, key, expected).ConfigureAwait(false);
+                        await client.Create(category, collection, key, expected);
                     }
-                    catch (HttpException exp)
+                    catch (ApiException exp)
                     {
                         httpException = exp;
                     }
@@ -265,19 +273,19 @@ namespace Chest.Tests.Integration
                 {
                     Assert.NotNull(httpException);
                     Assert.Equal(HttpStatusCode.Conflict, httpException.StatusCode);
-                    Assert.NotNull(httpException.ContentMessage);
+                    Assert.NotNull(httpException.Message);
                 });
         }
 
         [Scenario]
         public void ShouldNotAddKeyMultipleTimesEvenInDifferentCase()
         {
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var key = "Case-Sensitive-Key";
 
-            var expected = new MetadataModel
+            var expected = new MetadataModelContract
             {
                 Data = JsonConvert.SerializeObject(new Dictionary<string, string>
                 {
@@ -288,12 +296,12 @@ namespace Chest.Tests.Integration
                 })
             };
 
-            HttpException httpException = null;
+            ApiException httpException = null;
 
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.AddAsync(category, collection, key, expected).ConfigureAwait(false);
+                    await client.Create(category, collection, key, expected);
                 });
 
 #pragma warning disable CA1308 // Normalize strings to uppercase
@@ -305,9 +313,9 @@ namespace Chest.Tests.Integration
                 {
                     try
                     {
-                        await client.Metadata.AddAsync(category, collection, key, expected).ConfigureAwait(false);
+                        await client.Create(category, collection, key, expected);
                     }
-                    catch (HttpException exp)
+                    catch (ApiException exp)
                     {
                         httpException = exp;
                     }
@@ -318,14 +326,14 @@ namespace Chest.Tests.Integration
                 {
                     Assert.NotNull(httpException);
                     Assert.Equal(HttpStatusCode.Conflict, httpException.StatusCode);
-                    Assert.NotNull(httpException.ContentMessage);
+                    Assert.NotNull(httpException.Message);
                 });
         }
 
         [Scenario]
         public void CanAddMetadataUsingDto()
         {
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var key = "556988";
@@ -343,13 +351,16 @@ namespace Chest.Tests.Integration
             $"Given the AssetAccountMetadata for key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.Add<AssetAccountMetadata>(category, collection, key, expected).ConfigureAwait(false);
+                    await client.Create(category, collection, key, new MetadataModelContract
+                    {
+                        Data = expected.ToJson(),
+                    });
                 });
 
             $"When try to get AssetAccountMetadata for the key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.Metadata.Get<AssetAccountMetadata>(category, collection, key).ConfigureAwait(false);
+                    actual = (await client.Get(category, collection, key)).Get<AssetAccountMetadata>();
                 });
 
             "Then the fetched AssetAccountMetadata should be same"
@@ -364,7 +375,7 @@ namespace Chest.Tests.Integration
         public void CanAddMetadataWithoutKeywords()
         {
             // arrange
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var key = "456989";
@@ -382,13 +393,13 @@ namespace Chest.Tests.Integration
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.Add(category, collection, key, expected).ConfigureAwait(false);
+                    await client.Create(category, collection, key, expected.ToChestContract());
                 });
 
             $"When try to get metadata for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.Metadata.Get<AssetAccountMetadata>(category, collection, key).ConfigureAwait(false);
+                    actual = (await client.Get(category, collection, key)).Get<AssetAccountMetadata>();
                 });
 
             "Then the fetched metadata should be same"
@@ -403,7 +414,7 @@ namespace Chest.Tests.Integration
         public void CanGetMetadataWithKeywords()
         {
             // arrange
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var key = "456990";
@@ -423,13 +434,13 @@ namespace Chest.Tests.Integration
             $"Given the metadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.Add(category, collection, key, expected, expectedKeywords).ConfigureAwait(false);
+                    await client.Create(category, collection, key, expected.ToChestContract(expectedKeywords));
                 });
 
             $"When try to get metadata with keywords for the category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    actual = await client.Metadata.GetWithKeywords<AssetAccountMetadata>(category, collection, key).ConfigureAwait(false);
+                    actual = (await client.Get(category, collection, key)).GetWithKeywords<AssetAccountMetadata>();
                 });
 
             "Then the fetched metadata and keywords should be same"
@@ -445,7 +456,7 @@ namespace Chest.Tests.Integration
         [Scenario]
         public void CanGetKeysWithData()
         {
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var key = "556985";
@@ -463,13 +474,14 @@ namespace Chest.Tests.Integration
             $"Given the AssetAccountMetadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.Add<AssetAccountMetadata>(category, collection, key, expected).ConfigureAwait(false);
+                    await client.Create(category, collection, key, expected.ToChestContract());
                 });
 
             $"When try to get all keys with data for category: {category} collection: {collection}"
                 .x(async () =>
                 {
-                    actualKeysWithData = await client.Metadata.GetKeysWithData<AssetAccountMetadata>(category, collection).ConfigureAwait(false);
+                    actualKeysWithData = (await client.GetKeysWithData(category, collection, null))
+                        .Get<AssetAccountMetadata>();
                 });
 
             "Then the fetched keys with data should contain the given key and data should be same agains the key"
@@ -486,7 +498,7 @@ namespace Chest.Tests.Integration
         public void ShouldGetCorrectKeysAndDataWithSearchKeyword()
         {
             // arrange
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var keyword = "Lykke";
@@ -513,7 +525,7 @@ namespace Chest.Tests.Integration
                     {
                         var keywords = new List<string> { item.ReferenceAccount, item.BankIdentificationReference };
 
-                        return client.Metadata.Add(category, collection, item.AccountNumber, item, keywords);
+                        return client.Create(category, collection, item.AccountNumber, item.ToChestContract(keywords));
                     });
 
                     await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -522,7 +534,8 @@ namespace Chest.Tests.Integration
             $"When try to get all keys with data for category: {category} collection: {collection} with search keyword: {keyword}"
                 .x(async () =>
                 {
-                    actual = await client.Metadata.GetKeysWithData<AssetAccountMetadata>(category, collection, keyword).ConfigureAwait(false);
+                    actual = (await client.GetKeysWithData(category, collection, keyword))
+                        .Get<AssetAccountMetadata>();
                 });
 
             "Then the fetched metadata should be same"
@@ -536,7 +549,7 @@ namespace Chest.Tests.Integration
         [Scenario]
         public void CanGetCollections()
         {
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var key = "556989";
@@ -554,13 +567,13 @@ namespace Chest.Tests.Integration
             $"Given the AssetAccountMetadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.Add<AssetAccountMetadata>(category, collection, key, expected).ConfigureAwait(false);
+                    await client.Create(category, collection, key, expected.ToChestContract());
                 });
 
             $"When try to get all collections for category: {category}"
                 .x(async () =>
                 {
-                    actualCollections = await client.Metadata.GetCollectionsAsync(category).ConfigureAwait(false);
+                    actualCollections = await client.GetCollections(category);
                 });
 
             "Then the fetched collections should contain the added collection"
@@ -574,7 +587,7 @@ namespace Chest.Tests.Integration
         [Scenario]
         public void CanGetCategories()
         {
-            var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() });
+            var client = GetClient();
             var category = "Integration";
             var collection = "Tests";
             var key = "556990";
@@ -592,13 +605,13 @@ namespace Chest.Tests.Integration
             $"Given the AssetAccountMetadata for category: {category} collection: {collection} key: {key}"
                 .x(async () =>
                 {
-                    await client.Metadata.Add<AssetAccountMetadata>(category, collection, key, expected).ConfigureAwait(false);
+                    await client.Create(category, collection, key, expected.ToChestContract());
                 });
 
             $"When try to get all categories"
                 .x(async () =>
                 {
-                    actualCategories = await client.Metadata.GetCategoriesAsync().ConfigureAwait(false);
+                    actualCategories = await client.GetCategories();
                 });
 
             "Then the fetched categories should contain the added category"

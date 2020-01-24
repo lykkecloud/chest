@@ -98,3 +98,14 @@ Property in connection string: Connection Timeout=300;
    }
 }
 ```
+## X.X.X (December 30, 2019)
+
+* LT-1672: Chest API key authentication.
+
+### Configuration changes
+
+- Added variable for Chest service API key. If variable is left unset or empty API call will be performed without authentication.
+
+```none
+  ChestClientSettings:ApiKey / CHEST_API_KEY 
+```

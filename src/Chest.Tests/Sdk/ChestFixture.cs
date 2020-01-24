@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Lykke.HttpClientGenerator;
+
 namespace Chest.Tests.Sdk
 {
     using System;
@@ -10,7 +12,6 @@ namespace Chest.Tests.Sdk
     using System.Net.Http;
     using System.Threading;
     using Chest.Client;
-    using Chest.Client.AutorestClient;
     using Microsoft.Extensions.Configuration;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
@@ -30,12 +31,15 @@ namespace Chest.Tests.Sdk
 
             this.connectionString = config.GetConnectionString("Chest");
 
-            this.ServiceUrl = new Uri(config.GetValue<string>("serviceUrl"));
+            this.ServiceUrl = config.GetValue<string>("serviceUrl");
+            this.ApiKey = config.GetValue<string>("apiKey");
 
             this.chestProcess = this.StartChest();
         }
 
-        public Uri ServiceUrl { get; }
+        public string ServiceUrl { get; }
+        
+        public string ApiKey { get; }
 
         public void Dispose()
         {
@@ -78,24 +82,28 @@ namespace Chest.Tests.Sdk
                 });
 
             var processId = default(int);
-            using (var client = new ChestClient(this.ServiceUrl, new[] { new SuccessHandler() }))
+            var clientGenerator = HttpClientGenerator
+                .BuildForUrl(this.ServiceUrl)
+                .Create();
+
+            var client = clientGenerator.Generate<IIsAlive>();
+
+            var attempt = 0;
+            while (true)
             {
-                var attempt = 0;
-                while (true)
+                Thread.Sleep(500);
+                try
                 {
-                    Thread.Sleep(500);
-                    try
+                    throw new NotImplementedException();//todo it's all not working..
+                    var response = client.Get().GetAwaiter().GetResult();
+                    processId = response.ProcessId;
+                    break;
+                }
+                catch (HttpRequestException)
+                {
+                    if (++attempt >= 20)
                     {
-                        var response = client.Root.GetStatusAsync().GetAwaiter().GetResult();
-                        processId = response.ProcessId.Value;
-                        break;
-                    }
-                    catch (HttpRequestException)
-                    {
-                        if (++attempt >= 20)
-                        {
-                            throw;
-                        }
+                        throw;
                     }
                 }
             }

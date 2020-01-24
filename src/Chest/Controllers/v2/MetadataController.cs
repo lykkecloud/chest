@@ -1,6 +1,9 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Chest.Client;
+using Microsoft.AspNetCore.Authorization;
+
 #pragma warning disable SA1008 // Opening parenthesis must be spaced correctly
 #pragma warning disable SA1300 // Element must begin with upper-case letter
 
@@ -20,7 +23,8 @@ namespace Chest.Controllers.v2
     [ApiVersion("2")]
     [Route("api/v{version:apiVersion}/")]
     [ApiController]
-    public class MetadataController : ControllerBase
+    [Authorize]
+    public class MetadataController : ControllerBase //,IMetadata
     {
         private readonly IDataService service;
 
@@ -34,7 +38,8 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.Created)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.Conflict)]
-        public async Task<IActionResult> Create(string category, string collection, string key, [FromBody]MetadataModel model)
+        public async Task<IActionResult> Create(string category, string collection, string key, 
+            [FromBody]MetadataModelContract model)
         {
             await this.service.Add(category, collection, key, model.Data, model.Keywords);
 
@@ -46,7 +51,8 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.Conflict)]
-        public async Task<IActionResult> BulkCreate(string category, string collection, [FromBody]Dictionary<string, MetadataModel> model)
+        public async Task<IActionResult> BulkCreate(string category, string collection, 
+            [FromBody]Dictionary<string, MetadataModelContract> model)
         {
             await this.service.BulkAdd(category, collection, model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords)));
 
@@ -59,7 +65,8 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Update(string category, string collection, string key, [FromBody]MetadataModel model)
+        public async Task<IActionResult> Update(string category, string collection, string key, 
+            [FromBody]MetadataModelContract model)
         {
             await this.service.Update(category, collection, key, model.Data, model.Keywords);
 
@@ -71,9 +78,11 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> BulkUpdate(string category, string collection, [FromBody, Required]Dictionary<string, MetadataModel> model)
+        public async Task<IActionResult> BulkUpdate(string category, string collection, 
+            [FromBody, Required]Dictionary<string, MetadataModelContract> model)
         {
-            await this.service.BulkUpdate(category, collection, model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords)));
+            await this.service.BulkUpdate(category, collection, 
+                model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords)));
 
             return this.Ok();
         }
@@ -90,12 +99,12 @@ namespace Chest.Controllers.v2
 
         [HttpDelete("{category}/{collection}")]
         [SwaggerOperation("Metadata_BulkRemove")]
-        [SwaggerResponse((int)HttpStatusCode.OK)]
-        public async Task<IActionResult> BulkDelete(string category, string collection, [FromBody]HashSet<string> keys)
+        [SwaggerResponse((int) HttpStatusCode.OK)]
+        public async Task<IActionResult> BulkDelete(string category, string collection, [FromBody] HashSet<string> keys)
         {
             await this.service.BulkDelete(category, collection, keys);
 
-            return this.Ok(new { Message = "Deleted successfully" });
+            return this.Ok(new {Message = "Deleted successfully"});
         }
 
         [HttpGet("")]
@@ -167,7 +176,7 @@ namespace Chest.Controllers.v2
 
         [HttpGet("{category}/{collection}/{key}")]
         [SwaggerOperation("Metadata_Get")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(MetadataModel))]
+        [SwaggerResponse((int)HttpStatusCode.OK, typeof(MetadataModelContract))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string category, string collection, string key)
         {
@@ -178,7 +187,7 @@ namespace Chest.Controllers.v2
                 return this.NotFound(new { Message = $"No data found for category: {category} collection: {collection} and key: {key}" });
             }
 
-            return this.Ok(new MetadataModel { Data = data, Keywords = keywords });
+            return this.Ok(new MetadataModelContract { Data = data, Keywords = keywords });
         }
     }
 }
