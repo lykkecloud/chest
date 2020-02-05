@@ -215,7 +215,14 @@ namespace Chest.Client.AutorestClient
         public static async Task<IList<string>> GetCollectionsAsync(this IMetadata operations, string category,
             CancellationToken cancellationToken = default)
         {
-            return await operations.RefitClient.GetCollections(category);
+            try
+            {
+                return await operations.RefitClient.GetCollections(category);
+            }
+            catch (ApiException exception) when (exception.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
         }
 
         /// <param name='operations'> 
