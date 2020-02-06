@@ -1,3 +1,7 @@
+## Client 3.1.4 (February 06, 2020)
+
+LT-2038: Handle 404 HTTP response code in Chest client
+
 ## 2.14.2 (January 27, 2020)
 
 * LT-1672: [Security] Chest accessible without login/password (part of LT-1671)
