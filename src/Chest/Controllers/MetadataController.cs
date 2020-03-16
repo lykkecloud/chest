@@ -1,8 +1,6 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using Microsoft.AspNetCore.Authorization;
-
 #pragma warning disable SA1008 // Opening parenthesis must be spaced correctly
 #pragma warning disable SA1300 // Element must begin with upper-case letter
 
@@ -14,12 +12,12 @@ namespace Chest.Controllers
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
-    using Chest.Exceptions;
     using Chest.Models.v1;
     using Chest.Services;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Newtonsoft.Json;
-    using Swashbuckle.AspNetCore.SwaggerGen;
+    using Swashbuckle.AspNetCore.Annotations;
 
     [Obsolete("MetadataController is obsolete, please use v2/MetadataController instead.")]
     [ApiVersion("1")]
@@ -122,7 +120,7 @@ namespace Chest.Controllers
 
         [HttpGet("")]
         [SwaggerOperation("Metadata_GetCategories")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(List<string>))]
+        [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(List<string>))]
         public async Task<IActionResult> GetCategories()
         {
             var categories = await this.service.GetCategories();
@@ -132,7 +130,7 @@ namespace Chest.Controllers
 
         [HttpGet("{category}")]
         [SwaggerOperation("Metadata_GetCollections")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(List<string>))]
+        [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(List<string>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetCollections(string category)
         {
@@ -148,7 +146,7 @@ namespace Chest.Controllers
 
         [HttpGet("{category}/{collection}")]
         [SwaggerOperation("Metadata_GetKeysWithData")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(Dictionary<string, Dictionary<string, string>>))]
+        [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(Dictionary<string, Dictionary<string, string>>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetKeysWithData(string category, string collection, [FromQuery]string keyword)
         {
@@ -168,7 +166,7 @@ namespace Chest.Controllers
         // hit some URL length limitation along the way
         [HttpPost("{category}/{collection}/find")]
         [SwaggerOperation("Metadata_FindByKeys")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(IDictionary<string, IDictionary<string, string>>))]
+        [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(IDictionary<string, IDictionary<string, string>>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> FindByKeys(
@@ -191,7 +189,7 @@ namespace Chest.Controllers
 
         [HttpGet("{category}/{collection}/{key}")]
         [SwaggerOperation("Metadata_Get")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(MetadataModel))]
+        [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(MetadataModel))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string category, string collection, string key)
         {

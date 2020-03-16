@@ -1,24 +1,22 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System.Threading.Tasks;
-using Chest.Client;
 #pragma warning disable 1998
 
-namespace Ironclad.WebApi
+namespace Chest.Controllers
 {
     using System.Diagnostics;
     using System.Net;
     using System.Reflection;
-    using Chest;
-    using Chest.Models;
+    using System.Threading.Tasks;
+    using Chest.Client;
     using Microsoft.AspNetCore.Mvc;
-    using Swashbuckle.AspNetCore.SwaggerGen;
+    using Swashbuckle.AspNetCore.Annotations;
 
     [ApiVersion("1")]
     [ApiVersion("2")]
     [Route("api/isAlive")]
-    public class RootController : Controller
+    public class IsAliveController : Controller
     {
         private static readonly RootModel Version =
             new RootModel
