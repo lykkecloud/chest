@@ -1,9 +1,6 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using Chest.Client;
-using Microsoft.AspNetCore.Authorization;
-
 #pragma warning disable SA1008 // Opening parenthesis must be spaced correctly
 #pragma warning disable SA1300 // Element must begin with upper-case letter
 
@@ -14,11 +11,12 @@ namespace Chest.Controllers.v2
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
-    using Chest.Exceptions;
+    using Chest.Client;
     using Chest.Models.v2;
     using Chest.Services;
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
-    using Swashbuckle.AspNetCore.SwaggerGen;
+    using Swashbuckle.AspNetCore.Annotations;
 
     [ApiVersion("2")]
     [Route("api/v{version:apiVersion}/")]
@@ -38,7 +36,10 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.Created)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.Conflict)]
-        public async Task<IActionResult> Create(string category, string collection, string key, 
+        public async Task<IActionResult> Create(
+            string category,
+            string collection,
+            string key,
             [FromBody]MetadataModelContract model)
         {
             await this.service.Add(category, collection, key, model.Data, model.Keywords);
@@ -51,7 +52,9 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.Conflict)]
-        public async Task<IActionResult> BulkCreate(string category, string collection, 
+        public async Task<IActionResult> BulkCreate(
+            string category,
+            string collection,
             [FromBody]Dictionary<string, MetadataModelContract> model)
         {
             await this.service.BulkAdd(category, collection, model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords)));
@@ -65,7 +68,10 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> Update(string category, string collection, string key, 
+        public async Task<IActionResult> Update(
+            string category,
+            string collection,
+            string key,
             [FromBody]MetadataModelContract model)
         {
             await this.service.Update(category, collection, key, model.Data, model.Keywords);
@@ -78,10 +84,14 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
-        public async Task<IActionResult> BulkUpdate(string category, string collection, 
+        public async Task<IActionResult> BulkUpdate(
+            string category,
+            string collection,
             [FromBody, Required]Dictionary<string, MetadataModelContract> model)
         {
-            await this.service.BulkUpdate(category, collection, 
+            await this.service.BulkUpdate(
+                category,
+                collection,
                 model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords)));
 
             return this.Ok();
@@ -99,17 +109,17 @@ namespace Chest.Controllers.v2
 
         [HttpDelete("{category}/{collection}")]
         [SwaggerOperation("Metadata_BulkRemove")]
-        [SwaggerResponse((int) HttpStatusCode.OK)]
+        [SwaggerResponse((int)HttpStatusCode.OK)]
         public async Task<IActionResult> BulkDelete(string category, string collection, [FromBody] HashSet<string> keys)
         {
             await this.service.BulkDelete(category, collection, keys);
 
-            return this.Ok(new {Message = "Deleted successfully"});
+            return this.Ok(new { Message = "Deleted successfully" });
         }
 
         [HttpGet("")]
         [SwaggerOperation("Metadata_GetCategories")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(List<string>))]
+        [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(List<string>))]
         public async Task<IActionResult> GetCategories()
         {
             var categories = await this.service.GetCategories();
@@ -119,7 +129,7 @@ namespace Chest.Controllers.v2
 
         [HttpGet("{category}")]
         [SwaggerOperation("Metadata_GetCollections")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(List<string>))]
+        [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(List<string>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetCollections(string category)
         {
@@ -135,7 +145,7 @@ namespace Chest.Controllers.v2
 
         [HttpGet("{category}/{collection}")]
         [SwaggerOperation("Metadata_GetKeysWithData")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(Dictionary<string, string>))]
+        [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(Dictionary<string, string>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetKeysWithData(string category, string collection, [FromQuery]string keyword)
         {
@@ -153,7 +163,7 @@ namespace Chest.Controllers.v2
         // hit some URL length limitation along the way
         [HttpPost("{category}/{collection}/find")]
         [SwaggerOperation("Metadata_FindByKeys")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(IDictionary<string, string>))]
+        [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(IDictionary<string, string>))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
         public async Task<IActionResult> FindByKeys(
@@ -176,7 +186,7 @@ namespace Chest.Controllers.v2
 
         [HttpGet("{category}/{collection}/{key}")]
         [SwaggerOperation("Metadata_Get")]
-        [SwaggerResponse((int)HttpStatusCode.OK, typeof(MetadataModelContract))]
+        [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(MetadataModelContract))]
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string category, string collection, string key)
         {
