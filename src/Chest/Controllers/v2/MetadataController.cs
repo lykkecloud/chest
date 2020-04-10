@@ -66,16 +66,15 @@ namespace Chest.Controllers.v2
         [SwaggerOperation("Metadata_Update")]
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Update(
             string category,
             string collection,
             string key,
             [FromBody]MetadataModelContract model)
         {
-            await this._service.Update(category, collection, key, model.Data, model.Keywords);
+            await _service.Upsert(category, collection, key, model.Data, model.Keywords);
 
-            return this.Ok(new { Message = "Update successfully" });
+            return Ok(new { Message = "Updated successfully" });
         }
 
         [HttpPatch("{category}/{collection}")]
@@ -90,7 +89,7 @@ namespace Chest.Controllers.v2
         {
             var data = model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords));
 
-            await _service.BulkUpdate(category, collection, data);
+            await _service.BulkUpsert(category, collection, data);
 
             return Ok();
         }

@@ -75,7 +75,7 @@ namespace Chest.Controllers
         {
             var serializedData = JsonConvert.SerializeObject(model.Data);
             var serializedKeywords = model.Keywords == null ? string.Empty : JsonConvert.SerializeObject(model.Keywords);
-            await this.service.Update(category, collection, key, serializedData, serializedKeywords);
+            await this.service.Upsert(category, collection, key, serializedData, serializedKeywords);
 
             return this.Ok(new { Message = "Update successfully" });
         }
@@ -93,7 +93,7 @@ namespace Chest.Controllers
                 var serializedKeywords = x.Value.Keywords == null ? string.Empty : JsonConvert.SerializeObject(x.Value.Keywords);
                 return (serializedData, serializedKeywords);
             });
-            await this.service.BulkUpdate(category, collection, serializedModel);
+            await this.service.BulkUpsert(category, collection, serializedModel);
 
             return this.Ok();
         }
