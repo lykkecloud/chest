@@ -2,12 +2,11 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Refit;
 
-namespace Chest.Client
+namespace Chest.Client.Api
 {
     public interface IMetadata
     {
@@ -15,14 +14,14 @@ namespace Chest.Client
         Task Create(string category, string collection, string key, [Body] MetadataModelContract model);
 
         [Post("/api/v2/{category}/{collection}")]
-        Task BulkCreate(string category, string collection, [Body] Dictionary<string, MetadataModelContract> model);
+        Task BulkCreate(string category, string collection, [Body] IDictionary<string, MetadataModelContract> model);
 
         [Put("/api/v2/{category}/{collection}/{key}")]
         Task<object> Update(string category, string collection, string key, [Body] MetadataModelContract model);
 
         [Patch("/api/v2/{category}/{collection}")]
-        Task BulkUpdate(string category, string collection, 
-            [Body, Required] Dictionary<string, MetadataModelContract> model);
+        Task BulkUpdate(string category, string collection,
+            [Body, Required] IDictionary<string, MetadataModelContract> model);
 
         [Delete("/api/v2/{category}/{collection}/{key}")]
         Task<object> Delete(string category, string collection, string key);

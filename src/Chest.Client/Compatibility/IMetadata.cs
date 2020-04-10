@@ -11,6 +11,6 @@ namespace Chest.Client.AutorestClient
 {
     public interface IMetadata
     {
-        Chest.Client.IMetadata RefitClient { get; }
+        Api.IMetadata RefitClient { get; }
     } 
 }
