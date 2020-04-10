@@ -11,9 +11,9 @@ namespace Chest.Client.AutorestClient
 {
     public class Metadata: IMetadata
     {
-        public Chest.Client.IMetadata RefitClient { get; private set; }
+        public Api.IMetadata RefitClient { get; private set; }
 
-        public Metadata(Client.IMetadata refitClient)
+        public Metadata(Api.IMetadata refitClient)
         {
             RefitClient = refitClient;
         }
