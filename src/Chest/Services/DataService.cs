@@ -104,23 +104,54 @@ namespace Chest.Services
         /// <param name="keywords">A <see cref="string"/> representing the Keywords associated with the data, these keywords will be used to search the data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
         /// <exception cref="NotFoundException">if no record found to update</exception>
-        public async Task Update(string category, string collection, string key, string data, string keywords)
+        public async Task Upsert(string category, string collection, string key, string data, string keywords)
         {
-            var existing = await _context.KeyValues.FindAsync(category.ToUpperInvariant(), collection.ToUpperInvariant(), key.ToUpperInvariant());
-            if (existing == null)
+            if (string.IsNullOrWhiteSpace(category))
+                throw new ArgumentNullException(nameof(category));
+            
+            if (string.IsNullOrWhiteSpace(collection))
+                throw new ArgumentNullException(nameof(collection));
+            
+            if (string.IsNullOrWhiteSpace(key))
+                throw new ArgumentNullException(nameof(key));
+            
+            if (string.IsNullOrWhiteSpace(data))
+                throw new ArgumentNullException(nameof(data));
+
+            using (var transaction = _context.Database.BeginTransaction())
             {
-                throw new NotFoundException(category, collection, key, $"No record found for Category: {category} Collection: {collection} and Key: {key}", null);
+                try
+                {
+                    var existingKey = await _context.KeyValues.FindAsync(KeyValueData.SelectKey(category, collection, key));
+                    
+                    if (existingKey == null)
+                    {
+                        await _context.AddAsync(KeyValueData.Create(category, collection, key, data, keywords));
+                    }
+                    else
+                    {
+                        existingKey.MetaData = data;
+                        existingKey.Keywords = keywords;
+                    }
+
+                    await _context.SaveChangesAsync();
+                    
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, $"Couldn't make upsert for category {category}," + 
+                                 $" collection {collection} and key {key}");
+
+                    throw;
+                }
             }
-
-            existing.MetaData = data;
-            existing.Keywords = keywords;
-
-            await _context.SaveChangesAsync();
+            
             _cacheProvider.ClearAllCachedEntries();
         }
 
         /// <inheritdoc />
-        public async Task BulkUpdate(string category, string collection, Dictionary<string, (string metadata, string keywords)> data)
+        public async Task BulkUpsert(string category, string collection, Dictionary<string, (string metadata, string keywords)> data)
         {
             if (string.IsNullOrWhiteSpace(category))
                 throw new ArgumentNullException(nameof(category));
@@ -133,7 +164,7 @@ namespace Chest.Services
                 try
                 {
                     var allKeysInCollection =
-                        _context.KeyValues.Where(KeyValueData.AllKeysInCollectionPredicate(category, collection));
+                        _context.KeyValues.Where(KeyValueData.SelectAllKeysInCollection(category, collection));
                     
                     _context.RemoveRange(allKeysInCollection);
 
@@ -151,7 +182,7 @@ namespace Chest.Services
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, $"Couldn't make bulk update for category {category}" + 
+                    Log.Error(e, $"Couldn't make bulk upsert for category {category}" + 
                                  $" and collection {collection}, number of new keys {data?.Count ?? 0}");
 
                     throw;

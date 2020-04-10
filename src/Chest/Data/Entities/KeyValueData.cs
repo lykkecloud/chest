@@ -66,8 +66,16 @@ namespace Chest.Data.Entities
 
         public override string ToString() => $"{this.Key}:{this.MetaData}";
 
-        public static Func<KeyValueData, bool> AllKeysInCollectionPredicate(string category, string collection) => k =>
-            k.Category == category.ToUpperInvariant() && k.Collection == collection.ToUpperInvariant(); 
+        public static Func<KeyValueData, bool> SelectAllKeysInCollection(string category, string collection) =>
+            k =>
+                k.Category == category.ToUpperInvariant() &&
+                k.Collection == collection.ToUpperInvariant();
+
+        public static Func<KeyValueData, bool> SelectKey(string category, string collection, string key) =>
+            k =>
+                k.Category == category.ToUpperInvariant() && 
+                k.Collection == collection.ToUpperInvariant() &&
+                k.Key == key.ToUpperInvariant();
 
         public static KeyValueData Create(string category, 
             string collection, 

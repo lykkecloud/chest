@@ -48,7 +48,7 @@ namespace Chest.Services
         Task BulkAdd(string category, string collection, Dictionary<string, (string metadata, string keywords)> data);
 
         /// <summary>
-        /// Updates key value pair data against a given category, collection and key
+        /// Updates or inserts key value pair data against a given category and collection
         /// </summary>
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
@@ -57,17 +57,17 @@ namespace Chest.Services
         /// <param name="keywords">A <see cref="string"/> representing the Keywords associated with the data, these keywords will be used to search the data</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
         /// <exception cref="NotFoundException">if no record found to update</exception>
-        Task Update(string category, string collection, string key, string data, string keywords);
+        Task Upsert(string category, string collection, string key, string data, string keywords);
 
         /// <summary>
-        /// Removes old keys for collection and inserts new keys
+        /// Updates collection or inserts new keys in a batch
         /// </summary>
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to insert the metadata and keywords for</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation </returns>
         /// <exception cref="InvalidOperationException">Thrown when there was an error while saving data to database</exception>
-        Task BulkUpdate(string category, string collection, Dictionary<string, (string metadata, string keywords)> data);
+        Task BulkUpsert(string category, string collection, Dictionary<string, (string metadata, string keywords)> data);
 
         /// <summary>
         /// Deletes a record by category, collection, and key
