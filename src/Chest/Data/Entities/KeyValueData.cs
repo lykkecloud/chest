@@ -1,12 +1,13 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-namespace Chest.Data
-{
-    using System.ComponentModel;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace Chest.Data.Entities
+{
     /// <summary>
     /// Represents a key value pair to be stored in data store
     /// </summary>
@@ -64,5 +65,27 @@ namespace Chest.Data
         public string Keywords { get; set; }
 
         public override string ToString() => $"{this.Key}:{this.MetaData}";
+
+        public static Func<KeyValueData, bool> AllKeysInCollectionPredicate(string category, string collection) => k =>
+            k.Category == category.ToUpperInvariant() && k.Collection == collection.ToUpperInvariant(); 
+
+        public static KeyValueData Create(string category, 
+            string collection, 
+            string key, 
+            string metadata, 
+            string keywords)
+        {
+            return new KeyValueData
+            {
+                Category = category.ToUpperInvariant(),
+                Collection = collection.ToUpperInvariant(),
+                Key = key.ToUpperInvariant(),
+                DisplayCategory = category,
+                DisplayCollection = collection,
+                DisplayKey = key,
+                MetaData = metadata,
+                Keywords = keywords
+            };
+        }
     }
 }

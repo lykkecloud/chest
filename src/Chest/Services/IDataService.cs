@@ -1,6 +1,9 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
+using Chest.Exceptions;
+
 #pragma warning disable CA1716
 
 namespace Chest.Services
@@ -57,13 +60,13 @@ namespace Chest.Services
         Task Update(string category, string collection, string key, string data, string keywords);
 
         /// <summary>
-        /// Updates multiple sets of key value pairs in a given category and collection
+        /// Removes old keys for collection and inserts new keys
         /// </summary>
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
-        /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to update the metadata and keywords for</param>
+        /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to insert the metadata and keywords for</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation </returns>
-        /// <exception cref="Chest.Exceptions.NotFoundException">Thrown when some of the keys weren't found</exception>
+        /// <exception cref="InvalidOperationException">Thrown when there was an error while saving data to database</exception>
         Task BulkUpdate(string category, string collection, Dictionary<string, (string metadata, string keywords)> data);
 
         /// <summary>
