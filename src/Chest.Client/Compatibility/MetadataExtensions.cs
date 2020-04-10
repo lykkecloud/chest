@@ -54,7 +54,7 @@ namespace Chest.Client
         /// <param name="cancellationToken">An optional cancellation token.</param> 
         /// <returns>A task object representing the asynchronous operation.</returns> 
         public static async Task BulkAdd<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
-            string collection, Dictionary<string, (T instance, List<string> keywords)> data, 
+            string collection, IDictionary<string, (T instance, List<string> keywords)> data, 
             CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class 
         { 
@@ -104,7 +104,7 @@ namespace Chest.Client
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to update the metadata and keywords for</param> 
         /// <returns>A task representing the asynchronous operation.</returns> 
         public static async Task BulkUpdate<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
-            string collection, Dictionary<string, (T metadata, List<string> keywords)> data, 
+            string collection, IDictionary<string, (T metadata, List<string> keywords)> data, 
             CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class
         {
