@@ -123,7 +123,7 @@ namespace Chest.Services
                 try
                 {
                     var dbKeys = KeyValueData.GetNormalizedDbKeys(category, collection, key);
-                    var existingKeyEntity = await _context.KeyValues.FindAsync(dbKeys);
+                    var existingKeyEntity = await _context.KeyValues.FindAsync(dbKeys.ToArray());
                     
                     if (existingKeyEntity == null)
                     {
