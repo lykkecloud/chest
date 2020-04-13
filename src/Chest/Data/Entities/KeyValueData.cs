@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -68,14 +69,19 @@ namespace Chest.Data.Entities
 
         public static Func<KeyValueData, bool> SelectAllKeysInCollection(string category, string collection) =>
             k =>
-                k.Category == category.ToUpperInvariant() &&
-                k.Collection == collection.ToUpperInvariant();
+            {
+                var keys = new KeyValueDataKeys(category, collection);
+                return k.Category == keys.Category && k.Collection == keys.Collection;
+            };
 
-        public static Func<KeyValueData, bool> SelectKey(string category, string collection, string key) =>
-            k =>
-                k.Category == category.ToUpperInvariant() && 
-                k.Collection == collection.ToUpperInvariant() &&
-                k.Key == key.ToUpperInvariant();
+        public static IEnumerable<string> GetNormalizedDbKeys(string category, string collection, string key)
+        {
+            var primaryKey = new KeyValueDataKeys(category, collection, key);
+
+            yield return primaryKey.Category;
+            yield return primaryKey.Collection;
+            yield return primaryKey.Key;
+        }
 
         public static KeyValueData Create(string category, 
             string collection, 
@@ -83,11 +89,13 @@ namespace Chest.Data.Entities
             string metadata, 
             string keywords)
         {
+            var primaryKey = new KeyValueDataKeys(category, collection, key);
+            
             return new KeyValueData
             {
-                Category = category.ToUpperInvariant(),
-                Collection = collection.ToUpperInvariant(),
-                Key = key.ToUpperInvariant(),
+                Category = primaryKey.Category,
+                Collection = primaryKey.Collection,
+                Key = primaryKey.Key,
                 DisplayCategory = category,
                 DisplayCollection = collection,
                 DisplayKey = key,
