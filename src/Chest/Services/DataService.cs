@@ -122,16 +122,17 @@ namespace Chest.Services
             {
                 try
                 {
-                    var existingKey = await _context.KeyValues.FindAsync(KeyValueData.SelectKey(category, collection, key));
+                    var dbKeys = KeyValueData.GetNormalizedDbKeys(category, collection, key);
+                    var existingKeyEntity = await _context.KeyValues.FindAsync(dbKeys);
                     
-                    if (existingKey == null)
+                    if (existingKeyEntity == null)
                     {
                         await _context.AddAsync(KeyValueData.Create(category, collection, key, data, keywords));
                     }
                     else
                     {
-                        existingKey.MetaData = data;
-                        existingKey.Keywords = keywords;
+                        existingKeyEntity.MetaData = data;
+                        existingKeyEntity.Keywords = keywords;
                     }
 
                     await _context.SaveChangesAsync();
@@ -140,8 +141,8 @@ namespace Chest.Services
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, $"Couldn't make upsert for category {category}," + 
-                                 $" collection {collection} and key {key}");
+                    Log.Error(e, $"Couldn't make upsert for category [{category}]," + 
+                                 $" collection [{collection}] and key [{key}]");
 
                     throw;
                 }
@@ -182,8 +183,8 @@ namespace Chest.Services
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, $"Couldn't make bulk upsert for category {category}" + 
-                                 $" and collection {collection}, number of new keys {data?.Count ?? 0}");
+                    Log.Error(e, $"Couldn't make bulk upsert for category [{category}]" + 
+                                 $" and collection [{collection}], number of new keys [{data?.Count ?? 0}]");
 
                     throw;
                 }
