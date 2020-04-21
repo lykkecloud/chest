@@ -166,15 +166,15 @@ namespace Chest.Services
                 {
                     var allKeysInCollection =
                         _context.KeyValues.Where(KeyValueData.SelectAllKeysInCollection(category, collection));
-                    
-                    _context.RemoveRange(allKeysInCollection);
+
+                    _context.KeyValues.RemoveRange(allKeysInCollection);
 
                     if (data?.Any() ?? false)
                     {
                         var newKeys = data.Select(x =>
                             KeyValueData.Create(category, collection, x.Key, x.Value.metadata, x.Value.keywords));
                         
-                        _context.AddRange(newKeys);
+                        await _context.KeyValues.AddRangeAsync(newKeys);
                     }
 
                     await _context.SaveChangesAsync();
