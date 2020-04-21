@@ -44,7 +44,8 @@ namespace Chest.Services
         /// <returns>A tuple of <see cref="string"/> with the key data and <see cref="string"/> with the keywords associated with the key</returns>
         public async Task<(string data, string keywords)> Get(string category, string collection, string key)
         {
-            var data = await _context.KeyValues.FindAsync(category.ToUpperInvariant(), collection.ToUpperInvariant(), key.ToUpperInvariant());
+            var dbKeys = KeyValueData.GetNormalizedDbKeys(category, collection, key);
+            var data = await _context.KeyValues.FindAsync(dbKeys.ToArray<object>());
             return (data?.MetaData, data?.Keywords);
         }
 
@@ -60,11 +61,9 @@ namespace Chest.Services
         /// <exception cref="DuplicateKeyException">if a record already exist against category, collection and key</exception>
         public async Task Add(string category, string collection, string key, string data, string keywords)
         {
-            if (!(await KeyExistsIncludingWarning(category, collection, key)))
+            if (!await KeyExistsIncludingWarning(category, collection, key))
             {
-                var isAdded =
-                    await _context.AddAsync(KeyValueData.Create(category, collection, key, data, keywords));
-
+                await _context.AddAsync(KeyValueData.Create(category, collection, key, data, keywords));
                 await _context.SaveChangesAsync();
                 _cacheProvider.ClearAllCachedEntries();
             }
@@ -118,12 +117,12 @@ namespace Chest.Services
             if (string.IsNullOrWhiteSpace(data))
                 throw new ArgumentNullException(nameof(data));
 
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
                     var dbKeys = KeyValueData.GetNormalizedDbKeys(category, collection, key);
-                    var existingKeyEntity = await _context.KeyValues.FindAsync(dbKeys.ToArray());
+                    var existingKeyEntity = await _context.KeyValues.FindAsync(dbKeys.ToArray<object>());
                     
                     if (existingKeyEntity == null)
                     {
@@ -150,9 +149,9 @@ namespace Chest.Services
             
             _cacheProvider.ClearAllCachedEntries();
         }
-
+        
         /// <inheritdoc />
-        public async Task BulkUpsert(string category, string collection, Dictionary<string, (string metadata, string keywords)> data)
+        public async Task BulkUpdate(string category, string collection, Dictionary<string, (string metadata, string keywords)> updatedData)
         {
             if (string.IsNullOrWhiteSpace(category))
                 throw new ArgumentNullException(nameof(category));
@@ -160,21 +159,32 @@ namespace Chest.Services
             if (string.IsNullOrWhiteSpace(collection))
                 throw new ArgumentNullException(nameof(collection));
             
-            using (var transaction = _context.Database.BeginTransaction())
+            using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
-                    var allKeysInCollection =
-                        _context.KeyValues.Where(KeyValueData.SelectAllKeysInCollection(category, collection));
+                    var existingData = await this.GetKeyValueDataByKeys(category, collection, updatedData.Keys)
+                        .ToDictionaryAsync(x => x.Key, x => x);
 
-                    _context.KeyValues.RemoveRange(allKeysInCollection);
+                    var missingKeys = updatedData.Keys
+                        .Select(KeyValueDataKeys.NormalizeValue)
+                        .Except(existingData.Keys)
+                        .ToList();
 
-                    if (data?.Any() ?? false)
+                    if (missingKeys.Any())
                     {
-                        var newKeys = data.Select(x =>
-                            KeyValueData.Create(category, collection, x.Key, x.Value.metadata, x.Value.keywords));
-                        
-                        await _context.KeyValues.AddRangeAsync(newKeys);
+                        throw new NotFoundException(
+                            $"The following keys were not found in category '{category}' and collection '{collection}': {string.Join(", ", missingKeys)}");
+                    }
+                    
+                    foreach (var updatedDataRow in updatedData)
+                    {
+                        var normalizedKey = KeyValueDataKeys.NormalizeValue(updatedDataRow.Key);
+                        var keyValueToUpdate = existingData[normalizedKey];
+                        keyValueToUpdate.MetaData = updatedDataRow.Value.metadata;
+                        keyValueToUpdate.Keywords = updatedDataRow.Value.keywords;
+
+                        _context.Update(keyValueToUpdate);
                     }
 
                     await _context.SaveChangesAsync();
@@ -183,8 +193,8 @@ namespace Chest.Services
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, $"Couldn't make bulk upsert for category [{category}]" + 
-                                 $" and collection [{collection}], number of new keys [{data?.Count ?? 0}]");
+                    Log.Error(e, $"Couldn't make bulk update for category [{category}]" + 
+                                 $" and collection [{collection}], number of keys to update [{updatedData?.Count ?? 0}]");
 
                     throw;
                 }
@@ -202,7 +212,8 @@ namespace Chest.Services
         /// <returns>A <see cref="Task"/> representing the operation</returns>
         public async Task Delete(string category, string collection, string key)
         {
-            var existing = await _context.KeyValues.FindAsync(category.ToUpperInvariant(), collection.ToUpperInvariant(), key.ToUpperInvariant());
+            var dbKeys = KeyValueData.GetNormalizedDbKeys(category, collection, key);
+            var existing = await _context.KeyValues.FindAsync(dbKeys.ToArray<object>());
             if (existing == null)
             {
                 return;
@@ -247,9 +258,11 @@ namespace Chest.Services
         /// <returns>A <see cref="List{T}"/> of unique collections</returns>
         public Task<List<string>> GetCollections(string category)
         {
+            var normalizedKey = new KeyValueDataKeys(category);
+            
             return _context
                 .KeyValues
-                .Where(k => k.Category == category.ToUpperInvariant())
+                .Where(k => k.Category == normalizedKey.Category)
                 .Select(k => k.DisplayCollection)
                 .Distinct()
                 .Cacheable()    
@@ -265,11 +278,14 @@ namespace Chest.Services
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and data</returns>
         public Task<Dictionary<string, string>> GetKeyValues(string category, string collection, string keyword = null)
         {
+            var normalizedData = new KeyValueDataKeys(category, collection);
+
             return _context
                 .KeyValues
-                .Where(k => k.Category == category.ToUpperInvariant() && k.Collection == collection.ToUpperInvariant())
+                .Where(k => k.Category == normalizedData.Category && k.Collection == normalizedData.Collection)
                 .Cacheable()
-                .Where(k => string.IsNullOrWhiteSpace(keyword) || (k.Keywords != null && k.Keywords.ToUpperInvariant().Contains(keyword.ToUpperInvariant())))
+                .Where(k => string.IsNullOrWhiteSpace(keyword) || k.Keywords != null &&
+                    k.Keywords.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
                 .ToDictionaryAsync(
                     k => k.DisplayKey,
                     k => k.MetaData);
@@ -284,14 +300,20 @@ namespace Chest.Services
                     k => k.MetaData);
         }
 
-        private IQueryable<KeyValueData> GetKeyValueDataByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)
+        private IQueryable<KeyValueData> GetKeyValueDataByKeys(string category, string collection,
+            IEnumerable<string> keys, string keyword = null)
         {
+            var normalizedData = new KeyValueDataKeys(category, collection);
+
+            var normalizedKeys = keys.Select(KeyValueDataKeys.NormalizeValue);
+
             return _context
                 .KeyValues
-                .Where(k => k.Category == category.ToUpperInvariant() && k.Collection == collection.ToUpperInvariant())
+                .Where(k => k.Category == normalizedData.Category && k.Collection == normalizedData.Collection)
                 .Cacheable()
-                .Where(k => keys.Contains(k.Key))
-                .Where(k => string.IsNullOrWhiteSpace(keyword) || (k.Keywords != null && k.Keywords.ToUpperInvariant().Contains(keyword.ToUpperInvariant())));
+                .Where(k => normalizedKeys.Contains(k.Key))
+                .Where(k => string.IsNullOrWhiteSpace(keyword) || k.Keywords != null &&
+                    k.Keywords.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
         }
 
         private async Task<bool> KeyExistsIncludingWarning(string category, string collection, string key)
