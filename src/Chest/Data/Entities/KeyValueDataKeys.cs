@@ -17,9 +17,11 @@ namespace Chest.Data.Entities
                 throw new InvalidOperationException("At least one key must be not null or empty");
             }
             
-            Category = category?.ToUpperInvariant();
-            Collection = collection?.ToUpperInvariant();
-            Key = key?.ToUpperInvariant();
+            Category = NormalizeValue(category);
+            Collection = NormalizeValue(collection);
+            Key = NormalizeValue(key);
         }
+
+        public static string NormalizeValue(string value) => value?.ToUpperInvariant();
     }
 }

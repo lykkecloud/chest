@@ -64,10 +64,10 @@ namespace Chest.Services
         /// </summary>
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
-        /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to insert the metadata and keywords for</param>
+        /// <param name="updatedData">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to insert the metadata and keywords for</param>
         /// <returns>A <see cref="Task"/> representing the asynchronous operation </returns>
         /// <exception cref="InvalidOperationException">Thrown when there was an error while saving data to database</exception>
-        Task BulkUpsert(string category, string collection, Dictionary<string, (string metadata, string keywords)> data);
+        Task BulkUpdate(string category, string collection, Dictionary<string, (string metadata, string keywords)> updatedData);
 
         /// <summary>
         /// Deletes a record by category, collection, and key
