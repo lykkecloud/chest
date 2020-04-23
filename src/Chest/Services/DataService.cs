@@ -151,7 +151,7 @@ namespace Chest.Services
         }
         
         /// <inheritdoc />
-        public async Task BulkUpdate(string category, string collection, Dictionary<string, (string metadata, string keywords)> updatedData)
+        public async Task BulkUpsert(string category, string collection, Dictionary<string, (string metadata, string keywords)> updatedData)
         {
             if (string.IsNullOrWhiteSpace(category))
                 throw new ArgumentNullException(nameof(category));
@@ -163,28 +163,43 @@ namespace Chest.Services
             {
                 try
                 {
-                    var existingData = await this.GetKeyValueDataByKeys(category, collection, updatedData.Keys)
-                        .ToDictionaryAsync(x => x.Key, x => x);
-
-                    var missingKeys = updatedData.Keys
-                        .Select(KeyValueDataKeys.NormalizeValue)
-                        .Except(existingData.Keys)
-                        .ToList();
-
-                    if (missingKeys.Any())
-                    {
-                        throw new NotFoundException(
-                            $"The following keys were not found in category '{category}' and collection '{collection}': {string.Join(", ", missingKeys)}");
-                    }
+                    var collectionExists = await HasKeyValueCollection(category, collection);
                     
-                    foreach (var updatedDataRow in updatedData)
+                    if (collectionExists)
                     {
-                        var normalizedKey = KeyValueDataKeys.NormalizeValue(updatedDataRow.Key);
-                        var keyValueToUpdate = existingData[normalizedKey];
-                        keyValueToUpdate.MetaData = updatedDataRow.Value.metadata;
-                        keyValueToUpdate.Keywords = updatedDataRow.Value.keywords;
+                        var existingData = await this.GetKeyValueDataByKeys(category, collection, updatedData.Keys)
+                            .ToDictionaryAsync(x => x.Key, x => x);
 
-                        _context.Update(keyValueToUpdate);
+                        var missingKeys = updatedData.Keys
+                            .Select(KeyValueDataKeys.NormalizeValue)
+                            .Except(existingData.Keys)
+                            .ToList();
+
+                        if (missingKeys.Any())
+                        {
+                            throw new NotFoundException(
+                                $"The following keys were not found in category '{category}' and collection '{collection}': {string.Join(", ", missingKeys)}");
+                        }
+                    
+                        foreach (var updatedDataRow in updatedData)
+                        {
+                            var normalizedKey = KeyValueDataKeys.NormalizeValue(updatedDataRow.Key);
+                            var keyValueToUpdate = existingData[normalizedKey];
+                            keyValueToUpdate.MetaData = updatedDataRow.Value.metadata;
+                            keyValueToUpdate.Keywords = updatedDataRow.Value.keywords;
+
+                            _context.Update(keyValueToUpdate);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var updatedDataRow in updatedData)
+                        {
+                            var item = KeyValueData.Create(category, collection, updatedDataRow.Key,
+                                updatedDataRow.Value.metadata, updatedDataRow.Value.keywords);
+                            
+                            await _context.AddAsync(item);
+                        }
                     }
 
                     await _context.SaveChangesAsync();
@@ -314,6 +329,15 @@ namespace Chest.Services
                 .Where(k => normalizedKeys.Contains(k.Key))
                 .Where(k => string.IsNullOrWhiteSpace(keyword) || k.Keywords != null &&
                     k.Keywords.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        private Task<bool> HasKeyValueCollection(string category, string collection)
+        {
+            var normalizedData = new KeyValueDataKeys(category, collection);
+
+            return _context
+                .KeyValues
+                .AnyAsync(k => k.Category == normalizedData.Category && k.Collection == normalizedData.Collection);
         }
 
         private async Task<bool> KeyExistsIncludingWarning(string category, string collection, string key)
