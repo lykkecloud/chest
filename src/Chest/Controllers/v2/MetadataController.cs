@@ -89,7 +89,7 @@ namespace Chest.Controllers.v2
         {
             var data = model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords));
 
-            await _service.BulkUpdate(category, collection, data);
+            await _service.BulkUpsert(category, collection, data);
 
             return Ok();
         }

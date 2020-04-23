@@ -93,7 +93,7 @@ namespace Chest.Controllers
                 var serializedKeywords = x.Value.Keywords == null ? string.Empty : JsonConvert.SerializeObject(x.Value.Keywords);
                 return (serializedData, serializedKeywords);
             });
-            await this.service.BulkUpdate(category, collection, serializedModel);
+            await this.service.BulkUpsert(category, collection, serializedModel);
 
             return this.Ok();
         }
