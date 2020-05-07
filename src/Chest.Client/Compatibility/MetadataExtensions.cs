@@ -104,8 +104,8 @@ namespace Chest.Client
             }; 
  
             return operations.RefitClient.Update(category, collection, key, model);
-        } 
- 
+        }
+
         /// <summary> 
         /// Updates multiple sets of key value pairs in a given category and collection.
         /// Exists for backward compatibility. 
@@ -113,12 +113,13 @@ namespace Chest.Client
         /// <typeparam name="T">The object type representing the metadata</typeparam> 
         /// <param name="operations">The operations group for this extension method</param> 
         /// <param name="category">The category</param> 
-        /// <param name="collection">The collection</param> 
+        /// <param name="collection">The collection</param>
+        /// <param name="strategy">The bulk update strategy</param>
         /// <param name="cancellationToken">An optional cancellation token</param> 
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to update the metadata and keywords for</param> 
         /// <returns>A task representing the asynchronous operation.</returns> 
         public static async Task BulkUpdate<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
-            string collection, IDictionary<string, (T metadata, List<string> keywords)> data, 
+            string collection, IDictionary<string, (T metadata, List<string> keywords)> data, BulkUpdateStrategy strategy, 
             CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class
         {
@@ -127,7 +128,7 @@ namespace Chest.Client
                 {
                     Data = JsonConvert.SerializeObject(x.Value.metadata.ToMetadataDictionary()),
                     Keywords = x.Value.keywords == null ? string.Empty : JsonConvert.SerializeObject(x.Value.keywords)
-                }));
+                }), strategy);
         } 
  
         /// <summary> 
