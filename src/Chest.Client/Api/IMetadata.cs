@@ -21,7 +21,8 @@ namespace Chest.Client.Api
 
         [Patch("/api/v2/{category}/{collection}")]
         Task BulkUpdate(string category, string collection,
-            [Body, Required] IDictionary<string, MetadataModelContract> model);
+            [Body, Required] IDictionary<string, MetadataModelContract> model, 
+            [Query] BulkUpdateStrategy strategy = BulkUpdateStrategy.UpdateMatchedOnly);
 
         [Delete("/api/v2/{category}/{collection}/{key}")]
         Task<object> Delete(string category, string collection, string key);

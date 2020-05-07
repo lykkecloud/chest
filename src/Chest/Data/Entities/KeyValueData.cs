@@ -66,6 +66,13 @@ namespace Chest.Data.Entities
         public string Keywords { get; set; }
 
         public override string ToString() => $"{this.Key}:{this.MetaData}";
+        
+        public static Func<KeyValueData, bool> SelectAllKeysInCollection(string category, string collection) =>
+            k =>
+            {
+                var keys = new KeyValueDataKeys(category, collection);
+                return k.Category == keys.Category && k.Collection == keys.Collection;
+            };
 
         public static IEnumerable<string> GetNormalizedDbKeys(string category, string collection, string key)
         {
