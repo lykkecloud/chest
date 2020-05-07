@@ -231,10 +231,12 @@ namespace Chest.Services
             {
                 try
                 {
-                    var allKeysInCollection =
-                        _context.KeyValues.Where(KeyValueData.SelectAllKeysInCollection(category, collection));
-
-                    _context.KeyValues.RemoveRange(allKeysInCollection);
+                    var allKeysInCollection = _context.KeyValues
+                        .Where(KeyValueData.SelectAllKeysInCollection(category, collection))
+                        .ToList();
+                    
+                    if (allKeysInCollection.Count > 0)
+                        _context.KeyValues.RemoveRange(allKeysInCollection);
 
                     if (updatedData?.Any() ?? false)
                     {
