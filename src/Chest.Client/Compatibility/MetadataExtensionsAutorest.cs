@@ -173,23 +173,36 @@ namespace Chest.Client.AutorestClient
             await operations.RefitClient.BulkDelete(category, collection, keys.ToHashSet());
         }
 
+        /// <summary>
+        /// Updates multiple sets of key value pairs in a given category and collection.
+        /// </summary>
         /// <param name='operations'> 
         /// The operations group for this extension method. 
         /// </param> 
-        /// <param name='category'> 
+        /// <param name='category'>
+        /// The category
         /// </param> 
-        /// <param name='collection'> 
+        /// <param name='collection'>
+        /// The collection 
         /// </param> 
-        /// <param name='model'> 
-        /// </param> 
+        /// <param name='model'>
+        ///  A <see cref="Dictionary{TKey, TValue}"/> containing the keys to update the metadata and keywords for
+        /// </param>
+        /// <param name="strategy">
+        /// The bulk update strategy
+        /// </param>
         /// <param name='cancellationToken'> 
         /// The cancellation token. 
         /// </param> 
-        public static async Task BulkUpdateAsync(this IMetadata operations, string category, string collection,
-            IDictionary<string, MetadataModel> model = default, CancellationToken cancellationToken = default)
+        public static async Task BulkUpdateAsync(this IMetadata operations, 
+            string category, 
+            string collection,
+            IDictionary<string, MetadataModel> model = default, 
+            BulkUpdateStrategy strategy = BulkUpdateStrategy.UpdateMatchedOnly, 
+            CancellationToken cancellationToken = default)
         {
             await operations.RefitClient.BulkUpdate(category, collection, model?.ToDictionary(x => x.Key,
-                x => x.Value.ToChestContract()));
+                x => x.Value.ToChestContract()), strategy);
         }
 
         /// <param name='operations'> 
