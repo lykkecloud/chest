@@ -85,11 +85,22 @@ namespace Chest.Controllers.v2
         public async Task<IActionResult> BulkUpdate(
             string category,
             string collection,
-            [FromBody, Required] Dictionary<string, MetadataModelContract> model)
+            [FromBody, Required] Dictionary<string, MetadataModelContract> model,
+            [FromQuery] BulkUpdateStrategy strategy = BulkUpdateStrategy.UpdateMatchedOnly)
         {
             var data = model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords));
 
-            await _service.BulkUpsert(category, collection, data);
+            switch (strategy)
+            {
+                case BulkUpdateStrategy.UpdateMatchedOnly:
+                    await _service.BulkUpsert(category, collection, data);
+                    break;
+                case BulkUpdateStrategy.Replace:
+                    await _service.BulkReplace(category, collection, data);
+                    break;
+                default:
+                    return BadRequest(new {message = $"Bulk update strategy [{strategy.ToString()}] is not expected"});
+            }
 
             return Ok();
         }

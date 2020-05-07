@@ -60,7 +60,7 @@ namespace Chest.Services
         Task Upsert(string category, string collection, string key, string data, string keywords);
 
         /// <summary>
-        /// Updates collection or inserts new keys in a batch
+        /// Updates collection of keys in a batch, only matched keys updated.
         /// </summary>
         /// <param name="category">The category</param>
         /// <param name="collection">The collection</param>
@@ -68,6 +68,15 @@ namespace Chest.Services
         /// <returns>A <see cref="Task"/> representing the asynchronous operation </returns>
         /// <exception cref="InvalidOperationException">Thrown when there was an error while saving data to database</exception>
         Task BulkUpsert(string category, string collection, Dictionary<string, (string metadata, string keywords)> updatedData);
+
+        /// <summary>
+        /// Replaces collection of keys in a batch.
+        /// </summary>
+        /// <param name="category">The category</param>
+        /// <param name="collection">The collection</param>
+        /// <param name="updatedData">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to insert the metadata and keywords for</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation</returns>
+        Task BulkReplace(string category, string collection, Dictionary<string, (string metadata, string keywords)> updatedData);
 
         /// <summary>
         /// Deletes a record by category, collection, and key

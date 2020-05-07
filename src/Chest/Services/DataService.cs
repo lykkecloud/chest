@@ -218,6 +218,48 @@ namespace Chest.Services
             }
         }
 
+        /// <inheritdoc />
+        public async Task BulkReplace(string category, string collection, Dictionary<string, (string metadata, string keywords)> updatedData)
+        {
+            if (string.IsNullOrWhiteSpace(category))
+                throw new ArgumentNullException(nameof(category));
+            
+            if (string.IsNullOrWhiteSpace(collection))
+                throw new ArgumentNullException(nameof(collection));
+            
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var allKeysInCollection =
+                        _context.KeyValues.Where(KeyValueData.SelectAllKeysInCollection(category, collection));
+
+                    _context.KeyValues.RemoveRange(allKeysInCollection);
+
+                    if (updatedData?.Any() ?? false)
+                    {
+                        var newKeys = updatedData.Select(x =>
+                            KeyValueData.Create(category, collection, x.Key, x.Value.metadata, x.Value.keywords));
+                        
+                        await _context.KeyValues.AddRangeAsync(newKeys);
+                    }
+
+                    await _context.SaveChangesAsync();
+                    
+                    transaction.Commit();
+                }
+                catch (Exception e)
+                {
+                    Log.Error(e, $"Couldn't make bulk replace for category [{category}]" + 
+                                 $" and collection [{collection}], number of keys to update [{updatedData?.Count ?? 0}]");
+
+                    throw;
+                }
+                
+                _cacheProvider.ClearAllCachedEntries();
+            }
+        }
+
         /// <summary>
         /// Deletes a record by category, collection, and key
         /// </summary>
