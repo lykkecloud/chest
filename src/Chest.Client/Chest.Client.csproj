@@ -11,10 +11,6 @@ It also provides endpoints to fetch list of all categories, collections and keys
   </PropertyGroup>
 
   <ItemGroup>
-    <AdditionalFiles Include="..\stylecop.json" Link="stylecop.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="7.5.0" />
     <PackageReference Include="Lykke.HttpClientGenerator" Version="2.5.0" />
     <PackageReference Include="Microsoft.Rest.ClientRuntime" Version="2.3.11" />

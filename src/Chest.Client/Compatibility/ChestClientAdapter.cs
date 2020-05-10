@@ -12,7 +12,7 @@ namespace Chest.Client.AutorestClient
 
         public ChestClientAdapter(IHttpClientGenerator metadataGenerator, IHttpClientGenerator rootGenerator = null)
         {
-            Metadata = new Metadata(metadataGenerator.Generate<Client.IMetadata>());
+            Metadata = new Metadata(metadataGenerator.Generate<Api.IMetadata>());
             if (rootGenerator != null)
             {
                 Root = new Root(rootGenerator.Generate<Client.IIsAlive>());

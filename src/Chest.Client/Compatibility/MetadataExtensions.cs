@@ -18,7 +18,8 @@ namespace Chest.Client
     public static class MetadataExtensions 
     { 
         /// <summary> 
-        /// Adds the specified instance as metadata against the given category, collection and key. 
+        /// Adds the specified instance as metadata against the given category, collection and key.
+        /// Exists for backward compatibility.
         /// </summary> 
         /// <typeparam name="T">Type of the instance object to store as metadata</typeparam> 
         /// <param name='operations'>The operations group for this extension method</param> 
@@ -29,22 +30,28 @@ namespace Chest.Client
         /// <param name="keywords">Keywords associated with the data, these keywords will be used to search the data</param> 
         /// <param name="cancellationToken">The cancellation token.</param> 
         /// <returns>A task object representing the asynchronous operation.</returns> 
-        public static async Task Add<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
+        public static Task Add<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
             string collection, string key, T instance, List<string> keywords = null, 
             CancellationToken cancellationToken = default(CancellationToken)) 
                 where T : class 
-        { 
+        {
+            if (instance is MetadataModel instanceAsMetadataModel)
+            {
+                return operations.AddAsync(category, collection, key, instanceAsMetadataModel);
+            }
+
             var model = new MetadataModelContract
             { 
                 Data = JsonConvert.SerializeObject(instance.ToMetadataDictionary()), 
                 Keywords = keywords == null ? string.Empty : JsonConvert.SerializeObject(keywords), 
             }; 
  
-            await operations.RefitClient.Create(category, collection, key, model);
+            return operations.RefitClient.Create(category, collection, key, model);
         } 
  
         /// <summary> 
-        /// Adds a set of instances to a specified category and collection 
+        /// Adds a set of instances to a specified category and collection.
+        /// Exists for backward compatibility.
         /// </summary> 
         /// <typeparam name="T">Type of the instance object to store as metadata</typeparam> 
         /// <param name='operations'>The operations group for this extension method</param> 
@@ -54,7 +61,7 @@ namespace Chest.Client
         /// <param name="cancellationToken">An optional cancellation token.</param> 
         /// <returns>A task object representing the asynchronous operation.</returns> 
         public static async Task BulkAdd<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
-            string collection, Dictionary<string, (T instance, List<string> keywords)> data, 
+            string collection, IDictionary<string, (T instance, List<string> keywords)> data, 
             CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class 
         { 
@@ -68,7 +75,8 @@ namespace Chest.Client
         } 
  
         /// <summary> 
-        /// Updates the specified instance as metadata against the given category, collection and key. 
+        /// Updates the specified instance as metadata against the given category, collection and key.
+        /// Exists for backward compatibility.
         /// </summary> 
         /// <typeparam name="T">Type of the instance object to store as metadata</typeparam> 
         /// <param name='operations'>The operations group for this extension method</param> 
@@ -79,32 +87,39 @@ namespace Chest.Client
         /// <param name="keywords">Keywords associated with the data, these keywords will be used to search the data</param> 
         /// <param name="cancellationToken">The cancellation token.</param> 
         /// <returns>A task object representing the asynchronous operation.</returns> 
-        public static async Task Update<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
+        public static Task Update<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
             string collection, string key, T instance, List<string> keywords = null, 
             CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class 
         { 
+            if (instance is MetadataModel instanceAsMetadataModel)
+            {
+                return operations.UpdateAsync(category, collection, key, instanceAsMetadataModel);
+            }
+            
             var model = new MetadataModelContract
             { 
                 Data = JsonConvert.SerializeObject(instance.ToMetadataDictionary()), 
                 Keywords = keywords == null ? string.Empty : JsonConvert.SerializeObject(keywords), 
             }; 
  
-            await operations.RefitClient.Update(category, collection, key, model);
-        } 
- 
+            return operations.RefitClient.Update(category, collection, key, model);
+        }
+
         /// <summary> 
-        /// Updates multiple sets of key value pairs in a given category and collection 
+        /// Updates multiple sets of key value pairs in a given category and collection.
+        /// Exists for backward compatibility. 
         /// </summary> 
         /// <typeparam name="T">The object type representing the metadata</typeparam> 
         /// <param name="operations">The operations group for this extension method</param> 
         /// <param name="category">The category</param> 
-        /// <param name="collection">The collection</param> 
+        /// <param name="collection">The collection</param>
+        /// <param name="strategy">The bulk update strategy</param>
         /// <param name="cancellationToken">An optional cancellation token</param> 
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to update the metadata and keywords for</param> 
         /// <returns>A task representing the asynchronous operation.</returns> 
         public static async Task BulkUpdate<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
-            string collection, Dictionary<string, (T metadata, List<string> keywords)> data, 
+            string collection, IDictionary<string, (T metadata, List<string> keywords)> data, BulkUpdateStrategy strategy, 
             CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class
         {
@@ -113,11 +128,12 @@ namespace Chest.Client
                 {
                     Data = JsonConvert.SerializeObject(x.Value.metadata.ToMetadataDictionary()),
                     Keywords = x.Value.keywords == null ? string.Empty : JsonConvert.SerializeObject(x.Value.keywords)
-                }));
+                }), strategy);
         } 
  
         /// <summary> 
-        /// Gets metadata for specified category, collection and key. 
+        /// Gets metadata for specified category, collection and key.
+        /// Exists for backward compatibility.
         /// </summary> 
         /// <typeparam name="T">The type for which the metada was saved</typeparam> 
         /// <param name='operations'>The operations group for this extension method</param> 
@@ -135,7 +151,8 @@ namespace Chest.Client
         } 
  
         /// <summary> 
-        /// Gets metadata for specified category, collection and key. 
+        /// Gets metadata for specified category, collection and key.
+        /// Exists for backward compatibility.
         /// </summary> 
         /// <typeparam name="T">The type for which the metada was saved</typeparam> 
         /// <param name='operations'>The operations group for this extension method</param> 
@@ -167,7 +184,8 @@ namespace Chest.Client
         } 
  
         /// <summary> 
-        /// Looks up a set of metadata using a set of keys to search for 
+        /// Looks up a set of metadata using a set of keys to search for.
+        /// Exists for backward compatibility. 
         /// </summary> 
         /// <typeparam name="T">The type which the metadata will be deserialized to</typeparam> 
         /// <param name="operations">The operations group for this extension method</param> 
@@ -201,7 +219,8 @@ namespace Chest.Client
         } 
  
         /// <summary> 
-        /// Gets all keys with their metadata in the system against the given category, and collection 
+        /// Gets all keys with their metadata in the system against the given category, and collection.
+        /// Exists for backward compatibility. 
         /// </summary> 
         /// <param name="category">The category for which to get keys</param> 
         /// <param name="collection">The collection for which to get keys in the category</param> 

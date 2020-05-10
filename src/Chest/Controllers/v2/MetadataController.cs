@@ -11,9 +11,8 @@ namespace Chest.Controllers.v2
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
-    using Chest.Client;
-    using Chest.Models.v2;
-    using Chest.Services;
+    using Client;
+    using Services;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
@@ -22,13 +21,13 @@ namespace Chest.Controllers.v2
     [Route("api/v{version:apiVersion}/")]
     [ApiController]
     [Authorize]
-    public class MetadataController : ControllerBase //,IMetadata
+    public class MetadataController : ControllerBase
     {
-        private readonly IDataService service;
+        private readonly IDataService _service;
 
         public MetadataController(IDataService service)
         {
-            this.service = service;
+            this._service = service;
         }
 
         [HttpPost("{category}/{collection}/{key}")]
@@ -42,7 +41,7 @@ namespace Chest.Controllers.v2
             string key,
             [FromBody]MetadataModelContract model)
         {
-            await this.service.Add(category, collection, key, model.Data, model.Keywords);
+            await this._service.Add(category, collection, key, model.Data, model.Keywords);
 
             return this.Created(this.Request.GetRelativeUrl($"api/v2/{category}/{collection}/{key}"), model);
         }
@@ -57,7 +56,7 @@ namespace Chest.Controllers.v2
             string collection,
             [FromBody]Dictionary<string, MetadataModelContract> model)
         {
-            await this.service.BulkAdd(category, collection, model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords)));
+            await this._service.BulkAdd(category, collection, model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords)));
 
             // Opted for 200 OK instead of 201 Created since you can't specify multiple items
             return this.Ok();
@@ -67,34 +66,43 @@ namespace Chest.Controllers.v2
         [SwaggerOperation("Metadata_Update")]
         [SwaggerResponse((int)HttpStatusCode.OK)]
         [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Update(
             string category,
             string collection,
             string key,
             [FromBody]MetadataModelContract model)
         {
-            await this.service.Update(category, collection, key, model.Data, model.Keywords);
+            await _service.Upsert(category, collection, key, model.Data, model.Keywords);
 
-            return this.Ok(new { Message = "Update successfully" });
+            return Ok(new { Message = "Updated successfully" });
         }
 
         [HttpPatch("{category}/{collection}")]
         [SwaggerOperation("Metadata_BulkUpdate")]
-        [SwaggerResponse((int)HttpStatusCode.OK)]
-        [SwaggerResponse((int)HttpStatusCode.BadRequest)]
-        [SwaggerResponse((int)HttpStatusCode.NotFound)]
+        [SwaggerResponse((int) HttpStatusCode.OK)]
+        [SwaggerResponse((int) HttpStatusCode.BadRequest)]
+        [SwaggerResponse((int) HttpStatusCode.NotFound)]
         public async Task<IActionResult> BulkUpdate(
             string category,
             string collection,
-            [FromBody, Required]Dictionary<string, MetadataModelContract> model)
+            [FromBody, Required] Dictionary<string, MetadataModelContract> model,
+            [FromQuery] BulkUpdateStrategy strategy = BulkUpdateStrategy.UpdateMatchedOnly)
         {
-            await this.service.BulkUpdate(
-                category,
-                collection,
-                model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords)));
+            var data = model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords));
 
-            return this.Ok();
+            switch (strategy)
+            {
+                case BulkUpdateStrategy.UpdateMatchedOnly:
+                    await _service.BulkUpsert(category, collection, data);
+                    break;
+                case BulkUpdateStrategy.Replace:
+                    await _service.BulkReplace(category, collection, data);
+                    break;
+                default:
+                    return BadRequest(new {message = $"Bulk update strategy [{strategy.ToString()}] is not expected"});
+            }
+
+            return Ok();
         }
 
         [HttpDelete("{category}/{collection}/{key}")]
@@ -102,7 +110,7 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Delete(string category, string collection, string key)
         {
-            await this.service.Delete(category, collection, key);
+            await this._service.Delete(category, collection, key);
 
             return this.Ok(new { Message = "Deleted successfully" });
         }
@@ -112,7 +120,7 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK)]
         public async Task<IActionResult> BulkDelete(string category, string collection, [FromBody] HashSet<string> keys)
         {
-            await this.service.BulkDelete(category, collection, keys);
+            await this._service.BulkDelete(category, collection, keys);
 
             return this.Ok(new { Message = "Deleted successfully" });
         }
@@ -122,7 +130,7 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(List<string>))]
         public async Task<IActionResult> GetCategories()
         {
-            var categories = await this.service.GetCategories();
+            var categories = await this._service.GetCategories();
 
             return this.Ok(categories);
         }
@@ -133,7 +141,7 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetCollections(string category)
         {
-            var collections = await this.service.GetCollections(category);
+            var collections = await this._service.GetCollections(category);
 
             if (!collections.Any())
             {
@@ -149,7 +157,7 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetKeysWithData(string category, string collection, [FromQuery]string keyword)
         {
-            var keyValueData = await this.service.GetKeyValues(category, collection, keyword);
+            var keyValueData = await this._service.GetKeyValues(category, collection, keyword);
 
             if (!keyValueData.Any())
             {
@@ -172,7 +180,7 @@ namespace Chest.Controllers.v2
             [FromBody, Required]HashSet<string> keys,
             [FromQuery]string keyword)
         {
-            var data = await this.service.FindByKeys(category, collection, keys, keyword);
+            var data = await this._service.FindByKeys(category, collection, keys, keyword);
 
             var missingKeys = keys.Where(x => !data.ContainsKey(x)).ToArray();
 
@@ -190,7 +198,7 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string category, string collection, string key)
         {
-            var (data, keywords) = await this.service.Get(category, collection, key);
+            var (data, keywords) = await this._service.Get(category, collection, key);
 
             if (string.IsNullOrWhiteSpace(data))
             {

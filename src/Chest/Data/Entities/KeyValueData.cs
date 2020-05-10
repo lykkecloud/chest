@@ -1,12 +1,14 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-namespace Chest.Data
-{
-    using System.ComponentModel;
-    using System.ComponentModel.DataAnnotations;
-    using System.ComponentModel.DataAnnotations.Schema;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
+namespace Chest.Data.Entities
+{
     /// <summary>
     /// Represents a key value pair to be stored in data store
     /// </summary>
@@ -64,5 +66,42 @@ namespace Chest.Data
         public string Keywords { get; set; }
 
         public override string ToString() => $"{this.Key}:{this.MetaData}";
+        
+        public static Func<KeyValueData, bool> SelectAllKeysInCollection(string category, string collection) =>
+            k =>
+            {
+                var keys = new KeyValueDataKeys(category, collection);
+                return k.Category == keys.Category && k.Collection == keys.Collection;
+            };
+
+        public static IEnumerable<string> GetNormalizedDbKeys(string category, string collection, string key)
+        {
+            var primaryKey = new KeyValueDataKeys(category, collection, key);
+
+            yield return primaryKey.Category;
+            yield return primaryKey.Collection;
+            yield return primaryKey.Key;
+        }
+
+        public static KeyValueData Create(string category, 
+            string collection, 
+            string key, 
+            string metadata, 
+            string keywords)
+        {
+            var primaryKey = new KeyValueDataKeys(category, collection, key);
+            
+            return new KeyValueData
+            {
+                Category = primaryKey.Category,
+                Collection = primaryKey.Collection,
+                Key = primaryKey.Key,
+                DisplayCategory = category,
+                DisplayCollection = collection,
+                DisplayKey = key,
+                MetaData = metadata,
+                Keywords = keywords
+            };
+        }
     }
 }
