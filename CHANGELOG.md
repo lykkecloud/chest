@@ -1,3 +1,8 @@
+## 2.14.3 + Client 3.5.1 (May 11, 2020)
+
+* LT-2063: Update new Lykke.Middlewares nuget
+* LT-2199: Implement settings bulk update
+
 ## Client 3.1.4 (February 06, 2020)
 
 LT-2038: Handle 404 HTTP response code in Chest client
