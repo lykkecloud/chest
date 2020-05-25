@@ -1,6 +1,9 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Chest.Extensions;
+using Microsoft.Extensions.Hosting;
+
 namespace Chest
 {
     using System;
@@ -8,13 +11,11 @@ namespace Chest
     using System.Reflection;
     using System.Runtime.InteropServices;
     using System.Threading.Tasks;
-    using Chest.Settings;
+    using Settings;
     using Lykke.Snow.Common.Startup;
-    using Microsoft.AspNetCore;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.Extensions.Configuration;
     using Serilog;
-    using Serilog.Events;
 
     public static class Program
     {
@@ -70,7 +71,7 @@ namespace Chest
                 await configuration.ValidateSettings<AppSettings>();
 
                 Log.Information($"Starting {title} web API");
-                BuildWebHost(args, configuration).Run();
+                BuildHost(args, configuration).Run();
                 Log.Information($"{title} web API stopped");
                 return 0;
             }
@@ -85,11 +86,14 @@ namespace Chest
             }
         }
 
-        private static IWebHost BuildWebHost(string[] args, IConfigurationRoot configuration) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseConfiguration(configuration)
-                .UseStartup<Startup>()
-                .UseSerilog()
-                .Build();
+        private static IHost BuildHost(string[] args, IConfiguration configuration) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder
+                        .UseConfiguration(configuration)
+                        .UseStartup<Startup>()
+                        .UseSerilog();
+                }).Build();
     }
 }

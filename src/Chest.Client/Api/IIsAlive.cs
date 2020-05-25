@@ -3,10 +3,9 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using Microsoft.AspNetCore.Mvc;
 using Refit;
 
-namespace Chest.Client
+namespace Chest.Client.Api
 {
     [PublicAPI]
     public interface IIsAlive

@@ -167,7 +167,7 @@ namespace Chest.Services
                     
                     if (collectionExists)
                     {
-                        var existingData = await this.GetKeyValueDataByKeys(category, collection, updatedData.Keys)
+                        var existingData = await GetKeyValueDataByKeys(category, collection, updatedData.Keys)
                             .ToDictionaryAsync(x => x.Key, x => x);
 
                         var missingKeys = updatedData.Keys

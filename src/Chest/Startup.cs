@@ -1,22 +1,27 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using Lykke.Common.ApiLibrary.Swagger;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Chest.Extensions;
+using JetBrains.Annotations;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Chest
 {
-    using System.Linq;
     using CacheManager.Core;
-    using Chest.Data;
-    using Chest.Mappers;
-    using Chest.Services;
+    using Data;
+    using Mappers;
+    using Services;
     using EFSecondLevelCache.Core;
     using Lykke.Middlewares;
     using Lykke.Middlewares.Mappers;
     using Microsoft.AspNetCore.Builder;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
@@ -24,36 +29,33 @@ namespace Chest
     using Newtonsoft.Json;
     using Newtonsoft.Json.Converters;
     using Newtonsoft.Json.Serialization;
-    using Swashbuckle.AspNetCore.Swagger;
-    using Swashbuckle.AspNetCore.SwaggerGen;
 
     public class Startup
     {
-        private readonly IConfiguration configuration;
+        private readonly IConfiguration _configuration;
 
         public Startup(IConfiguration configuration)
         {
-            this.configuration = configuration;
+            _configuration = configuration;
         }
 
-        public string ApiVersion => "v2";
-
-        public string ApiTitle => "Chest API";
+        private static string ApiTitle => "Chest API";
 
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options => options
-                .UseSqlServer(this.configuration.GetConnectionString("Chest")));
+                .UseSqlServer(_configuration.GetConnectionString("Chest")));
 
             services
-                .AddMvc()
-                .AddJsonOptions(
+                .AddControllers()
+                .AddNewtonsoftJson(
                     options =>
                     {
-                        options.SerializerSettings.ContractResolver = new DefaultContractResolver { NamingStrategy = new SnakeCaseNamingStrategy() };
+                        options.SerializerSettings.ContractResolver = new DefaultContractResolver
+                            {NamingStrategy = new SnakeCaseNamingStrategy()};
                         options.SerializerSettings.Converters.Add(new StringEnumConverter());
                         options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                    });            
+                    });
 
             services.AddSingleton<IHttpStatusCodeMapper, HttpStatusCodeMapper>();
             services.AddSingleton<ILogLevelMapper, DefaultLogLevelMapper>();
@@ -71,48 +73,49 @@ namespace Chest
             services.AddApiVersioning(o =>
             {
                 o.AssumeDefaultVersionWhenUnspecified = true;
-                o.DefaultApiVersion = new ApiVersion(1, 0);
+                o.DefaultApiVersion = new ApiVersion(2, 0);
             });
 
-            var clientSettings = this.configuration.GetSection("ChestClientSettings").Get<ClientSettings>();
+            var clientSettings = _configuration.GetSection("ChestClientSettings").Get<ClientSettings>();
             services.AddApiKeyAuth(clientSettings);
 
             // Configure swagger
             services.AddSwaggerGen(options =>
             {
                 // Specifying versions
-                options.SwaggerDoc("v1", this.CreateInfoForApiVersion("v1", true));
-                options.SwaggerDoc("v2", this.CreateInfoForApiVersion("v2", false));
-
-                options.SchemaFilter<NullableTypeSchemaFilter>();
+                options.SwaggerDoc("v2", CreateInfoForApiVersion("v2", false));
 
                 // This call remove version from parameter, without it we will have version as parameter for all endpoints in swagger UI
                 options.OperationFilter<RemoveVersionFromParameter>();
 
                 // This make replacement of v{version:apiVersion} to real version of corresponding swagger doc, i.e. v1
                 options.DocumentFilter<ReplaceVersionWithExactValueInPath>();
-
+                
                 // This exclude endpoint not specified in swagger version, i.e. MapToApiVersion("99")
                 options.DocInclusionPredicate((version, desc) =>
                 {
-                    var versions = desc.ControllerAttributes()
+                    if (!desc.TryGetMethodInfo(out var methodInfo)) return false;
+
+                    var versions = methodInfo.DeclaringType
+                        .GetCustomAttributes(true)
                         .OfType<ApiVersionAttribute>()
                         .SelectMany(attr => attr.Versions);
 
-                    var maps = desc.ActionAttributes()
+                    var maps = methodInfo.DeclaringType
+                        .GetCustomAttributes(true)
                         .OfType<MapToApiVersionAttribute>()
                         .SelectMany(attr => attr.Versions)
                         .ToArray();
-
+                    
                     return versions.Any(v => $"v{v.ToString()}" == version) && (maps.Length == 0 || maps.Any(v => $"v{v.ToString()}" == version));
                 });
 
                 if (!string.IsNullOrWhiteSpace(clientSettings?.ApiKey))
                 {
-                    options.OperationFilter<ApiKeyHeaderOperationFilter>();
+                    options.AddApiKeyAwareness();
                 }
             });
-
+            
             // Default settings for NewtonSoft Serializer
             JsonConvert.DefaultSettings = () =>
             {
@@ -129,22 +132,11 @@ namespace Chest
             };
 
             services.AddScoped<IDataService, DataService>();
-
-            services.AddCors(options =>
-            {
-                /*//options.AddPolicy("spa", policy =>
-                //{
-                //    policy.WithOrigins("http://localhost:5008")
-                //        .AllowAnyHeader()
-                //        .AllowAnyMethod();
-                //});*/
-            });
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        [UsedImplicitly]
+        public void Configure(IApplicationBuilder app, IHostEnvironment env)
         {
-            app.UseEFSecondLevelCache();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -159,34 +151,41 @@ namespace Chest
             app.UseMiddleware<LogHandlerMiddleware>();
             app.UseMiddleware<ExceptionHandlerMiddleware>();
 
-            // app.UseCors("spa");
+            app.UseRouting();
             app.UseAuthentication();
-            app.UseMvcWithDefaultRoute();
+            app.UseAuthorization();
+            app.UseEndpoints(endpoints =>
+                endpoints.MapControllers());
+            
             app.UseSwagger(c =>
             {
-                c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value);
+                c.PreSerializeFilters.Add((doc, req) => doc.Servers = new List<OpenApiServer>
+                {
+                    new OpenApiServer
+                    {
+                        Url = $"{req.Scheme}://{req.Host.Value}"
+                    }
+                });
             });
             app.UseSwaggerUI(x =>
             {
                 x.RoutePrefix = "swagger/ui";
-                x.SwaggerEndpoint($"/swagger/v2/swagger.json", $"{this.ApiTitle} v2");
-                x.SwaggerEndpoint($"/swagger/v1/swagger.json", $"{this.ApiTitle} v1");
+                x.SwaggerEndpoint($"/swagger/v2/swagger.json", $"{ApiTitle} v2");
                 x.EnableValidator(null);
             });
-
+            
             app.InitializeDatabase();
         }
 
-        private Info CreateInfoForApiVersion(string apiVersion, bool isObsolete)
+        private OpenApiInfo CreateInfoForApiVersion(string apiVersion, bool isObsolete)
         {
-            var info = new Info()
+            var info = new OpenApiInfo
             {
-                Title = $"{this.ApiTitle}",
+                Title = $"{ApiTitle}",
                 Version = apiVersion,
-                Description = this.ApiTitle,
-                Contact = new Contact(),
-                TermsOfService = "Copyright (c) 2019 Lykke Corp. See the LICENSE file in the project root for more information.",
-                License = new License() { Name = "MIT", Url = "https://opensource.org/licenses/MIT" }
+                Description = ApiTitle,
+                Contact = new OpenApiContact(),
+                License = new OpenApiLicense {Name = "MIT", Url = new Uri("https://opensource.org/licenses/MIT")}
             };
 
             if (isObsolete)

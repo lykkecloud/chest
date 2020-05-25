@@ -5,7 +5,7 @@ namespace Chest.Mappers
 {
     using System;
     using System.Net;
-    using Chest.Exceptions;
+    using Exceptions;
     using Lykke.Middlewares.Mappers;
 
     public class HttpStatusCodeMapper : IHttpStatusCodeMapper

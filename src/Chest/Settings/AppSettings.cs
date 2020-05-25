@@ -4,8 +4,6 @@
 
 namespace Chest.Settings
 {
-    using Lykke.SettingsReader.Attributes;
-
     public class AppSettings
     {
         public ConnectionStrings ConnectionStrings { get; set; }

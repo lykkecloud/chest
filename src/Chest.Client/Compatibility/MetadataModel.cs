@@ -19,8 +19,8 @@ namespace Chest.Client.AutorestClient.Models
 
         public MetadataModel(IDictionary<string, string> data = null, IList<string> keywords = null)
         {
-            this.Data = data;
-            this.Keywords = keywords;
+            Data = data;
+            Keywords = keywords;
         }
 
         public IDictionary<string, string> Data { get; set; }

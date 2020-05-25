@@ -6,7 +6,7 @@ namespace Chest.Tests.Unit
     using System;
     using System.Collections.Generic;
     using System.Globalization;
-    using Chest.Client;
+    using Client;
     using FluentAssertions;
     using Newtonsoft.Json;
     using Xbehave;
