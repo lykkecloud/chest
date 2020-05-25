@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Chest.Extensions;
 using JetBrains.Annotations;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
@@ -35,7 +36,7 @@ namespace Chest
 
         public Startup(IConfiguration configuration)
         {
-            this._configuration = configuration;
+            _configuration = configuration;
         }
 
         private static string ApiTitle => "Chest API";
@@ -43,7 +44,7 @@ namespace Chest
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options => options
-                .UseSqlServer(this._configuration.GetConnectionString("Chest")));
+                .UseSqlServer(_configuration.GetConnectionString("Chest")));
 
             services
                 .AddControllers()
@@ -75,14 +76,14 @@ namespace Chest
                 o.DefaultApiVersion = new ApiVersion(2, 0);
             });
 
-            var clientSettings = this._configuration.GetSection("ChestClientSettings").Get<ClientSettings>();
+            var clientSettings = _configuration.GetSection("ChestClientSettings").Get<ClientSettings>();
             services.AddApiKeyAuth(clientSettings);
 
             // Configure swagger
             services.AddSwaggerGen(options =>
             {
                 // Specifying versions
-                options.SwaggerDoc("v2", this.CreateInfoForApiVersion("v2", false));
+                options.SwaggerDoc("v2", CreateInfoForApiVersion("v2", false));
 
                 // This call remove version from parameter, without it we will have version as parameter for all endpoints in swagger UI
                 options.OperationFilter<RemoveVersionFromParameter>();

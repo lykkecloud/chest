@@ -1,11 +1,11 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-namespace Chest
-{
-    using System;
-    using Microsoft.AspNetCore.Http;
+using System;
+using Microsoft.AspNetCore.Http;
 
+namespace Chest.Extensions
+{
     public static class HttpRequestExtensions
     {
         public static Uri GetRelativeUrl(this HttpRequest request, string relativePath)

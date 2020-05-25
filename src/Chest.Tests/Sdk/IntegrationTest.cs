@@ -3,7 +3,6 @@
 
 namespace Chest.Tests.Sdk
 {
-    using System;
     using Xunit;
 
     [Collection("Chest")]
@@ -16,6 +15,6 @@ namespace Chest.Tests.Sdk
             this.fixture = fixture;
         }
 
-        protected string ServiceUrl => this.fixture.ServiceUrl;
+        protected string ServiceUrl => fixture.ServiceUrl;
     }
 }

@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Chest.Extensions;
+
 #pragma warning disable SA1008 // Opening parenthesis must be spaced correctly
 #pragma warning disable SA1300 // Element must begin with upper-case letter
 
@@ -27,7 +29,7 @@ namespace Chest.Controllers.v2
 
         public MetadataController(IDataService service)
         {
-            this._service = service;
+            _service = service;
         }
 
         [HttpPost("{category}/{collection}/{key}")]
@@ -41,9 +43,9 @@ namespace Chest.Controllers.v2
             string key,
             [FromBody]MetadataModelContract model)
         {
-            await this._service.Add(category, collection, key, model.Data, model.Keywords);
+            await _service.Add(category, collection, key, model.Data, model.Keywords);
 
-            return this.Created(this.Request.GetRelativeUrl($"api/v2/{category}/{collection}/{key}"), model);
+            return Created(Request.GetRelativeUrl($"api/v2/{category}/{collection}/{key}"), model);
         }
 
         [HttpPost("{category}/{collection}")]
@@ -56,10 +58,10 @@ namespace Chest.Controllers.v2
             string collection,
             [FromBody]Dictionary<string, MetadataModelContract> model)
         {
-            await this._service.BulkAdd(category, collection, model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords)));
+            await _service.BulkAdd(category, collection, model.ToDictionary(x => x.Key, x => (x.Value.Data, x.Value.Keywords)));
 
             // Opted for 200 OK instead of 201 Created since you can't specify multiple items
-            return this.Ok();
+            return Ok();
         }
 
         [HttpPut("{category}/{collection}/{key}")]
@@ -110,9 +112,9 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK)]
         public async Task<IActionResult> Delete(string category, string collection, string key)
         {
-            await this._service.Delete(category, collection, key);
+            await _service.Delete(category, collection, key);
 
-            return this.Ok(new { Message = "Deleted successfully" });
+            return Ok(new { Message = "Deleted successfully" });
         }
 
         [HttpDelete("{category}/{collection}")]
@@ -120,9 +122,9 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK)]
         public async Task<IActionResult> BulkDelete(string category, string collection, [FromBody] HashSet<string> keys)
         {
-            await this._service.BulkDelete(category, collection, keys);
+            await _service.BulkDelete(category, collection, keys);
 
-            return this.Ok(new { Message = "Deleted successfully" });
+            return Ok(new { Message = "Deleted successfully" });
         }
 
         [HttpGet("")]
@@ -130,9 +132,9 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.OK, type: typeof(List<string>))]
         public async Task<IActionResult> GetCategories()
         {
-            var categories = await this._service.GetCategories();
+            var categories = await _service.GetCategories();
 
-            return this.Ok(categories);
+            return Ok(categories);
         }
 
         [HttpGet("{category}")]
@@ -141,14 +143,14 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetCollections(string category)
         {
-            var collections = await this._service.GetCollections(category);
+            var collections = await _service.GetCollections(category);
 
             if (!collections.Any())
             {
-                return this.NotFound(new { Message = $"Category: {category} doesn't exist" });
+                return NotFound(new { Message = $"Category: {category} doesn't exist" });
             }
 
-            return this.Ok(collections);
+            return Ok(collections);
         }
 
         [HttpGet("{category}/{collection}")]
@@ -157,14 +159,14 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> GetKeysWithData(string category, string collection, [FromQuery]string keyword)
         {
-            var keyValueData = await this._service.GetKeyValues(category, collection, keyword);
+            var keyValueData = await _service.GetKeyValues(category, collection, keyword);
 
             if (!keyValueData.Any())
             {
-                return this.NotFound(new { Message = $"No record found for Category: {category} Collection: {collection} filtered by Keyword: {keyword}" });
+                return NotFound(new { Message = $"No record found for Category: {category} Collection: {collection} filtered by Keyword: {keyword}" });
             }
 
-            return this.Ok(keyValueData);
+            return Ok(keyValueData);
         }
 
         // NOTE: This is POST because passing around massive strings in a query parameter might
@@ -180,16 +182,16 @@ namespace Chest.Controllers.v2
             [FromBody, Required]HashSet<string> keys,
             [FromQuery]string keyword)
         {
-            var data = await this._service.FindByKeys(category, collection, keys, keyword);
+            var data = await _service.FindByKeys(category, collection, keys, keyword);
 
             var missingKeys = keys.Where(x => !data.ContainsKey(x)).ToArray();
 
             if (missingKeys.Length > 0)
             {
-                return this.NotFound(new { Message = $"No data found for category: {category} collection: {collection} and keys: {string.Join(", ", missingKeys)}" });
+                return NotFound(new { Message = $"No data found for category: {category} collection: {collection} and keys: {string.Join(", ", missingKeys)}" });
             }
 
-            return this.Ok(data);
+            return Ok(data);
         }
 
         [HttpGet("{category}/{collection}/{key}")]
@@ -198,14 +200,14 @@ namespace Chest.Controllers.v2
         [SwaggerResponse((int)HttpStatusCode.NotFound)]
         public async Task<IActionResult> Get(string category, string collection, string key)
         {
-            var (data, keywords) = await this._service.Get(category, collection, key);
+            var (data, keywords) = await _service.Get(category, collection, key);
 
             if (string.IsNullOrWhiteSpace(data))
             {
-                return this.NotFound(new { Message = $"No data found for category: {category} collection: {collection} and key: {key}" });
+                return NotFound(new { Message = $"No data found for category: {category} collection: {collection} and key: {key}" });
             }
 
-            return this.Ok(new MetadataModelContract { Data = data, Keywords = keywords });
+            return Ok(new MetadataModelContract { Data = data, Keywords = keywords });
         }
     }
 }

@@ -1,13 +1,14 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Chest.Extensions;
+
 namespace Chest.Controllers
 {
     using System.Diagnostics;
     using System.Net;
     using System.Reflection;
-    using System.Threading.Tasks;
-    using Chest.Client;
+    using Client;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
 
@@ -27,6 +28,6 @@ namespace Chest.Controllers
 
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(RootModel))]
-        public IActionResult Get() => this.Ok(Version);
+        public IActionResult Get() => Ok(Version);
     }
 }

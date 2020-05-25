@@ -11,8 +11,8 @@ namespace Chest.Client
     using System.Linq; 
     using System.Threading; 
     using System.Threading.Tasks; 
-    using Chest.Client.AutorestClient; 
-    using Chest.Client.AutorestClient.Models; 
+    using AutorestClient; 
+    using AutorestClient.Models; 
     using Newtonsoft.Json; 
  
     public static class MetadataExtensions 
@@ -30,7 +30,7 @@ namespace Chest.Client
         /// <param name="keywords">Keywords associated with the data, these keywords will be used to search the data</param> 
         /// <param name="cancellationToken">The cancellation token.</param> 
         /// <returns>A task object representing the asynchronous operation.</returns> 
-        public static Task Add<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
+        public static Task Add<T>(this IMetadata operations, string category, 
             string collection, string key, T instance, List<string> keywords = null, 
             CancellationToken cancellationToken = default(CancellationToken)) 
                 where T : class 
@@ -60,7 +60,7 @@ namespace Chest.Client
         /// <param name="data">A dictionary of keys and associated metadata instances and keywords</param> 
         /// <param name="cancellationToken">An optional cancellation token.</param> 
         /// <returns>A task object representing the asynchronous operation.</returns> 
-        public static async Task BulkAdd<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
+        public static async Task BulkAdd<T>(this IMetadata operations, string category, 
             string collection, IDictionary<string, (T instance, List<string> keywords)> data, 
             CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class 
@@ -87,7 +87,7 @@ namespace Chest.Client
         /// <param name="keywords">Keywords associated with the data, these keywords will be used to search the data</param> 
         /// <param name="cancellationToken">The cancellation token.</param> 
         /// <returns>A task object representing the asynchronous operation.</returns> 
-        public static Task Update<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
+        public static Task Update<T>(this IMetadata operations, string category, 
             string collection, string key, T instance, List<string> keywords = null, 
             CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class 
@@ -118,7 +118,7 @@ namespace Chest.Client
         /// <param name="cancellationToken">An optional cancellation token</param> 
         /// <param name="data">A <see cref="Dictionary{TKey, TValue}"/> containing the keys to update the metadata and keywords for</param> 
         /// <returns>A task representing the asynchronous operation.</returns> 
-        public static async Task BulkUpdate<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
+        public static async Task BulkUpdate<T>(this IMetadata operations, string category, 
             string collection, IDictionary<string, (T metadata, List<string> keywords)> data, BulkUpdateStrategy strategy, 
             CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class
@@ -142,7 +142,7 @@ namespace Chest.Client
         /// <param name="key">Unique key for which to get metadata</param> 
         /// <param name="cancellationToken">The cancellation token.</param> 
         /// <returns>Instance object of the type T containing all the metadata information against the given key</returns> 
-        public static async Task<T> Get<T>(this Chest.Client.AutorestClient.IMetadata operations, string category, 
+        public static async Task<T> Get<T>(this IMetadata operations, string category, 
             string collection, string key, CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class, new() 
         { 
@@ -162,7 +162,7 @@ namespace Chest.Client
         /// <param name="cancellationToken">The cancellation token.</param> 
         /// <returns>Instance object of the type T containing all the metadata information against the given key</returns> 
         public static async Task<(T instance, IList<string> keywords)> GetWithKeywords<T>(
-            this Chest.Client.AutorestClient.IMetadata operations, string category, string collection, string key, 
+            this IMetadata operations, string category, string collection, string key, 
             CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class, new()
         {
@@ -196,7 +196,7 @@ namespace Chest.Client
         /// <param name="cancellationToken">An optional cancellation token</param> 
         /// <returns>A dictionary of key and its metadata</returns> 
         public static async Task<IDictionary<string, T>> FindByKeys<T>( 
-            this Chest.Client.AutorestClient.IMetadata operations, 
+            this IMetadata operations, 
             string category, 
             string collection, 
             IList<string> keys, 
@@ -228,7 +228,7 @@ namespace Chest.Client
         /// <param name="cancellationToken">The cancellation token.</param> 
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> having the keys and their metadata</returns> 
         public static async Task<IDictionary<string, T>> GetKeysWithData<T>(
-            this Chest.Client.AutorestClient.IMetadata operations, string category, string collection, 
+            this IMetadata operations, string category, string collection, 
             string keyword = null, CancellationToken cancellationToken = default(CancellationToken)) 
             where T : class, new()
         {
