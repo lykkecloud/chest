@@ -38,7 +38,7 @@
     <PackageReference Include="CacheManager.Serialization.Json" Version="1.1.2" />
     <PackageReference Include="EFSecondLevelCache.Core" Version="2.9.1" />
     <PackageReference Include="Lykke.Middlewares" Version="3.3.0" />
-    <PackageReference Include="Lykke.Snow.Common.Startup" Version="2.2.0" />
+    <PackageReference Include="Lykke.Snow.Common.Startup" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning.ApiExplorer" Version="4.1.1" />
@@ -53,6 +53,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="5.4.1" />
+    <PackageReference Include="System.Linq.Async" Version="4.1.1" />
   </ItemGroup>
 
   <ItemGroup>
