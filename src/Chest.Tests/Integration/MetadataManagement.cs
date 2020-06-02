@@ -14,9 +14,9 @@ namespace Chest.Tests.Integration
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
-    using Chest.Client;
-    using Chest.Tests.Dto;
-    using Chest.Tests.Sdk;
+    using Client;
+    using Dto;
+    using Sdk;
     using FluentAssertions;
     using Newtonsoft.Json;
     using Xbehave;
@@ -30,7 +30,7 @@ namespace Chest.Tests.Integration
         }
         
         public IMetadata GetClient() => HttpClientGenerator
-            .BuildForUrl(this.ServiceUrl)
+            .BuildForUrl(ServiceUrl)
             .Create()
             .Generate<IMetadata>();
 

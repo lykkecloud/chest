@@ -167,7 +167,7 @@ namespace Chest.Services
                     
                     if (collectionExists)
                     {
-                        var existingData = await this.GetKeyValueDataByKeys(category, collection, updatedData.Keys)
+                        var existingData = await GetKeyValueDataByKeys(category, collection, updatedData.Keys)
                             .ToDictionaryAsync(x => x.Key, x => x);
 
                         var missingKeys = updatedData.Keys
@@ -232,6 +232,7 @@ namespace Chest.Services
                 try
                 {
                     var allKeysInCollection = _context.KeyValues
+                        .AsQueryable()
                         .Where(KeyValueData.SelectAllKeysInCollection(category, collection))
                         .ToList();
                     
@@ -287,7 +288,7 @@ namespace Chest.Services
         /// <inheritdoc />
         public async Task BulkDelete(string category, string collection, IEnumerable<string> keys)
         {
-            foreach (var elem in await GetKeyValueDataByKeys(category, collection, keys).ToArrayAsync())
+            await foreach (var elem in GetKeyValueDataByKeys(category, collection, keys))
             {
                 _context.KeyValues.Remove(elem);
             }
@@ -304,9 +305,11 @@ namespace Chest.Services
         {
             return _context
                 .KeyValues
+                .AsQueryable()
                 .Select(k => k.DisplayCategory)
                 .Distinct()
                 .Cacheable()
+                .AsQueryable()
                 .ToListAsync();
         }
 
@@ -321,10 +324,12 @@ namespace Chest.Services
             
             return _context
                 .KeyValues
+                .AsQueryable()
                 .Where(k => k.Category == normalizedKey.Category)
                 .Select(k => k.DisplayCollection)
                 .Distinct()
                 .Cacheable()    
+                .AsQueryable()
                 .ToListAsync();
         }
 
@@ -335,23 +340,26 @@ namespace Chest.Services
         /// <param name="collection">The collection</param>
         /// <param name="keyword">Optional param to search key value pairs</param>
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and data</returns>
-        public Task<Dictionary<string, string>> GetKeyValues(string category, string collection, string keyword = null)
+        public ValueTask<Dictionary<string, string>> GetKeyValues(string category, string collection,
+            string keyword = null)
         {
             var normalizedData = new KeyValueDataKeys(category, collection);
 
             return _context
                 .KeyValues
+                .AsQueryable()
                 .Where(k => k.Category == normalizedData.Category && k.Collection == normalizedData.Collection)
                 .Cacheable()
+                .AsQueryable()
+                .AsAsyncEnumerable()
                 .Where(k => string.IsNullOrWhiteSpace(keyword) || k.Keywords != null &&
                     k.Keywords.Contains(keyword, StringComparison.InvariantCultureIgnoreCase))
-                .ToDictionaryAsync(
-                    k => k.DisplayKey,
+                .ToDictionaryAsync(k => k.DisplayKey,
                     k => k.MetaData);
         }
 
         /// <inheritdoc />
-        public Task<Dictionary<string, string>> FindByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)
+        public ValueTask<Dictionary<string, string>> FindByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null)
         {
             return GetKeyValueDataByKeys(category, collection, keys, keyword)
                 .ToDictionaryAsync(
@@ -359,17 +367,19 @@ namespace Chest.Services
                     k => k.MetaData);
         }
 
-        private IQueryable<KeyValueData> GetKeyValueDataByKeys(string category, string collection,
+        private IAsyncEnumerable<KeyValueData> GetKeyValueDataByKeys(string category, string collection,
             IEnumerable<string> keys, string keyword = null)
         {
             var normalizedData = new KeyValueDataKeys(category, collection);
-
-            var normalizedKeys = keys.Select(KeyValueDataKeys.NormalizeValue);
+            var normalizedKeys = keys.Select(KeyValueDataKeys.NormalizeValue).ToList();
 
             return _context
                 .KeyValues
+                .AsQueryable()
                 .Where(k => k.Category == normalizedData.Category && k.Collection == normalizedData.Collection)
                 .Cacheable()
+                .AsQueryable()
+                .AsAsyncEnumerable()
                 .Where(k => normalizedKeys.Contains(k.Key))
                 .Where(k => string.IsNullOrWhiteSpace(keyword) || k.Keywords != null &&
                     k.Keywords.Contains(keyword, StringComparison.InvariantCultureIgnoreCase));
@@ -381,6 +391,7 @@ namespace Chest.Services
 
             return _context
                 .KeyValues
+                .AsQueryable()
                 .AnyAsync(k => k.Category == normalizedData.Category && k.Collection == normalizedData.Collection);
         }
 

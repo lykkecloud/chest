@@ -1,13 +1,13 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-namespace Chest
-{
-    using Chest.Data;
-    using Microsoft.AspNetCore.Builder;
-    using Microsoft.EntityFrameworkCore;
-    using Microsoft.Extensions.DependencyInjection;
+using Chest.Data;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
+namespace Chest.Extensions
+{
     public static class ApplicationBuilderExtensions
     {
         public static IApplicationBuilder InitializeDatabase(this IApplicationBuilder app)

@@ -65,7 +65,7 @@ namespace Chest.Data.Entities
         [MaxLength(1024)]
         public string Keywords { get; set; }
 
-        public override string ToString() => $"{this.Key}:{this.MetaData}";
+        public override string ToString() => $"{Key}:{MetaData}";
         
         public static Func<KeyValueData, bool> SelectAllKeysInCollection(string category, string collection) =>
             k =>

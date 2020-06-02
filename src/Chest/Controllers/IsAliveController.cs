@@ -1,21 +1,20 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-#pragma warning disable 1998
+using Chest.Extensions;
 
 namespace Chest.Controllers
 {
     using System.Diagnostics;
     using System.Net;
     using System.Reflection;
-    using System.Threading.Tasks;
-    using Chest.Client;
+    using Client;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
 
     [ApiVersion("1")]
     [ApiVersion("2")]
-    [Route("api/isAlive")]
+    [Route("api/isAlive", Order = 1)]
     public class IsAliveController : Controller
     {
         private static readonly RootModel Version =
@@ -29,6 +28,6 @@ namespace Chest.Controllers
 
         [HttpGet]
         [SwaggerResponse((int)HttpStatusCode.OK, Type = typeof(RootModel))]
-        public async Task<IActionResult> Get() => this.Ok(Version);
+        public IActionResult Get() => Ok(Version);
     }
 }

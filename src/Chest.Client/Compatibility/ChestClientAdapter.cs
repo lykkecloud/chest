@@ -1,6 +1,7 @@
 // Copyright (c) 2019 Lykke Corp. 
 // See the LICENSE file in the project root for more information. 
 
+using Chest.Client.Api;
 using Lykke.HttpClientGenerator;
 
 namespace Chest.Client.AutorestClient
@@ -15,7 +16,7 @@ namespace Chest.Client.AutorestClient
             Metadata = new Metadata(metadataGenerator.Generate<Api.IMetadata>());
             if (rootGenerator != null)
             {
-                Root = new Root(rootGenerator.Generate<Client.IIsAlive>());
+                Root = new Root(rootGenerator.Generate<IIsAlive>());
             }
         }
     }

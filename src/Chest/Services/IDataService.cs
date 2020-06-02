@@ -116,7 +116,7 @@ namespace Chest.Services
         /// <param name="collection">The collection</param>
         /// <param name="keyword">Optional param to search key value pairs</param>
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and data</returns>
-        Task<Dictionary<string, string>> GetKeyValues(string category, string collection, string keyword = null);
+        ValueTask<Dictionary<string, string>> GetKeyValues(string category, string collection, string keyword = null);
 
         /// <summary>
         /// Looks up a set of metadata key value pairs in a specified category and collection using a set of keys to search for
@@ -126,6 +126,6 @@ namespace Chest.Services
         /// <param name="keys">The set of keys to search for</param>
         /// <param name="keyword">An optional keyword to narrow down the search</param>
         /// <returns>A <see cref="Dictionary{TKey, TValue}"/> of key and metadata</returns>
-        Task<Dictionary<string, string>> FindByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null);
+        ValueTask<Dictionary<string, string>> FindByKeys(string category, string collection, IEnumerable<string> keys, string keyword = null);
     }
 }

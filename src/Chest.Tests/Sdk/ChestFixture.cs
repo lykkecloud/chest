@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Chest.Client.Api;
 using Lykke.HttpClientGenerator;
 
 namespace Chest.Tests.Sdk
@@ -11,30 +12,24 @@ namespace Chest.Tests.Sdk
     using System.IO;
     using System.Net.Http;
     using System.Threading;
-    using Chest.Client;
     using Microsoft.Extensions.Configuration;
-    using Newtonsoft.Json;
-    using Newtonsoft.Json.Converters;
-    using Newtonsoft.Json.Serialization;
 
     public sealed class ChestFixture : IDisposable
     {
-        private readonly string connectionString = "<pass_it_from_testsettings.json>";
+        private readonly string _connectionString = "<pass_it_from_testsettings.json>";
 
-        private static readonly string DockerContainerId = Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture).Substring(12);
-
-        private readonly Process chestProcess;
+        private readonly Process _chestProcess;
 
         public ChestFixture()
         {
             var config = new ConfigurationBuilder().AddJsonFile("testsettings.json").Build();
 
-            this.connectionString = config.GetConnectionString("Chest");
+            _connectionString = config.GetConnectionString("Chest");
 
-            this.ServiceUrl = config.GetValue<string>("serviceUrl");
-            this.ApiKey = config.GetValue<string>("apiKey");
+            ServiceUrl = config.GetValue<string>("serviceUrl");
+            ApiKey = config.GetValue<string>("apiKey");
 
-            this.chestProcess = this.StartChest();
+            _chestProcess = StartChest();
         }
 
         public string ServiceUrl { get; }
@@ -45,26 +40,13 @@ namespace Chest.Tests.Sdk
         {
             try
             {
-                this.chestProcess.Kill();
+                _chestProcess.Kill();
             }
             catch (InvalidOperationException)
             {
             }
 
-            this.chestProcess.Dispose();
-        }
-
-        private static JsonSerializerSettings GetJsonSerializerSettings()
-        {
-            var settings = new JsonSerializerSettings
-            {
-                ContractResolver = new DefaultContractResolver { NamingStrategy = new SnakeCaseNamingStrategy() },
-                NullValueHandling = NullValueHandling.Ignore,
-            };
-
-            settings.Converters.Add(new StringEnumConverter());
-
-            return settings;
+            _chestProcess.Dispose();
         }
 
         [DebuggerStepThrough]
@@ -76,14 +58,14 @@ namespace Chest.Tests.Sdk
                 Path.DirectorySeparatorChar);
 
             Process.Start(
-                new ProcessStartInfo("dotnet", $"run -p {path} --connectionStrings:chest \"{connectionString}\"")
+                new ProcessStartInfo("dotnet", $"run -p {path} --connectionStrings:chest \"{_connectionString}\"")
                 {
                     UseShellExecute = true,
                 });
 
             var processId = default(int);
             var clientGenerator = HttpClientGenerator
-                .BuildForUrl(this.ServiceUrl)
+                .BuildForUrl(ServiceUrl)
                 .Create();
 
             var client = clientGenerator.Generate<IIsAlive>();
