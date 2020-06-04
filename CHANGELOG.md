@@ -1,3 +1,7 @@
+## 2.15.0 + Client 3.6.0 (June 04, 2020)
+
+* LT-2260: Migrate to 3.1 Core and update DL libraries
+
 ## 2.14.3 + Client 3.5.1 (May 11, 2020)
 
 * LT-2063: Update new Lykke.Middlewares nuget
