@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System.Data;
 using Chest.Data.Entities;
 
 namespace Chest.Services
@@ -136,10 +137,19 @@ namespace Chest.Services
 
                     await _context.SaveChangesAsync();
                     
-                    transaction.Commit();
+                    await transaction.CommitAsync();
                 }
                 catch (Exception e)
                 {
+                    try
+                    {
+                        await transaction.RollbackAsync();
+                    }
+                    catch (Exception rollbackEx)
+                    {
+                        Log.Error(rollbackEx, "Couldn't rollback upsert transaction");
+                    }
+                    
                     Log.Error(e, $"Couldn't make upsert for category [{category}]," + 
                                  $" collection [{collection}] and key [{key}]");
 
@@ -204,10 +214,19 @@ namespace Chest.Services
 
                     await _context.SaveChangesAsync();
                     
-                    transaction.Commit();
+                    await transaction.CommitAsync();
                 }
                 catch (Exception e)
                 {
+                    try
+                    {
+                        await transaction.RollbackAsync();
+                    }
+                    catch (Exception rollbackEx)
+                    {
+                        Log.Error(rollbackEx, "Couldn't rollback bulk upsert transaction");
+                    }
+                    
                     Log.Error(e, $"Couldn't make bulk update for category [{category}]" + 
                                  $" and collection [{collection}], number of keys to update [{updatedData?.Count ?? 0}]");
 
@@ -227,7 +246,7 @@ namespace Chest.Services
             if (string.IsNullOrWhiteSpace(collection))
                 throw new ArgumentNullException(nameof(collection));
             
-            using (var transaction = await _context.Database.BeginTransactionAsync())
+            using (var transaction = await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable))
             {
                 try
                 {
@@ -249,10 +268,19 @@ namespace Chest.Services
 
                     await _context.SaveChangesAsync();
                     
-                    transaction.Commit();
+                    await transaction.CommitAsync();
                 }
                 catch (Exception e)
                 {
+                    try
+                    {
+                        await transaction.RollbackAsync();
+                    }
+                    catch (Exception rollbackEx)
+                    {
+                        Log.Error(rollbackEx, $"Couldn't rollback bulk replace transaction");
+                    }
+
                     Log.Error(e, $"Couldn't make bulk replace for category [{category}]" + 
                                  $" and collection [{collection}], number of keys to update [{updatedData?.Count ?? 0}]");
 
