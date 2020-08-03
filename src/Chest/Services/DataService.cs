@@ -107,13 +107,13 @@ namespace Chest.Services
         {
             if (string.IsNullOrWhiteSpace(category))
                 throw new ArgumentNullException(nameof(category));
-            
+
             if (string.IsNullOrWhiteSpace(collection))
                 throw new ArgumentNullException(nameof(collection));
-            
+
             if (string.IsNullOrWhiteSpace(key))
                 throw new ArgumentNullException(nameof(key));
-            
+
             if (string.IsNullOrWhiteSpace(data))
                 throw new ArgumentNullException(nameof(data));
 
@@ -123,7 +123,7 @@ namespace Chest.Services
                 {
                     var dbKeys = KeyValueData.GetNormalizedDbKeys(category, collection, key);
                     var existingKeyEntity = await _context.KeyValues.FindAsync(dbKeys.ToArray<object>());
-                    
+
                     if (existingKeyEntity == null)
                     {
                         await _context.AddAsync(KeyValueData.Create(category, collection, key, data, keywords));
@@ -135,36 +135,36 @@ namespace Chest.Services
                     }
 
                     await _context.SaveChangesAsync();
-                    
+
                     transaction.Commit();
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, $"Couldn't make upsert for category [{category}]," + 
+                    Log.Error(e, $"Couldn't make upsert for category [{category}]," +
                                  $" collection [{collection}] and key [{key}]");
 
                     throw;
                 }
             }
-            
+
             _cacheProvider.ClearAllCachedEntries();
         }
-        
+
         /// <inheritdoc />
         public async Task BulkUpsert(string category, string collection, Dictionary<string, (string metadata, string keywords)> updatedData)
         {
             if (string.IsNullOrWhiteSpace(category))
                 throw new ArgumentNullException(nameof(category));
-            
+
             if (string.IsNullOrWhiteSpace(collection))
                 throw new ArgumentNullException(nameof(collection));
-            
+
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
                     var collectionExists = await HasKeyValueCollection(category, collection);
-                    
+
                     if (collectionExists)
                     {
                         var existingData = await GetKeyValueDataByKeys(category, collection, updatedData.Keys)
@@ -180,7 +180,7 @@ namespace Chest.Services
                             throw new NotFoundException(
                                 $"The following keys were not found in category '{category}' and collection '{collection}': {string.Join(", ", missingKeys)}");
                         }
-                    
+
                         foreach (var updatedDataRow in updatedData)
                         {
                             var normalizedKey = KeyValueDataKeys.NormalizeValue(updatedDataRow.Key);
@@ -197,23 +197,23 @@ namespace Chest.Services
                         {
                             var item = KeyValueData.Create(category, collection, updatedDataRow.Key,
                                 updatedDataRow.Value.metadata, updatedDataRow.Value.keywords);
-                            
+
                             await _context.AddAsync(item);
                         }
                     }
 
                     await _context.SaveChangesAsync();
-                    
+
                     transaction.Commit();
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, $"Couldn't make bulk update for category [{category}]" + 
+                    Log.Error(e, $"Couldn't make bulk update for category [{category}]" +
                                  $" and collection [{collection}], number of keys to update [{updatedData?.Count ?? 0}]");
 
                     throw;
                 }
-                
+
                 _cacheProvider.ClearAllCachedEntries();
             }
         }
@@ -223,19 +223,21 @@ namespace Chest.Services
         {
             if (string.IsNullOrWhiteSpace(category))
                 throw new ArgumentNullException(nameof(category));
-            
+
             if (string.IsNullOrWhiteSpace(collection))
                 throw new ArgumentNullException(nameof(collection));
-            
+
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
+                    var normalizedData = new KeyValueDataKeys(category, collection);
+
                     var allKeysInCollection = _context.KeyValues
                         .AsQueryable()
-                        .Where(KeyValueData.SelectAllKeysInCollection(category, collection))
+                        .Where(k => k.Category == normalizedData.Category && k.Collection == normalizedData.Collection)
                         .ToList();
-                    
+
                     if (allKeysInCollection.Count > 0)
                         _context.KeyValues.RemoveRange(allKeysInCollection);
 
@@ -243,22 +245,22 @@ namespace Chest.Services
                     {
                         var newKeys = updatedData.Select(x =>
                             KeyValueData.Create(category, collection, x.Key, x.Value.metadata, x.Value.keywords));
-                        
+
                         await _context.KeyValues.AddRangeAsync(newKeys);
                     }
 
                     await _context.SaveChangesAsync();
-                    
+
                     transaction.Commit();
                 }
                 catch (Exception e)
                 {
-                    Log.Error(e, $"Couldn't make bulk replace for category [{category}]" + 
+                    Log.Error(e, $"Couldn't make bulk replace for category [{category}]" +
                                  $" and collection [{collection}], number of keys to update [{updatedData?.Count ?? 0}]");
 
                     throw;
                 }
-                
+
                 _cacheProvider.ClearAllCachedEntries();
             }
         }
@@ -321,14 +323,14 @@ namespace Chest.Services
         public Task<List<string>> GetCollections(string category)
         {
             var normalizedKey = new KeyValueDataKeys(category);
-            
+
             return _context
                 .KeyValues
                 .AsQueryable()
                 .Where(k => k.Category == normalizedKey.Category)
                 .Select(k => k.DisplayCollection)
                 .Distinct()
-                .Cacheable()    
+                .Cacheable()
                 .AsQueryable()
                 .ToListAsync();
         }
