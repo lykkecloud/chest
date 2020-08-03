@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq.Expressions;
 
 namespace Chest.Data.Entities
 {
@@ -66,13 +67,6 @@ namespace Chest.Data.Entities
         public string Keywords { get; set; }
 
         public override string ToString() => $"{Key}:{MetaData}";
-        
-        public static Func<KeyValueData, bool> SelectAllKeysInCollection(string category, string collection) =>
-            k =>
-            {
-                var keys = new KeyValueDataKeys(category, collection);
-                return k.Category == keys.Category && k.Collection == keys.Collection;
-            };
 
         public static IEnumerable<string> GetNormalizedDbKeys(string category, string collection, string key)
         {
