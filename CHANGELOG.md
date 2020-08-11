@@ -1,3 +1,7 @@
+## 2.15.1 (August 11, 2020)
+
+* LT-2370: Chest database error
+
 ## 2.15.0 + Client 3.6.0 (June 04, 2020)
 
 * LT-2260: Migrate to 3.1 Core and update DL libraries
