@@ -15,6 +15,8 @@ namespace Chest.Data
         }
 
         internal DbSet<KeyValueData> KeyValues { get; set; }
+        
+        internal DbSet<LocalizedValue> LocalizedValues { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -22,6 +24,10 @@ namespace Chest.Data
             modelBuilder
                 .Entity<KeyValueData>()
                 .HasKey(k => new { k.Category, k.Collection, k.Key });
+            
+            modelBuilder
+                .Entity<LocalizedValue>()
+                .HasKey(lv => new { lv.Key, lv.Locale });
 
             base.OnModelCreating(modelBuilder);
         }
