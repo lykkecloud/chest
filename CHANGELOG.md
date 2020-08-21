@@ -1,3 +1,7 @@
+## 2.15.2 (August 21, 2020)
+
+* LT-2435: fix BulkReplace method
+
 ## 2.15.1 (August 11, 2020)
 
 * LT-2370: Chest database error
