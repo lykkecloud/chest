@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Chest.Data;
@@ -7,6 +6,8 @@ using Chest.Data.Entities;
 using Chest.Exceptions;
 using EFSecondLevelCache.Core;
 using EFSecondLevelCache.Core.Contracts;
+using Lykke.Common.MsSql;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chest.Services
@@ -32,7 +33,21 @@ namespace Chest.Services
             if (existingValue != null) throw new LocalizedValueAlreadyExistsException(value);
 
             await context.AddAsync(value);
-            await context.SaveChangesAsync();
+
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                if (e.InnerException is SqlException sqlException &&
+                    sqlException.Number == MsSqlErrorCodes.DuplicateIndex)
+                {
+                    throw new LocalizedValueAlreadyExistsException(value);
+                }
+
+                throw;
+            }
 
             cacheProvider.ClearAllCachedEntries();
         }
@@ -51,22 +66,37 @@ namespace Chest.Services
 
             existingValue.Value = value.Value;
 
-            await context.SaveChangesAsync();
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new LocalizedValueNotFoundException(value);
+            }
 
             cacheProvider.ClearAllCachedEntries();
         }
 
         public async Task DeleteAsync(string locale, string key)
         {
-            var existingValue = await context
-                .LocalizedValues
-                .AsQueryable()
-                .FirstOrDefaultAsync(v => v.Key == key && v.Locale == locale);
+            var value = new LocalizedValue()
+            {
+                Locale = locale,
+                Key = key,
+            };
 
-            if (existingValue == null) throw new LocalizedValueNotFoundException(locale, key);
-
-            context.LocalizedValues.Remove(existingValue);
-            await context.SaveChangesAsync();
+            context.Attach(value);
+            context.LocalizedValues.Remove(value);
+            
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new LocalizedValueNotFoundException(locale, key);
+            }
 
             cacheProvider.ClearAllCachedEntries();
         }
