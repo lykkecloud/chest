@@ -66,7 +66,6 @@ namespace Chest.Controllers.v2
             catch (LocalizedValueNotFoundException)
             {
                 response.ErrorCode = LocalizedValuesErrorCodesContract.LocalizedValueDoesNotExist;
-                return response;
             }
 
             return response;
