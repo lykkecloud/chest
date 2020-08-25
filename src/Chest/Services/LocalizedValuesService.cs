@@ -25,13 +25,6 @@ namespace Chest.Services
 
         public async Task AddAsync(LocalizedValue value)
         {
-            var existingValue = await context
-                .LocalizedValues
-                .AsQueryable()
-                .FirstOrDefaultAsync(v => v.Key == value.Key && v.Locale == value.Locale);
-
-            if (existingValue != null) throw new LocalizedValueAlreadyExistsException(value);
-
             await context.AddAsync(value);
 
             try
@@ -54,17 +47,7 @@ namespace Chest.Services
 
         public async Task UpdateAsync(LocalizedValue value)
         {
-            var existingValue = await context
-                .LocalizedValues
-                .AsQueryable()
-                .FirstOrDefaultAsync(v => v.Key == value.Key && v.Locale == value.Locale);
-
-            if (existingValue == null)
-            {
-                throw new LocalizedValueNotFoundException(value);
-            }
-
-            existingValue.Value = value.Value;
+            context.Update(value);
 
             try
             {
@@ -88,7 +71,7 @@ namespace Chest.Services
 
             context.Attach(value);
             context.LocalizedValues.Remove(value);
-            
+
             try
             {
                 await context.SaveChangesAsync();
