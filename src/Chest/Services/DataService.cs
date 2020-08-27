@@ -268,6 +268,7 @@ namespace Chest.Services
                         await _context.KeyValues.AddRangeAsync(newKeys);
                     }
                     
+                    throw new InvalidOperationException("Test exception");
                     await _context.SaveChangesAsync();
                     
                     await transaction.CommitAsync();
