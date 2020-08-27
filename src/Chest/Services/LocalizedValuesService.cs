@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Chest.Data;
 using Chest.Data.Entities;
 using Chest.Exceptions;
+using Chest.Extensions;
 using EFSecondLevelCache.Core;
 using EFSecondLevelCache.Core.Contracts;
 using Lykke.Common.MsSql;
@@ -33,8 +34,7 @@ namespace Chest.Services
             }
             catch (DbUpdateException e)
             {
-                if (e.InnerException is SqlException sqlException &&
-                    sqlException.Number == MsSqlErrorCodes.DuplicateIndex)
+                if (e.ValueAlreadyExistsException())
                 {
                     throw new LocalizedValueAlreadyExistsException(value);
                 }
