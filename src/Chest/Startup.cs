@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AutoMapper;
 using Chest.Extensions;
 using JetBrains.Annotations;
 using Lykke.Snow.Common.Startup;
@@ -131,7 +132,10 @@ namespace Chest
                 return settings;
             };
 
+            services.AddAutoMapper(typeof(AutoMapperProfile));
+
             services.AddScoped<IDataService, DataService>();
+            services.AddScoped<ILocalizedValuesService, LocalizedValuesService>();
         }
 
         [UsedImplicitly]
