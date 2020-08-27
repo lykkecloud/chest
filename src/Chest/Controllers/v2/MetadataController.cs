@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using Chest.Extensions;
 
 #pragma warning disable SA1008 // Opening parenthesis must be spaced correctly
@@ -98,6 +99,7 @@ namespace Chest.Controllers.v2
                     await _service.BulkUpsert(category, collection, data);
                     break;
                 case BulkUpdateStrategy.Replace:
+                    throw new InvalidOperationException("Test exceptions");
                     await _service.BulkReplace(category, collection, data);
                     break;
                 default:
