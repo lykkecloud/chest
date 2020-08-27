@@ -99,7 +99,6 @@ namespace Chest.Controllers.v2
                     await _service.BulkUpsert(category, collection, data);
                     break;
                 case BulkUpdateStrategy.Replace:
-                    throw new InvalidOperationException("Test exceptions");
                     await _service.BulkReplace(category, collection, data);
                     break;
                 default:
