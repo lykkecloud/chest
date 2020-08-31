@@ -1,3 +1,7 @@
+## 2.20.0 (August 31, 2020) NOVA 2. Delivery 1.
+
+* LT-2460: Implement localization api in Chest
+
 ## 2.15.2 (August 21, 2020)
 
 * LT-2435: fix BulkReplace method
