@@ -2,7 +2,7 @@
 
 namespace Chest.Client.Models.Requests
 {
-    public class UpsertLocaleRequest
+    public class UpsertLocaleRequest : UserRequest
     {
         [Required]
         public string Id { get; set; }

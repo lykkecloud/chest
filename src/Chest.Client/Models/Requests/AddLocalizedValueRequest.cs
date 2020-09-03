@@ -5,7 +5,7 @@ namespace Chest.Client.Models.Requests
     /// <summary>
     /// Request model to add localized value
     /// </summary>
-    public class AddLocalizedValueRequest
+    public class AddLocalizedValueRequest : UserRequest
     {
         /// <summary>
         /// Locale (e.g. en-US)

@@ -27,7 +27,7 @@ namespace Chest.Client.Api
         /// Deletes existing localized value
         /// </summary>
         [Delete("/api/v2/localized-values/{locale}/{key}")]
-        Task<ErrorCodeResponse<LocalizedValuesErrorCodesContract>> Delete(string locale, string key);
+        Task<ErrorCodeResponse<LocalizedValuesErrorCodesContract>> Delete(string locale, string key, [Body] DeleteLocalizedValueRequest request);
         
         /// <summary>
         /// Gets localized value by locale and key
