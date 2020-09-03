@@ -58,7 +58,7 @@ namespace Chest.Controllers.v2
 
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ErrorCodeResponse<LocalesErrorCodesContract>), (int) HttpStatusCode.OK)]
-        public async Task<ErrorCodeResponse<LocalesErrorCodesContract>> DeleteAsync([FromRoute] string id)
+        public async Task<ErrorCodeResponse<LocalesErrorCodesContract>> DeleteAsync([FromRoute] string id, [FromBody] DeleteLocaleRequest request)
         {
             var response = new ErrorCodeResponse<LocalesErrorCodesContract>();
 
