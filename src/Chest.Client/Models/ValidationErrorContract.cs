@@ -1,19 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Chest.Core
+namespace Chest.Client.Models
 {
-    public class ValidationError
+    public class ValidationErrorContract
     {
         public string ErrorCode { get; }
         public string ErrorMessage { get; }
         public IReadOnlyList<string> FieldNames { get; }
 
-        public ValidationError(string errorCode, string errorMessage, IEnumerable<string> fieldNames = null)
+        public ValidationErrorContract(string errorCode, string errorMessage, IEnumerable<string> fieldNames = null)
         {
             ErrorCode = errorCode;
             ErrorMessage = errorMessage;
-            FieldNames = fieldNames == null ? new List<string>() : fieldNames.ToList(); 
+            FieldNames = fieldNames?.ToList() ?? new List<string>();
         }
     }
 }

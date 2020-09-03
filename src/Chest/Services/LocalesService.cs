@@ -46,8 +46,7 @@ namespace Chest.Services
             {
                 var keys = await _localizedValuesService.GetMissingKeysAsync(locale);
                 if (keys.Count > 0)
-                    return new ErrorResult<LocalesErrorCodes>(LocalesErrorCodes.CannotSetLocaleAsDefault,
-                        keys.Select(k => new ValidationError(k, "Must provide localized value")));
+                    return new ErrorResult<LocalesErrorCodes>(LocalesErrorCodes.CannotSetLocaleAsDefault, $"Must provide localized value for keys: {string.Join(", ", keys)}");
 
                 // remove default from the old default locale
                 if (defaultLocale != null)
@@ -80,8 +79,7 @@ namespace Chest.Services
             if (existing.Value.IsDefault)
                 return new Result<LocalesErrorCodes>(LocalesErrorCodes.CannotDeleteDefaultLocale);
 
-            await _localesRepository.DeleteAsync(id);
-            return new Result<LocalesErrorCodes>();
+            return await _localesRepository.DeleteAsync(id);
         }
     }
 }

@@ -9,6 +9,7 @@ using Chest.Data.Entities;
 using Chest.Models.v2;
 using Chest.Models.v2.Audit;
 using Chest.Models.v2.Locales;
+using ValidationError = Chest.Core.ValidationError;
 
 namespace Chest.Mappers
 {
@@ -29,9 +30,7 @@ namespace Chest.Mappers
             CreateMap<UpsertLocaleRequest, Locale>();
 
             // errors
-            CreateMap<List<ValidationError>, IReadOnlyDictionary<string, string>>()
-                .ConstructUsing(error => error
-                    .ToDictionary(x => x.Key, x => x.Message));
+            CreateMap<ValidationError, ValidationErrorContract>();
             
             // audit
             CreateMap<GetAuditLogsRequest, AuditLogsFilterDto>();

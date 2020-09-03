@@ -49,30 +49,29 @@ namespace Chest.Controllers.v2
 
             var result = await _localesService.UpsertAsync(_mapper.Map<Locale>(request));
 
-            if (result.IsFailed)
+            // todo: move validations to the base class to avoid pattern matching
+            if (result.IsFailed && result is ErrorResult<LocalesErrorCodes> r)
             {
-                response.ErrorCode = _mapper.Map<LocalesErrorCodesContract>(result.Error);
-                // todo: move validations to the base class to avoid pattern matching
-                if (result is ErrorResult<LocalesErrorCodes> r)
-                {
-                    response.Errors = _mapper.Map<IReadOnlyDictionary<string, string>>(r.ValidationErrors);
-                }
+                response.Errors = _mapper.Map<IReadOnlyList<ValidationErrorContract>>(r.ToValidationErrors());
             }
 
             return response;
         }
 
         [HttpDelete("{id}")]
-        [ProducesResponseType(typeof(ErrorCodeResponse<LocalesErrorCodesContract>), (int) HttpStatusCode.OK)]
-        public async Task<ErrorCodeResponse<LocalesErrorCodesContract>> DeleteAsync([FromRoute] string id, [FromBody] DeleteLocaleRequest request)
+        [ProducesResponseType(typeof(ErrorsResponse), (int) HttpStatusCode.OK)]
+        public async Task<ErrorsResponse> DeleteAsync([FromRoute] string id,
+            [FromBody] DeleteLocaleRequest request)
         {
-            var response = new ErrorCodeResponse<LocalesErrorCodesContract>();
+            var response = new ErrorsResponse();
 
             var result = await _localesService.DeleteAsync(id);
 
             if (result.IsFailed)
             {
-                response.ErrorCode = _mapper.Map<LocalesErrorCodesContract>(result.Error);
+                // todo: move validations to the base class to avoid cast from base class
+                var r = new ErrorResult<LocalesErrorCodes>(result);
+                response.Errors = _mapper.Map<IReadOnlyList<ValidationErrorContract>>(r.ToValidationErrors());
             }
 
             return response;
