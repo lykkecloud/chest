@@ -25,7 +25,7 @@ namespace Chest.Client.Api
         /// <param name="request"></param>
         /// <returns></returns>
         [Post("/api/v2/locales")]
-        Task<UpsertLocaleErrorCodeResponse> UpsertAsync(LocaleContract request);
+        Task<UpsertLocaleErrorCodeResponse> UpsertAsync([Body] UpsertLocaleRequest request);
 
         /// <summary>
         /// Delete existing locale
