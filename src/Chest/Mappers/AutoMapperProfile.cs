@@ -6,6 +6,8 @@ using Chest.Client.Models.Requests;
 using Chest.Client.Models.Responses;
 using Chest.Core;
 using Chest.Data.Entities;
+using Chest.Models.v2;
+using Chest.Models.v2.Audit;
 using Chest.Models.v2.Locales;
 
 namespace Chest.Mappers
@@ -30,6 +32,11 @@ namespace Chest.Mappers
             CreateMap<List<ValidationError>, IReadOnlyDictionary<string, string>>()
                 .ConstructUsing(error => error
                     .ToDictionary(x => x.Key, x => x.Message));
+            
+            // audit
+            CreateMap<GetAuditLogsRequest, AuditLogsFilterDto>();
+            CreateMap<IAuditModel, AuditContract>();
+
         }
     }
 }

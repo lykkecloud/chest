@@ -19,6 +19,8 @@ namespace Chest.Data
         internal DbSet<LocalizedValue> LocalizedValues { get; set; }
         
         internal DbSet<Locale> Locales { get; set; }
+        
+        internal DbSet<AuditEntity> AuditTrail { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
