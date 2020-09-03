@@ -8,6 +8,6 @@ namespace Chest.Client.Models.Responses
         ///  If we try to make a locale default, it should contain all localized values beforehand
         /// This list contains keys that need to be localized
         /// </summary>
-        public IReadOnlyList<string> MissingLocalizedKeys { get; set; }
+        public IReadOnlyDictionary<string, string> Errors { get; set; }
     }
 }
