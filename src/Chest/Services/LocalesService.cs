@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Chest.Core;
 using Chest.Data.Entities;
 using Chest.Data.Repositories;
 using Chest.Models.v2.Locales;
@@ -44,7 +45,9 @@ namespace Chest.Services
             if (locale.IsDefault)
             {
                 var keys = await _localizedValuesService.GetMissingKeysAsync(locale);
-                if (keys.Count > 0) return new Result<LocalesErrorCodes>(LocalesErrorCodes.CannotSetLocaleAsDefault);
+                if (keys.Count > 0)
+                    return new ErrorResult<LocalesErrorCodes>(LocalesErrorCodes.CannotSetLocaleAsDefault,
+                        keys.Select(k => new ValidationError(k, "Must provide localized value")));
 
                 // remove default from the old default locale
                 if (defaultLocale != null)

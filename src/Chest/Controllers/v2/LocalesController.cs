@@ -6,7 +6,9 @@ using Chest.Client.Api;
 using Chest.Client.Models;
 using Chest.Client.Models.Requests;
 using Chest.Client.Models.Responses;
+using Chest.Core;
 using Chest.Data.Entities;
+using Chest.Models.v2.Locales;
 using Chest.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -49,8 +51,12 @@ namespace Chest.Controllers.v2
 
             if (result.IsFailed)
             {
-                // todo: keys
                 response.ErrorCode = _mapper.Map<LocalesErrorCodesContract>(result.Error);
+                // todo: move validations to the base class to avoid pattern matching
+                if (result is ErrorResult<LocalesErrorCodes> r)
+                {
+                    response.Errors = _mapper.Map<IReadOnlyDictionary<string, string>>(r.ValidationErrors);
+                }
             }
 
             return response;
