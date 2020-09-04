@@ -7,6 +7,7 @@ using Chest.Client.Models;
 using Chest.Client.Models.Requests;
 using Chest.Client.Models.Responses;
 using Chest.Core;
+using Chest.Extensions;
 using Chest.Data.Entities;
 using Chest.Models.v2.Locales;
 using Chest.Services;
@@ -47,12 +48,23 @@ namespace Chest.Controllers.v2
         {
             var response = new UpsertLocaleErrorCodeResponse();
 
-            var result = await _localesService.UpsertAsync(_mapper.Map<Locale>(request));
+            var correlationId = this.TryGetCorrelationId();
+            var result =
+                await _localesService.UpsertAsync(_mapper.Map<Locale>(request), request.UserName, correlationId);
 
             // todo: move validations to the base class to avoid pattern matching
-            if (result.IsFailed && result is ErrorResult<LocalesErrorCodes> r)
+            if (result.IsFailed)
             {
-                response.Errors = _mapper.Map<IReadOnlyList<ValidationErrorContract>>(r.ToValidationErrors());
+                if (result is ErrorResult<LocalesErrorCodes> r)
+                {
+                    response.Errors = _mapper.Map<IReadOnlyList<ValidationErrorContract>>(r.ToValidationErrors());
+                }
+                else
+                {
+                    response.Errors =
+                        _mapper.Map<IReadOnlyList<ValidationErrorContract>>(new ErrorResult<LocalesErrorCodes>(result)
+                            .ToValidationErrors());
+                }
             }
 
             return response;
@@ -65,7 +77,8 @@ namespace Chest.Controllers.v2
         {
             var response = new ErrorsResponse();
 
-            var result = await _localesService.DeleteAsync(id);
+            var correlationId = this.TryGetCorrelationId();
+            var result = await _localesService.DeleteAsync(id, request.UserName, correlationId);
 
             if (result.IsFailed)
             {

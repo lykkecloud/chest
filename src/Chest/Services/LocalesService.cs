@@ -4,7 +4,9 @@ using System.Threading.Tasks;
 using Chest.Core;
 using Chest.Data.Entities;
 using Chest.Data.Repositories;
+using Chest.Models.v2.Audit;
 using Chest.Models.v2.Locales;
+using Common;
 using Lykke.Snow.Common.Model;
 
 namespace Chest.Services
@@ -13,23 +15,33 @@ namespace Chest.Services
     {
         private readonly ILocalesRepository _localesRepository;
         private readonly ILocalizedValuesService _localizedValuesService;
+        private readonly IAuditService _auditService;
 
-        public LocalesService(ILocalesRepository localesRepository, ILocalizedValuesService localizedValuesService)
+        public LocalesService(ILocalesRepository localesRepository,
+            ILocalizedValuesService localizedValuesService,
+            IAuditService auditService)
         {
             _localesRepository = localesRepository;
             _localizedValuesService = localizedValuesService;
+            _auditService = auditService;
         }
 
-        public async Task<Result<LocalesErrorCodes>> UpsertAsync(Locale locale)
+        public async Task<Result<LocalesErrorCodes>> UpsertAsync(Locale locale, string userName, string correlationId)
         {
             var existing = await _localesRepository.GetById(locale.Id);
 
-            var defaultLocale = (await _localesRepository.GetAllAsync()).Value.FirstOrDefault(x => x.IsDefault);
+            var locales = (await _localesRepository.GetAllAsync()).Value;
+            var defaultLocale = locales.FirstOrDefault(x => x.IsDefault);
 
             // create if not exists
             if (existing.IsFailed && defaultLocale == null)
             {
-                return await _localesRepository.AddAsync(locale);
+                var result = await _localesRepository.AddAsync(locale);
+                if (result.IsSuccess)
+                    await _auditService.TryAudit(correlationId, userName, locale.Id, AuditDataType.Locale,
+                        locale.ToJson());
+
+                return result;
             }
 
             if (existing.IsSuccess && existing.Value.IsDefault)
@@ -46,31 +58,46 @@ namespace Chest.Services
             {
                 var keys = await _localizedValuesService.GetMissingKeysAsync(locale);
                 if (keys.Count > 0)
-                    return new ErrorResult<LocalesErrorCodes>(LocalesErrorCodes.CannotSetLocaleAsDefault, $"Must provide localized value for keys: {string.Join(", ", keys)}");
+                    return new ErrorResult<LocalesErrorCodes>(LocalesErrorCodes.CannotSetLocaleAsDefault,
+                        $"Must provide localized value for keys: {string.Join(", ", keys)}");
 
                 // remove default from the old default locale
                 if (defaultLocale != null)
                 {
+                    var old = defaultLocale.ToJson();
                     defaultLocale.IsDefault = false;
-                    await _localesRepository.UpdateAsync(defaultLocale);
+                    var result = await _localesRepository.UpdateAsync(defaultLocale);
+                    if (result.IsSuccess)
+                        await _auditService.TryAudit(correlationId, userName, defaultLocale.Id, AuditDataType.Locale,
+                            defaultLocale.ToJson(), old);
                 }
             }
 
             // set new locale as default
             if (existing.IsSuccess)
             {
-                return await _localesRepository.UpdateAsync(locale);
+                var result = await _localesRepository.UpdateAsync(locale);
+                if (result.IsSuccess)
+                    await _auditService.TryAudit(correlationId, userName, locale.Id, AuditDataType.Locale,
+                        locale.ToJson(), locales.First(l => l.Id == locale.Id).ToJson());
+
+                return result;
             }
             else
             {
-                return await _localesRepository.AddAsync(locale);
+                var result = await _localesRepository.AddAsync(locale);
+                if (result.IsSuccess)
+                    await _auditService.TryAudit(correlationId, userName, locale.Id, AuditDataType.Locale,
+                        locale.ToJson());
+
+                return result;
             }
         }
 
         public Task<Result<List<Locale>, LocalesErrorCodes>> GetAllAsync()
             => _localesRepository.GetAllAsync();
 
-        public async Task<Result<LocalesErrorCodes>> DeleteAsync(string id)
+        public async Task<Result<LocalesErrorCodes>> DeleteAsync(string id, string userName, string correlationId)
         {
             var existing = await _localesRepository.GetById(id);
 

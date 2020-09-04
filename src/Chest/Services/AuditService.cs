@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using Chest.Data.Repositories;
 using Chest.Models.v2;
 using Chest.Models.v2.Audit;
-using Common.Log;
 using JsonDiffPatchDotNet;
 
 namespace Chest.Services
@@ -11,12 +10,10 @@ namespace Chest.Services
     public class AuditService : IAuditService
     {
         private readonly IAuditRepository _auditRepository;
-        private readonly ILog _log;
 
-        public AuditService(IAuditRepository auditRepository, ILog log)
+        public AuditService(IAuditRepository auditRepository)
         {
             _auditRepository = auditRepository;
-            _log = log;
         }
 
         public Task<PaginatedResponse<IAuditModel>> GetAll(AuditLogsFilterDto filter, int? skip, int? take)
@@ -36,8 +33,6 @@ namespace Chest.Services
         {
             if (string.IsNullOrEmpty(newStateJson) && string.IsNullOrEmpty(oldStateJson))
             {
-                _log?.WriteWarningAsync(nameof(AuditService), nameof(TryAudit),
-                    $"Unable to generate audit event based on both {nameof(newStateJson)} and {nameof(oldStateJson)} state as null.");
                 return false;
             }
 

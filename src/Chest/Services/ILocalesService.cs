@@ -8,8 +8,8 @@ namespace Chest.Services
 {
     public interface ILocalesService
     {
-        Task<Result<LocalesErrorCodes>> UpsertAsync(Locale locale);
+        Task<Result<LocalesErrorCodes>> UpsertAsync(Locale locale, string userName, string correlationId);
         Task<Result<List<Locale>, LocalesErrorCodes>> GetAllAsync();
-        Task<Result<LocalesErrorCodes>> DeleteAsync(string id);
+        Task<Result<LocalesErrorCodes>> DeleteAsync(string id, string userName, string correlationId);
     }
 }

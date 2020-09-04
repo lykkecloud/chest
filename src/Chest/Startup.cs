@@ -7,6 +7,7 @@ using System.Linq;
 using AutoMapper;
 using Chest.Data.Repositories;
 using Chest.Extensions;
+using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
@@ -139,6 +140,9 @@ namespace Chest
             services.AddScoped<ILocalizedValuesService, LocalizedValuesService>();
             services.AddScoped<ILocalesRepository, LocalesRepository>();
             services.AddScoped<ILocalesService, LocalesService>();
+
+            services.AddScoped<IAuditRepository, AuditRepository>();
+            services.AddScoped<IAuditService, AuditService>();
         }
 
         [UsedImplicitly]
