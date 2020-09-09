@@ -5,7 +5,7 @@ namespace Chest.Client.Models.Requests
     /// <summary>
     /// Request model to update localized value
     /// </summary>
-    public class UpdateLocalizedValueRequest
+    public class UpdateLocalizedValueRequest : UserRequest
     {
         /// <summary>
         /// Translated value
