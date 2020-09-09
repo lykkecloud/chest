@@ -71,6 +71,7 @@ namespace Chest.Controllers.v2
             return response;
         }
 
+        [HttpDelete("{locale}/{key}/tbd")]
         public async Task<ErrorCodeResponse<LocalizedValuesErrorCodesContract>> Delete(string locale, string key, DeleteLocalizedValueRequest request)
         {
             throw new System.NotImplementedException();
