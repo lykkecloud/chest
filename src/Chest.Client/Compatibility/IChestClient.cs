@@ -18,16 +18,16 @@ namespace Chest.Client.AutorestClient
         /// <summary>
         ///  Gets the Audit Api
         /// </summary>
-        IAudit AuditApi { get; }
+        Api.IAuditApi AuditApi { get; }
         
         /// <summary>
         ///  Gets the Locales Api
         /// </summary>
-        ILocales LocalesApi { get; }
+        Api.ILocalesApi LocalesApi { get; }
         
         /// <summary>
         ///  Gets the Localized Values Api
         /// </summary>
-        ILocalizedValues LocalizedValuesApi { get; }
+        Api.ILocalizedValuesApi LocalizedValuesApi { get; }
     }
 }
