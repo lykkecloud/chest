@@ -14,5 +14,20 @@ namespace Chest.Client.AutorestClient
         /// Gets the IRoot. 
         /// </summary> 
         IRoot Root { get; }
+        
+        /// <summary>
+        ///  Gets the Audit Api
+        /// </summary>
+        IAudit AuditApi { get; }
+        
+        /// <summary>
+        ///  Gets the Locales Api
+        /// </summary>
+        ILocales LocalesApi { get; }
+        
+        /// <summary>
+        ///  Gets the Localized Values Api
+        /// </summary>
+        ILocalizedValues LocalizedValuesApi { get; }
     }
 }
