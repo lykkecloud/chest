@@ -30,6 +30,7 @@ namespace Chest.Services
         {
             var existing = await _localesRepository.GetById(locale.Id);
 
+            // todo: should use GetDefaultLocale instead, but it can return an error - should handle it
             var locales = (await _localesRepository.GetAllAsync()).Value;
             var defaultLocale = locales.FirstOrDefault(x => x.IsDefault);
 
@@ -93,6 +94,9 @@ namespace Chest.Services
 
         public Task<Result<List<Locale>, LocalesErrorCodes>> GetAllAsync()
             => _localesRepository.GetAllAsync();
+
+        public Task<Result<Locale, LocalesErrorCodes>> GetDefaultLocale()
+            => _localesRepository.GetDefaultLocale();
 
         public async Task<Result<LocalesErrorCodes>> DeleteAsync(string id, string userName, string correlationId)
         {

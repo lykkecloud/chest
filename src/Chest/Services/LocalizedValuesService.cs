@@ -86,6 +86,7 @@ namespace Chest.Services
         {
             var existingValue = await context
                 .LocalizedValues
+                .AsNoTracking()
                 .AsQueryable()
                 .FirstOrDefaultAsync(v => v.Key == key && v.Locale == locale);
 
@@ -95,6 +96,7 @@ namespace Chest.Services
         public async Task<List<LocalizedValue>> GetByLocaleAsync(string locale)
         {
             return await context.LocalizedValues
+                .AsNoTracking()
                 .AsQueryable()
                 .Where(value => value.Locale == locale)
                 .Cacheable()
@@ -107,16 +109,32 @@ namespace Chest.Services
             var innerQuery = from lv in context.LocalizedValues.AsQueryable()
                 where lv.Locale == locale.Id
                 select lv.Key;
-            
+
             var query = from lv in context.LocalizedValues
                 join defaultLocale in context.Locales.AsQueryable() on lv.Locale equals defaultLocale.Id
                 where defaultLocale.IsDefault && !innerQuery.Contains(lv.Key)
                 select lv.Key;
-            
+
             var missingKeys = await query.ToListAsync();
 
             return missingKeys;
+        }
 
+
+        /// <summary>
+        /// Returns all localized values for a specified key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        public async Task<List<LocalizedValue>> GetAllByKey(string key)
+        {
+            var values = await context.LocalizedValues
+                .AsNoTracking()
+                .AsQueryable()
+                .Where(lv => lv.Key == key)
+                .ToListAsync();
+
+            return values;
         }
     }
 }

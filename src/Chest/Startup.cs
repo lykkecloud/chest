@@ -225,6 +225,7 @@ namespace Chest
         
         private ILog CreateLog()
         {
+            // see bookkeeper
             var aggregateLogger = new AggregateLogger();
 
             aggregateLogger.AddLog(new SerilogLogger(typeof(Startup).Assembly, _configuration));

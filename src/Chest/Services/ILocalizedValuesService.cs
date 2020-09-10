@@ -13,5 +13,12 @@ namespace Chest.Services
 
         Task<List<LocalizedValue>> GetByLocaleAsync(string locale);
         Task<List<string>> GetMissingKeysAsync(Locale locale);
+
+        /// <summary>
+        /// Returns all localized values for a specified key
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+        Task<List<LocalizedValue>> GetAllByKey(string key);
     }
 }

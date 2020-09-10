@@ -35,6 +35,17 @@ namespace Chest.Data.Repositories
                 : new Result<Locale, LocalesErrorCodes>(value);
         }
 
+        public async Task<Result<Locale, LocalesErrorCodes>> GetDefaultLocale()
+        {
+            var value = await _context.Locales
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.IsDefault);
+
+            return value == null
+                ? new Result<Locale, LocalesErrorCodes>(LocalesErrorCodes.DoesNotExist)
+                : new Result<Locale, LocalesErrorCodes>(value);
+        }
+
         public async Task<Result<LocalesErrorCodes>> AddAsync(Locale locale)
         {
             await _context.Locales.AddAsync(locale);

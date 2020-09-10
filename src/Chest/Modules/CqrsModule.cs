@@ -103,7 +103,7 @@ namespace Chest.Modules
         {
             contextRegistration.ListeningEvents(
                     typeof(CurrencyChangedEvent))
-                .From(_settings.ContextNames.AssetService).On(DefaultEventPipeline)
+                .From(_settings.ContextNames.AssetService).On(nameof(CurrencyChangedEvent))
                 .WithProjection(
                     typeof(CurrencyProjection), _settings.ContextNames.AssetService);
         }
