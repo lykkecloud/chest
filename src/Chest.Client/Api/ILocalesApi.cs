@@ -33,7 +33,7 @@ namespace Chest.Client.Api
         /// <param name="id"></param>
         /// <returns></returns>
         [Delete("/api/v2/locales/{id}")]
-        Task<ErrorCodeResponse<LocalesErrorCodesContract>> DeleteAsync(string id, [Body] DeleteLocaleRequest request);
+        Task<ErrorsResponse> DeleteAsync(string id, [Body] DeleteLocaleRequest request);
 
     }
 }

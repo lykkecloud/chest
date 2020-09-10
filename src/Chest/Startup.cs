@@ -5,7 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
+using Chest.Data.Repositories;
 using Chest.Extensions;
+using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
@@ -53,7 +55,7 @@ namespace Chest
                     options =>
                     {
                         options.SerializerSettings.ContractResolver = new DefaultContractResolver
-                            {NamingStrategy = new SnakeCaseNamingStrategy()};
+                            {NamingStrategy = new CamelCaseNamingStrategy()};
                         options.SerializerSettings.Converters.Add(new StringEnumConverter());
                         options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                     });
@@ -136,6 +138,11 @@ namespace Chest
 
             services.AddScoped<IDataService, DataService>();
             services.AddScoped<ILocalizedValuesService, LocalizedValuesService>();
+            services.AddScoped<ILocalesRepository, LocalesRepository>();
+            services.AddScoped<ILocalesService, LocalesService>();
+
+            services.AddScoped<IAuditRepository, AuditRepository>();
+            services.AddScoped<IAuditService, AuditService>();
         }
 
         [UsedImplicitly]

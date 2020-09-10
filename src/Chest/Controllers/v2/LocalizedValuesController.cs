@@ -79,7 +79,7 @@ namespace Chest.Controllers.v2
 
         [HttpDelete("{locale}/{key}")]
         [ProducesResponseType(typeof(ErrorCodeResponse<LocalizedValuesErrorCodesContract>), (int) HttpStatusCode.OK)]
-        public async Task<ErrorCodeResponse<LocalizedValuesErrorCodesContract>> Delete(string locale, string key)
+        public async Task<ErrorCodeResponse<LocalizedValuesErrorCodesContract>> Delete(string locale, string key, [FromBody] DeleteLocalizedValueRequest request)
         {
             var response = new ErrorCodeResponse<LocalizedValuesErrorCodesContract>();
             try
