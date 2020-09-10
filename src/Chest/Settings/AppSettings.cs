@@ -7,5 +7,7 @@ namespace Chest.Settings
     public class AppSettings
     {
         public ConnectionStrings ConnectionStrings { get; set; }
+        
+        public CqrsSettings CqrsSettings { get; set; }
     }
 }

@@ -4,15 +4,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using AutoMapper;
 using Chest.Data.Repositories;
 using Chest.Extensions;
+using Chest.Modules;
+using Chest.Settings;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Logs.Serilog;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Chest
@@ -36,6 +41,7 @@ namespace Chest
     public class Startup
     {
         private readonly IConfiguration _configuration;
+        private ILog Log { get; set; }
 
         public Startup(IConfiguration configuration)
         {
@@ -46,6 +52,8 @@ namespace Chest
 
         public void ConfigureServices(IServiceCollection services)
         {
+            Log = CreateLog();
+            
             services.AddDbContext<ApplicationDbContext>(options => options
                 .UseSqlServer(_configuration.GetConnectionString("Chest")));
 
@@ -144,6 +152,14 @@ namespace Chest
             services.AddScoped<IAuditRepository, AuditRepository>();
             services.AddScoped<IAuditService, AuditService>();
         }
+        
+        [UsedImplicitly]
+        public virtual void ConfigureContainer(ContainerBuilder builder)
+        {
+            var cqrsSettings = _configuration.GetSection("CqrsSettings").Get<CqrsSettings>();
+
+            builder.RegisterModule(new CqrsModule(cqrsSettings, Log));
+        }
 
         [UsedImplicitly]
         public void Configure(IApplicationBuilder app, IHostEnvironment env)
@@ -205,6 +221,17 @@ namespace Chest
             }
 
             return info;
+        }
+        
+        private ILog CreateLog()
+        {
+            var aggregateLogger = new AggregateLogger();
+
+            aggregateLogger.AddLog(new SerilogLogger(typeof(Startup).Assembly, _configuration));
+            
+            // LogLocator.Log = aggregateLogger;
+            
+            return aggregateLogger;
         }
     }
 }
