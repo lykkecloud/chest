@@ -54,7 +54,7 @@ namespace Chest.Services
                 return new Result<LocalesErrorCodes>();
             }
 
-            if (locale.IsDefault)
+            if (locale.IsDefault && defaultLocale != null)
             {
                 var keys = await _localizedValuesService.GetMissingKeysAsync(locale);
                 if (keys.Count > 0)
@@ -62,15 +62,12 @@ namespace Chest.Services
                         $"Must provide localized value for keys: {string.Join(", ", keys)}");
 
                 // remove default from the old default locale
-                if (defaultLocale != null)
-                {
-                    var old = defaultLocale.ToJson();
-                    defaultLocale.IsDefault = false;
-                    var result = await _localesRepository.UpdateAsync(defaultLocale);
-                    if (result.IsSuccess)
-                        await _auditService.TryAudit(correlationId, userName, defaultLocale.Id, AuditDataType.Locale,
-                            defaultLocale.ToJson(), old);
-                }
+                var old = defaultLocale.ToJson();
+                defaultLocale.IsDefault = false;
+                var result = await _localesRepository.UpdateAsync(defaultLocale);
+                if (result.IsSuccess)
+                    await _auditService.TryAudit(correlationId, userName, defaultLocale.Id, AuditDataType.Locale,
+                        defaultLocale.ToJson(), old);
             }
 
             // set new locale as default

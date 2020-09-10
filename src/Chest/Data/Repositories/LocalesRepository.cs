@@ -64,7 +64,7 @@ namespace Chest.Data.Repositories
             try
             {
                 await _context.SaveChangesAsync();
-                return new Result<LocalesErrorCodes>();
+                
             }
             catch (DbUpdateConcurrencyException e)
             {
@@ -73,6 +73,9 @@ namespace Chest.Data.Repositories
 
                 throw;
             }
+            
+            _cacheProvider.ClearAllCachedEntries();
+            return new Result<LocalesErrorCodes>();
         }
 
         public async Task<Result<List<Locale>, LocalesErrorCodes>> GetAllAsync()
