@@ -159,6 +159,7 @@ namespace Chest
             var cqrsSettings = _configuration.GetSection("CqrsSettings").Get<CqrsSettings>();
 
             builder.RegisterModule(new CqrsModule(cqrsSettings, Log));
+            builder.RegisterModule(new MsSqlModule(_configuration));
         }
 
         [UsedImplicitly]

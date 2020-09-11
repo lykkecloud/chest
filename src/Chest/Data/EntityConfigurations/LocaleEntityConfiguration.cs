@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Chest.Data.EntityConfigurations
 {
-    public class LocaleEntityConfiguration :IEntityTypeConfiguration<Locale>
+    public class LocaleEntityConfiguration : IEntityTypeConfiguration<Locale>
     {
         public void Configure(EntityTypeBuilder<Locale> builder)
         {

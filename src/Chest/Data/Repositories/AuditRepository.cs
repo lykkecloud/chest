@@ -3,31 +3,34 @@ using System.Threading.Tasks;
 using Chest.Data.Entities;
 using Chest.Models.v2;
 using Chest.Models.v2.Audit;
+using Lykke.Common.MsSql;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chest.Data.Repositories
 {
     public class AuditRepository : IAuditRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly MsSqlContextFactory<ChestDbContext> _contextFactory;
 
-        public AuditRepository(ApplicationDbContext context)
+        public AuditRepository(MsSqlContextFactory<ChestDbContext> contextFactoryFactory)
         {
-            _context = context;
+            _contextFactory = contextFactoryFactory;
         }
 
         public async Task InsertAsync(IAuditModel model)
         {
             var entity = AuditEntity.Create(model);
+            await using var context = _contextFactory.CreateDataContext();
+            await context.AuditTrail.AddAsync(entity);
 
-            _context.AuditTrail.Add(entity);
-
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         public async Task<PaginatedResponse<IAuditModel>> GetAll(AuditLogsFilterDto filter, int? skip, int? take)
         {
-            var query = _context.AuditTrail.AsNoTracking();
+            await using var context = _contextFactory.CreateDataContext();
+
+            var query = context.AuditTrail.AsNoTracking();
 
             if (!string.IsNullOrEmpty(filter.UserName))
                 query = query.Where(x => x.UserName.ToLower().Contains(filter.UserName.ToLower()));

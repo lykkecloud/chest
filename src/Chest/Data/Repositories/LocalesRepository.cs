@@ -5,6 +5,7 @@ using Chest.Data.Entities;
 using Chest.Extensions;
 using Chest.Models.v2.Locales;
 using EFSecondLevelCache.Core.Contracts;
+using Lykke.Common.MsSql;
 using Lykke.Snow.Common.Model;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,21 +13,24 @@ namespace Chest.Data.Repositories
 {
     public class LocalesRepository : ILocalesRepository
     {
-        private readonly ApplicationDbContext _context;
+        private readonly MsSqlContextFactory<ChestDbContext> _contextFactory;
         private readonly IEFCacheServiceProvider _cacheProvider;
 
         private const string DoesNotExistException =
             "Database operation expected to affect 1 row(s) but actually affected 0 row(s).";
 
-        public LocalesRepository(ApplicationDbContext context, IEFCacheServiceProvider cacheProvider)
+        public LocalesRepository(MsSqlContextFactory<ChestDbContext> contextFactory,
+            IEFCacheServiceProvider cacheProvider)
         {
-            _context = context;
+            _contextFactory = contextFactory;
             _cacheProvider = cacheProvider;
         }
 
         public async Task<Result<Locale, LocalesErrorCodes>> GetById(string id)
         {
-            var value = await _context.Locales
+            await using var context = _contextFactory.CreateDataContext();
+
+            var value = await context.Locales
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
 
@@ -37,7 +41,9 @@ namespace Chest.Data.Repositories
 
         public async Task<Result<Locale, LocalesErrorCodes>> GetDefaultLocale()
         {
-            var value = await _context.Locales
+            await using var context = _contextFactory.CreateDataContext();
+
+            var value = await context.Locales
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.IsDefault);
 
@@ -48,11 +54,13 @@ namespace Chest.Data.Repositories
 
         public async Task<Result<LocalesErrorCodes>> AddAsync(Locale locale)
         {
-            await _context.Locales.AddAsync(locale);
+            await using var context = _contextFactory.CreateDataContext();
+
+            await context.Locales.AddAsync(locale);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateException e)
             {
@@ -70,12 +78,13 @@ namespace Chest.Data.Repositories
 
         public async Task<Result<LocalesErrorCodes>> UpdateAsync(Locale locale)
         {
-            _context.Update(locale);
+            await using var context = _contextFactory.CreateDataContext();
+
+            context.Update(locale);
 
             try
             {
-                await _context.SaveChangesAsync();
-                
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException e)
             {
@@ -84,27 +93,31 @@ namespace Chest.Data.Repositories
 
                 throw;
             }
-            
+
             _cacheProvider.ClearAllCachedEntries();
             return new Result<LocalesErrorCodes>();
         }
 
         public async Task<Result<List<Locale>, LocalesErrorCodes>> GetAllAsync()
         {
-            var locales = await _context.Locales.AsNoTracking().ToListAsync();
+            await using var context = _contextFactory.CreateDataContext();
+
+            var locales = await context.Locales.AsNoTracking().ToListAsync();
 
             return new Result<List<Locale>, LocalesErrorCodes>(locales);
         }
 
         public async Task<Result<LocalesErrorCodes>> DeleteAsync(string id)
         {
+            await using var context = _contextFactory.CreateDataContext();
+            
             var locale = new Locale() {Id = id};
 
-            _context.Locales.Remove(locale);
+            context.Locales.Remove(locale);
 
             try
             {
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
