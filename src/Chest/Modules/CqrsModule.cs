@@ -15,6 +15,7 @@ using Lykke.Messaging.Contract;
 using Lykke.Messaging.RabbitMq;
 using Lykke.Messaging.Serialization;
 using MarginTrading.AssetService.Contracts.Currencies;
+using MarginTrading.AssetService.Contracts.ProductCategories;
 
 namespace Chest.Modules
 {
@@ -95,6 +96,7 @@ namespace Chest.Modules
                 .ProcessingOptions(DefaultRoute).MultiThreaded(8).QueueCapacity(1024);
             
             RegisterCurrenciesProjection(contextRegistration);
+            RegisterProductCategoriesProjection(contextRegistration);
             
             return contextRegistration;
         }
@@ -106,6 +108,15 @@ namespace Chest.Modules
                 .From(_settings.ContextNames.AssetService).On(nameof(CurrencyChangedEvent))
                 .WithProjection(
                     typeof(CurrencyProjection), _settings.ContextNames.AssetService);
+        }
+
+        private void RegisterProductCategoriesProjection(ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
+        {
+            contextRegistration.ListeningEvents(
+                    typeof(ProductCategoryChangedEvent))
+                .From(_settings.ContextNames.AssetService).On(nameof(ProductCategoryChangedEvent))
+                .WithProjection(
+                    typeof(ProductCategoryProjection), _settings.ContextNames.AssetService);
         }
     }
 }
