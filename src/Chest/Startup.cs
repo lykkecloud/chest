@@ -41,7 +41,6 @@ namespace Chest
     public class Startup
     {
         private readonly IConfiguration _configuration;
-        private ILog Log { get; set; }
 
         public Startup(IConfiguration configuration)
         {
@@ -52,8 +51,6 @@ namespace Chest
 
         public void ConfigureServices(IServiceCollection services)
         {
-            Log = CreateLog();
-            
             services.AddDbContext<ApplicationDbContext>(options => options
                 .UseSqlServer(_configuration.GetConnectionString("Chest")));
 
@@ -159,7 +156,7 @@ namespace Chest
         {
             var cqrsSettings = _configuration.GetSection("CqrsSettings").Get<CqrsSettings>();
 
-            builder.RegisterModule(new CqrsModule(cqrsSettings, Log));
+            builder.RegisterModule(new CqrsModule(cqrsSettings));
             builder.RegisterModule(new MsSqlModule(_configuration));
         }
 
@@ -223,18 +220,6 @@ namespace Chest
             }
 
             return info;
-        }
-        
-        private ILog CreateLog()
-        {
-            // see bookkeeper
-            var aggregateLogger = new AggregateLogger();
-
-            aggregateLogger.AddLog(new SerilogLogger(typeof(Startup).Assembly, _configuration));
-            
-            // LogLocator.Log = aggregateLogger;
-            
-            return aggregateLogger;
         }
     }
 }
