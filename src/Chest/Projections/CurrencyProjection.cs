@@ -41,14 +41,14 @@ namespace Chest.Projections
             }
         }
 
-        private async Task DeleteAllTranslations(CurrencyChangedEvent currencyChangedEvent)
+        private async Task DeleteAllTranslations(CurrencyChangedEvent e)
         {
-            var key = GetKey(currencyChangedEvent.OldCurrency.Id);
+            var key = GetKey(e.OldCurrency.Id);
             var values = await _localizedValuesService.GetAllByKey(key);
 
             foreach (var value in values)
             {
-                await _localizedValuesService.DeleteAsync(value.Locale, value.Key);
+                await _localizedValuesService.DeleteAsync(value.Locale, value.Key, e.Username, e.CorrelationId);
             }
         }
 
@@ -68,8 +68,7 @@ namespace Chest.Projections
                 Value = e.NewCurrency.InterestRateMdsCode,
             };
 
-            // todo: audit
-            await _localizedValuesService.AddAsync(value);
+            await _localizedValuesService.AddAsync(value, e.Username, e.CorrelationId);
         }
 
         private string GetKey(string currencyId) => $"currencyInterestRateName.{currencyId}";

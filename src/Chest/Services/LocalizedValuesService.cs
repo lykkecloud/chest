@@ -1,155 +1,100 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using Chest.Data;
 using Chest.Data.Entities;
-using Chest.Exceptions;
-using Chest.Extensions;
-using EFSecondLevelCache.Core;
-using EFSecondLevelCache.Core.Contracts;
-using Lykke.Common.MsSql;
-using Microsoft.EntityFrameworkCore;
+using Chest.Data.Repositories;
+using Chest.Models.v2.Audit;
+using Chest.Models.v2.LocalizedValues;
+using Common;
+using Lykke.Snow.Common.Model;
 
 namespace Chest.Services
 {
     public class LocalizedValuesService : ILocalizedValuesService
     {
-        private readonly MsSqlContextFactory<ChestDbContext> _contextFactory;
-        private readonly IEFCacheServiceProvider _cacheProvider;
+        private readonly ILocalizedValuesRepository _localizedValuesRepository;
+        private readonly IAuditService _auditService;
 
-        public LocalizedValuesService(MsSqlContextFactory<ChestDbContext> contextFactory, IEFCacheServiceProvider cacheProvider)
+        public LocalizedValuesService(ILocalizedValuesRepository localizedValuesRepository,
+            IAuditService auditService)
         {
-            _contextFactory = contextFactory;
-            _cacheProvider = cacheProvider;
+            _localizedValuesRepository = localizedValuesRepository;
+            _auditService = auditService;
         }
 
-        public async Task AddAsync(LocalizedValue value)
+        public async Task<Result<LocalizedValuesErrorCodes>> AddAsync(LocalizedValue value, string userName,
+            string correlationId)
         {
-            await using var context = _contextFactory.CreateDataContext();
-            
-            await context.AddAsync(value);
+            var result = await _localizedValuesRepository.AddAsync(value);
 
-            try
+            if (result.IsSuccess)
             {
-                await context.SaveChangesAsync();
+                await _auditService.TryAudit(correlationId, userName, GetId(value), AuditDataType.LocalizedValue,
+                    value.ToJson());
             }
-            catch (DbUpdateException e)
+
+            return result;
+        }
+
+        public async Task<Result<LocalizedValuesErrorCodes>> UpdateAsync(LocalizedValue value, string userName,
+            string correlationId)
+        {
+            var existing = await _localizedValuesRepository.GetAsync(value.Locale, value.Key);
+            if (existing.IsSuccess)
             {
-                if (e.ValueAlreadyExistsException())
+                var result = await _localizedValuesRepository.UpdateAsync(value);
+
+                if (result.IsSuccess)
                 {
-                    throw new LocalizedValueAlreadyExistsException(value);
+                    await _auditService.TryAudit(correlationId, userName, GetId(value), AuditDataType.LocalizedValue,
+                        value.ToJson(), existing.Value.ToJson());
                 }
 
-                throw;
+                return result;
             }
 
-            _cacheProvider.ClearAllCachedEntries();
+            return existing.ToResultWithoutValue();
         }
 
-        public async Task UpdateAsync(LocalizedValue value)
+        public async Task<Result<LocalizedValuesErrorCodes>> DeleteAsync(string locale, string key, string userName,
+            string correlationId)
         {
-            await using var context = _contextFactory.CreateDataContext();
-            
-            context.Update(value);
-
-            try
+            var existing = await _localizedValuesRepository.GetAsync(locale, key);
+            if (existing.IsSuccess)
             {
-                await context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw new LocalizedValueNotFoundException(value);
-            }
+                var result = await _localizedValuesRepository.DeleteAsync(locale, key);
+                if (result.IsSuccess)
+                {
+                    await _auditService.TryAudit(correlationId, userName, GetId(locale, key),
+                        AuditDataType.LocalizedValue,
+                        oldStateJson: existing.Value.ToJson());
+                }
 
-            _cacheProvider.ClearAllCachedEntries();
-        }
-
-        public async Task DeleteAsync(string locale, string key)
-        {
-            await using var context = _contextFactory.CreateDataContext();
-            
-            var value = new LocalizedValue()
-            {
-                Locale = locale,
-                Key = key,
-            };
-
-            context.Attach(value);
-            context.LocalizedValues.Remove(value);
-
-            try
-            {
-                await context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                throw new LocalizedValueNotFoundException(locale, key);
+                return result;
             }
 
-            _cacheProvider.ClearAllCachedEntries();
+            return existing.ToResultWithoutValue();
         }
 
-        public async Task<LocalizedValue> GetAsync(string locale, string key)
-        {
-            await using var context = _contextFactory.CreateDataContext();
-            
-            var existingValue = await context
-                .LocalizedValues
-                .AsNoTracking()
-                .AsQueryable()
-                .FirstOrDefaultAsync(v => v.Key == key && v.Locale == locale);
+        public Task<Result<LocalizedValue, LocalizedValuesErrorCodes>> GetAsync(string locale, string key)
+            => _localizedValuesRepository.GetAsync(locale, key);
 
-            return existingValue;
+        public Task<List<LocalizedValue>> GetByLocaleAsync(string locale)
+            => _localizedValuesRepository.GetByLocaleAsync(locale);
+
+        public Task<List<string>> GetMissingKeysAsync(Locale locale)
+            => _localizedValuesRepository.GetMissingKeysAsync(locale);
+
+        public Task<List<LocalizedValue>> GetAllByKey(string key)
+            => _localizedValuesRepository.GetAllByKey(key);
+
+        private static string GetId(LocalizedValue value)
+        {
+            return GetId(value.Locale, value.Key);
         }
 
-        public async Task<List<LocalizedValue>> GetByLocaleAsync(string locale)
+        private static string GetId(string locale, string key)
         {
-            await using var context = _contextFactory.CreateDataContext();
-            
-            return await context.LocalizedValues
-                .AsNoTracking()
-                .AsQueryable()
-                .Where(value => value.Locale == locale)
-                .Cacheable()
-                .AsQueryable()
-                .ToListAsync();
-        }
-
-        public async Task<List<string>> GetMissingKeysAsync(Locale locale)
-        {
-            await using var context = _contextFactory.CreateDataContext();
-            
-            var innerQuery = from lv in context.LocalizedValues.AsQueryable()
-                where lv.Locale == locale.Id
-                select lv.Key;
-
-            var query = from lv in context.LocalizedValues
-                join defaultLocale in context.Locales.AsQueryable() on lv.Locale equals defaultLocale.Id
-                where defaultLocale.IsDefault && !innerQuery.Contains(lv.Key)
-                select lv.Key;
-
-            var missingKeys = await query.ToListAsync();
-
-            return missingKeys;
-        }
-
-
-        /// <summary>
-        /// Returns all localized values for a specified key
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public async Task<List<LocalizedValue>> GetAllByKey(string key)
-        {
-            await using var context = _contextFactory.CreateDataContext();
-            
-            var values = await context.LocalizedValues
-                .AsNoTracking()
-                .AsQueryable()
-                .Where(lv => lv.Key == key)
-                .ToListAsync();
-
-            return values;
+            return $"{locale}.{key}";
         }
     }
 }

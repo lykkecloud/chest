@@ -145,6 +145,7 @@ namespace Chest
             services.AddAutoMapper(typeof(AutoMapperProfile));
 
             services.AddScoped<IDataService, DataService>();
+            services.AddScoped<ILocalizedValuesRepository, LocalizedValuesRepository>();
             services.AddScoped<ILocalizedValuesService, LocalizedValuesService>();
             services.AddScoped<ILocalesRepository, LocalesRepository>();
             services.AddScoped<ILocalesService, LocalesService>();

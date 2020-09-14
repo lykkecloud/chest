@@ -55,8 +55,7 @@ namespace Chest.Projections
                 Value = e.OriginalCategoryName,
             };
 
-            // todo: audit
-            await _localizedValuesService.AddAsync(value);
+            await _localizedValuesService.AddAsync(value, e.Username, e.CorrelationId);
         }
 
         private async Task DeleteAllTranslations(ProductCategoryChangedEvent e)
@@ -66,7 +65,7 @@ namespace Chest.Projections
 
             foreach (var value in values)
             {
-                await _localizedValuesService.DeleteAsync(value.Locale, value.Key);
+                await _localizedValuesService.DeleteAsync(value.Locale, value.Key, e.Username, e.CorrelationId);
             }
         }
     }
