@@ -4,15 +4,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Autofac;
 using AutoMapper;
 using Chest.Data.Repositories;
 using Chest.Extensions;
+using Chest.Modules;
+using Chest.Settings;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.Logs.Serilog;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
+using Serilog;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Chest
@@ -137,12 +142,22 @@ namespace Chest
             services.AddAutoMapper(typeof(AutoMapperProfile));
 
             services.AddScoped<IDataService, DataService>();
+            services.AddScoped<ILocalizedValuesRepository, LocalizedValuesRepository>();
             services.AddScoped<ILocalizedValuesService, LocalizedValuesService>();
             services.AddScoped<ILocalesRepository, LocalesRepository>();
             services.AddScoped<ILocalesService, LocalesService>();
 
             services.AddScoped<IAuditRepository, AuditRepository>();
             services.AddScoped<IAuditService, AuditService>();
+        }
+        
+        [UsedImplicitly]
+        public virtual void ConfigureContainer(ContainerBuilder builder)
+        {
+            var cqrsSettings = _configuration.GetSection("CqrsSettings").Get<CqrsSettings>();
+
+            builder.RegisterModule(new CqrsModule(cqrsSettings));
+            builder.RegisterModule(new MsSqlModule(_configuration));
         }
 
         [UsedImplicitly]

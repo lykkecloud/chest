@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Autofac.Extensions.DependencyInjection;
 using Chest.Extensions;
 using Microsoft.Extensions.Hosting;
 
@@ -23,7 +24,8 @@ namespace Chest
         {
             /* secrets.json Key                // Environment Variable         // default value (optional) */
             ("ConnectionStrings:Chest",        "CHEST_CONNECTIONSTRING",       null),
-            ("ChestClientSettings:ApiKey",     "CHEST_API_KEY",                string.Empty)
+            ("ChestClientSettings:ApiKey",     "CHEST_API_KEY",                string.Empty),
+            ("CqrsSettings:ConnectionString",  "CQRS_CONNECTIONSTRING",        null),
         };
 
         public static async Task<int> Main(string[] args)
@@ -88,6 +90,7 @@ namespace Chest
 
         private static IHost BuildHost(string[] args, IConfiguration configuration) =>
             Host.CreateDefaultBuilder(args)
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
