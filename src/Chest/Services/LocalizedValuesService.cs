@@ -7,8 +7,6 @@ using Chest.Exceptions;
 using Chest.Extensions;
 using EFSecondLevelCache.Core;
 using EFSecondLevelCache.Core.Contracts;
-using Lykke.Common.MsSql;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chest.Services
@@ -102,6 +100,23 @@ namespace Chest.Services
                 .Cacheable()
                 .AsQueryable()
                 .ToListAsync();
+        }
+
+        public async Task<List<string>> GetMissingKeysAsync(Locale locale)
+        {
+            var innerQuery = from lv in context.LocalizedValues.AsQueryable()
+                where lv.Locale == locale.Id
+                select lv.Key;
+            
+            var query = from lv in context.LocalizedValues
+                join defaultLocale in context.Locales.AsQueryable() on lv.Locale equals defaultLocale.Id
+                where defaultLocale.IsDefault && !innerQuery.Contains(lv.Key)
+                select lv.Key;
+            
+            var missingKeys = await query.ToListAsync();
+
+            return missingKeys;
+
         }
     }
 }

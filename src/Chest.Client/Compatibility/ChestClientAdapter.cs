@@ -10,6 +10,12 @@ namespace Chest.Client.AutorestClient
     {
         public IMetadata Metadata { get; set; }
         public IRoot Root { get; set; }
+        
+        public IAuditApi AuditApi { get; }
+        
+        public ILocalesApi LocalesApi { get; }
+        
+        public ILocalizedValuesApi LocalizedValuesApi { get; }
 
         public ChestClientAdapter(IHttpClientGenerator metadataGenerator, IHttpClientGenerator rootGenerator = null)
         {
@@ -18,6 +24,10 @@ namespace Chest.Client.AutorestClient
             {
                 Root = new Root(rootGenerator.Generate<IIsAlive>());
             }
+
+            AuditApi = metadataGenerator.Generate<IAuditApi>();
+            LocalesApi = metadataGenerator.Generate<ILocalesApi>();
+            LocalizedValuesApi = metadataGenerator.Generate<ILocalizedValuesApi>();
         }
     }
 }
