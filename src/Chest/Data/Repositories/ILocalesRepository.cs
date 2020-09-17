@@ -13,5 +13,6 @@ namespace Chest.Data.Repositories
         Task<Result<Locale, LocalesErrorCodes>> GetById(string id);
         Task<Result<LocalesErrorCodes>> AddAsync(Locale locale);
         Task<Result<LocalesErrorCodes>> UpdateAsync(Locale locale);
+        Task<Result<Locale, LocalesErrorCodes>> GetDefaultLocale();
     }
 }

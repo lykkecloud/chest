@@ -7,7 +7,7 @@ using Chest.Client.Models;
 using Chest.Client.Models.Requests;
 using Chest.Client.Models.Responses;
 using Chest.Data.Entities;
-using Chest.Exceptions;
+using Chest.Extensions;
 using Chest.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -36,13 +36,13 @@ namespace Chest.Controllers.v2
         {
             var response = new ErrorCodeResponse<LocalizedValuesErrorCodesContract>();
 
-            try
+            var correlationId = this.TryGetCorrelationId();
+
+            var result =
+                await localizedValuesService.AddAsync(mapper.Map<LocalizedValue>(value), value.UserName, correlationId);
+            if (result.IsFailed)
             {
-                await localizedValuesService.AddAsync(mapper.Map<LocalizedValue>(value));
-            }
-            catch (LocalizedValueAlreadyExistsException)
-            {
-                response.ErrorCode = LocalizedValuesErrorCodesContract.LocalizedValueAlreadyExists;
+                response.ErrorCode = mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
             }
 
             return response;
@@ -54,18 +54,16 @@ namespace Chest.Controllers.v2
             [FromBody] UpdateLocalizedValueRequest value)
         {
             var response = new ErrorCodeResponse<LocalizedValuesErrorCodesContract>();
+            var correlationId = this.TryGetCorrelationId();
 
             var model = mapper.Map<LocalizedValue>(value);
             model.Locale = locale;
             model.Key = key;
 
-            try
+            var result = await localizedValuesService.UpdateAsync(model, value.UserName, correlationId);
+            if (result.IsFailed)
             {
-                await localizedValuesService.UpdateAsync(model);
-            }
-            catch (LocalizedValueNotFoundException)
-            {
-                response.ErrorCode = LocalizedValuesErrorCodesContract.LocalizedValueDoesNotExist;
+                response.ErrorCode = mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
             }
 
             return response;
@@ -73,16 +71,16 @@ namespace Chest.Controllers.v2
 
         [HttpDelete("{locale}/{key}")]
         [ProducesResponseType(typeof(ErrorCodeResponse<LocalizedValuesErrorCodesContract>), (int) HttpStatusCode.OK)]
-        public async Task<ErrorCodeResponse<LocalizedValuesErrorCodesContract>> Delete(string locale, string key, [FromBody] DeleteLocalizedValueRequest request)
+        public async Task<ErrorCodeResponse<LocalizedValuesErrorCodesContract>> Delete(string locale, string key,
+            [FromBody] DeleteLocalizedValueRequest request)
         {
             var response = new ErrorCodeResponse<LocalizedValuesErrorCodesContract>();
-            try
+            var correlationId = this.TryGetCorrelationId();
+
+            var result = await localizedValuesService.DeleteAsync(locale, key, request.UserName, correlationId);
+            if (result.IsFailed)
             {
-                await localizedValuesService.DeleteAsync(locale, key);
-            }
-            catch (LocalizedValueNotFoundException)
-            {
-                response.ErrorCode = LocalizedValuesErrorCodesContract.LocalizedValueDoesNotExist;
+                response.ErrorCode = mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
             }
 
             return response;
@@ -93,15 +91,16 @@ namespace Chest.Controllers.v2
         public async Task<GetLocalizedValueResponse> Get(string locale, string key)
         {
             var response = new GetLocalizedValueResponse();
-            var localizedValue = await localizedValuesService.GetAsync(locale, key);
+            var result = await localizedValuesService.GetAsync(locale, key);
 
-            if (localizedValue == null)
+            if (result.IsSuccess)
             {
-                response.ErrorCode = LocalizedValuesErrorCodesContract.LocalizedValueDoesNotExist;
-                return response;
+                response.LocalizedValue =  mapper.Map<LocalizedValueContract>(result.Value);
             }
-
-            response.LocalizedValue = mapper.Map<LocalizedValueContract>(localizedValue);
+            else
+            {
+                response.ErrorCode = mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
+            }
 
             return response;
         }

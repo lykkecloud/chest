@@ -15,12 +15,6 @@ namespace Chest.Data
         }
 
         internal DbSet<KeyValueData> KeyValues { get; set; }
-        
-        internal DbSet<LocalizedValue> LocalizedValues { get; set; }
-        
-        internal DbSet<Locale> Locales { get; set; }
-        
-        internal DbSet<AuditEntity> AuditTrail { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -29,12 +23,6 @@ namespace Chest.Data
                 .Entity<KeyValueData>()
                 .HasKey(k => new { k.Category, k.Collection, k.Key });
             
-            modelBuilder
-                .Entity<LocalizedValue>()
-                .HasKey(lv => new { lv.Key, lv.Locale });
-
-            
-            modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
             base.OnModelCreating(modelBuilder);
         }
     }

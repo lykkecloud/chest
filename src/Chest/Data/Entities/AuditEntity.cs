@@ -4,7 +4,6 @@ using Chest.Models.v2.Audit;
 
 namespace Chest.Data.Entities
 {
-    [Table("tb_audit", Schema = "chest")]
     public class AuditEntity : IAuditModel
     {
         public int Id { get; set; }
