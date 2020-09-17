@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Chest.Controllers.v2
 {
+    [ApiVersion("2")]
     [Route("api/v2/audit")]
     [Authorize]
     [ApiController]
