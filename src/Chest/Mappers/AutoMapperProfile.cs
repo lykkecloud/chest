@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Chest.Client.Models;
 using Chest.Client.Models.Requests;
+using Chest.Client.Models.Responses;
 using Chest.Data.Entities;
 using Chest.Models.v2;
 using Chest.Models.v2.Audit;
@@ -27,6 +28,8 @@ namespace Chest.Mappers
             CreateMap<Locale, LocaleContract>();
             CreateMap<LocalesErrorCodes, LocalesErrorCodesContract>();
             CreateMap<UpsertLocaleRequest, Locale>();
+            CreateMap<LocalizedValueByKey, LocalizedValueByKeyContract>();
+            CreateMap<PaginatedResponse<LocalizedValueByKey>, GetAllLocalizedValuesResponse>();
 
             // errors
             CreateMap<ValidationError, ValidationErrorContract>();

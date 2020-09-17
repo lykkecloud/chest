@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -6,8 +7,11 @@ using Chest.Client.Api;
 using Chest.Client.Models;
 using Chest.Client.Models.Requests;
 using Chest.Client.Models.Responses;
+using Chest.Core;
 using Chest.Data.Entities;
 using Chest.Extensions;
+using Chest.Models.v2.Locales;
+using Chest.Models.v2.LocalizedValues;
 using Chest.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,13 +24,13 @@ namespace Chest.Controllers.v2
     [Authorize]
     public class LocalizedValuesController : ControllerBase, ILocalizedValuesApi
     {
-        private readonly ILocalizedValuesService localizedValuesService;
-        private readonly IMapper mapper;
+        private readonly ILocalizedValuesService _localizedValuesService;
+        private readonly IMapper _mapper;
 
         public LocalizedValuesController(ILocalizedValuesService localizedValuesService, IMapper mapper)
         {
-            this.localizedValuesService = localizedValuesService;
-            this.mapper = mapper;
+            _localizedValuesService = localizedValuesService;
+            _mapper = mapper;
         }
 
         [HttpPost]
@@ -39,10 +43,10 @@ namespace Chest.Controllers.v2
             var correlationId = this.TryGetCorrelationId();
 
             var result =
-                await localizedValuesService.AddAsync(mapper.Map<LocalizedValue>(value), value.UserName, correlationId);
+                await _localizedValuesService.AddAsync(_mapper.Map<LocalizedValue>(value), value.UserName, correlationId);
             if (result.IsFailed)
             {
-                response.ErrorCode = mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
+                response.ErrorCode = _mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
             }
 
             return response;
@@ -56,14 +60,14 @@ namespace Chest.Controllers.v2
             var response = new ErrorCodeResponse<LocalizedValuesErrorCodesContract>();
             var correlationId = this.TryGetCorrelationId();
 
-            var model = mapper.Map<LocalizedValue>(value);
+            var model = _mapper.Map<LocalizedValue>(value);
             model.Locale = locale;
             model.Key = key;
 
-            var result = await localizedValuesService.UpdateAsync(model, value.UserName, correlationId);
+            var result = await _localizedValuesService.UpdateAsync(model, value.UserName, correlationId);
             if (result.IsFailed)
             {
-                response.ErrorCode = mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
+                response.ErrorCode = _mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
             }
 
             return response;
@@ -77,10 +81,10 @@ namespace Chest.Controllers.v2
             var response = new ErrorCodeResponse<LocalizedValuesErrorCodesContract>();
             var correlationId = this.TryGetCorrelationId();
 
-            var result = await localizedValuesService.DeleteAsync(locale, key, request.UserName, correlationId);
+            var result = await _localizedValuesService.DeleteAsync(locale, key, request.UserName, correlationId);
             if (result.IsFailed)
             {
-                response.ErrorCode = mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
+                response.ErrorCode = _mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
             }
 
             return response;
@@ -91,15 +95,15 @@ namespace Chest.Controllers.v2
         public async Task<GetLocalizedValueResponse> Get(string locale, string key)
         {
             var response = new GetLocalizedValueResponse();
-            var result = await localizedValuesService.GetAsync(locale, key);
+            var result = await _localizedValuesService.GetAsync(locale, key);
 
             if (result.IsSuccess)
             {
-                response.LocalizedValue =  mapper.Map<LocalizedValueContract>(result.Value);
+                response.LocalizedValue = _mapper.Map<LocalizedValueContract>(result.Value);
             }
             else
             {
-                response.ErrorCode = mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
+                response.ErrorCode = _mapper.Map<LocalizedValuesErrorCodesContract>(result.Error.GetValueOrDefault());
             }
 
             return response;
@@ -109,13 +113,51 @@ namespace Chest.Controllers.v2
         [ProducesResponseType(typeof(GetLocalizedValuesByLocaleResponse), (int) HttpStatusCode.OK)]
         public async Task<GetLocalizedValuesByLocaleResponse> Get(string locale)
         {
-            var localizedValues = await localizedValuesService.GetByLocaleAsync(locale);
+            var localizedValues = await _localizedValuesService.GetByLocaleAsync(locale);
 
             return new GetLocalizedValuesByLocaleResponse()
             {
                 LocalizedValues = localizedValues
                     .ToDictionary(localizedValue => localizedValue.Key, localizedValue => localizedValue.Value),
             };
+        }
+
+        [HttpGet]
+        [ProducesResponseType(typeof(GetAllLocalizedValuesResponse), (int) HttpStatusCode.OK)]
+        public async Task<GetAllLocalizedValuesResponse> Get(int skip = default, int take = 0)
+        {
+            var result = await _localizedValuesService.GetAllAsync(skip, take);
+            var response = _mapper.Map<GetAllLocalizedValuesResponse>(result);
+
+            return response;
+        }
+
+        [HttpPut]
+        [ProducesResponseType(typeof(UpsertLocalizedValuesByKeyErrorCodeResponse), (int) HttpStatusCode.OK)]
+        public async Task<UpsertLocalizedValuesByKeyErrorCodeResponse> UpsertByKey(
+            UpsertLocalizedValuesByKeyRequest request)
+        {
+            var response = new UpsertLocalizedValuesByKeyErrorCodeResponse();
+            var correlationId = this.TryGetCorrelationId();
+            
+            var result = await _localizedValuesService.UpsertByKey(request.Key,
+                _mapper.Map<Dictionary<string, string>>(request.Localizations), request.UserName, correlationId);
+            
+            if (result.IsFailed)
+            {
+                if (result is ErrorResult<LocalizedValuesErrorCodes> r)
+                {
+                    response.Errors = _mapper.Map<IReadOnlyList<ValidationErrorContract>>(r.ToValidationErrors());
+                }
+                else
+                {
+                    response.Errors =
+                        _mapper.Map<IReadOnlyList<ValidationErrorContract>>(new ErrorResult<LocalizedValuesErrorCodes>(result)
+                            .ToValidationErrors());
+                }
+            }
+
+            return response;
         }
     }
 }

@@ -40,5 +40,23 @@ namespace Chest.Client.Api
         /// </summary>
         [Get("/api/v2/localized-values/{locale}")]
         Task<GetLocalizedValuesByLocaleResponse> Get(string locale);
+
+        /// <summary>
+        /// Gets all localized values as a flat object. Sorts by key in [asc] order
+        /// </summary>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
+        /// <returns></returns>
+        [Get("/api/v2/localized-values")]
+        Task<GetAllLocalizedValuesResponse> Get(int skip = default, int take = 0);
+
+        /// <summary>
+        /// Upserts all localized values that match a specified key
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Put("/api/v2/localized-values")]
+        Task<UpsertLocalizedValuesByKeyErrorCodeResponse> UpsertByKey(
+            UpsertLocalizedValuesByKeyRequest request);
     }
 }
