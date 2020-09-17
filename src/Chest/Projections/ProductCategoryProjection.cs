@@ -52,7 +52,7 @@ namespace Chest.Projections
             {
                 Locale = defaultLocaleResult.Value.Id,
                 Key = e.NewProductCategory.LocalizationToken,
-                Value = e.OriginalCategoryName,
+                Value = e.OriginalCategoryName ?? e.NewProductCategory.Id,
             };
 
             await _localizedValuesService.AddAsync(value, e.Username, e.CorrelationId);
