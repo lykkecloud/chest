@@ -122,7 +122,7 @@ namespace Chest
                 {
                     options.AddApiKeyAwareness();
                 }
-            });
+            }).AddSwaggerGenNewtonsoftSupport();
             
             // Default settings for NewtonSoft Serializer
             JsonConvert.DefaultSettings = () =>

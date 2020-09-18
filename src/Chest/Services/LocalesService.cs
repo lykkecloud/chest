@@ -107,7 +107,11 @@ namespace Chest.Services
             if (existing.Value.IsDefault)
                 return new Result<LocalesErrorCodes>(LocalesErrorCodes.CannotDeleteDefaultLocale);
 
-            return await _localesRepository.DeleteAsync(id);
+            var result = await _localesRepository.DeleteAsync(id);
+            if(result.IsSuccess) await _auditService.TryAudit(correlationId, userName, id, AuditDataType.Locale,
+                oldStateJson: existing.Value.ToJson());
+
+            return result;
         }
     }
 }
