@@ -16,5 +16,9 @@
         /// The target locale should have all localized values first
         /// </summary>
         CannotSetLocaleAsDefault,
+        /// <summary>
+        /// An attempt to delete a locale that has attached localized values
+        /// </summary>
+        CannotDeleteLocaleAssignedToAnyLocalizedValue,
     }
 }

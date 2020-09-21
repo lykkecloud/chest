@@ -7,5 +7,6 @@
         LocalizedValueAlreadyExists,
         UpsertFailed,
         UpsertPartiallyFailed,
+        LocaleDoesNotExist,
     }
 }

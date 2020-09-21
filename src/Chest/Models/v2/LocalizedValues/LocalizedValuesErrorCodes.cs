@@ -7,5 +7,6 @@
         AlreadyExists,
         UpsertFailed,
         UpsertPartiallyFailed,
+        LocaleDoesNotExist,
     }
 }

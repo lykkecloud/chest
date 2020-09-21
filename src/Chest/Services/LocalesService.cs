@@ -103,6 +103,9 @@ namespace Chest.Services
             var existing = await _localesRepository.GetById(id);
 
             if (existing.IsFailed) return existing.ToResultWithoutValue();
+            
+            if(await _localesRepository.HasAnyLocalizedValues(id))
+                return new Result<LocalesErrorCodes>(LocalesErrorCodes.CannotDeleteLocaleAssignedToAnyLocalizedValue);
 
             if (existing.Value.IsDefault)
                 return new Result<LocalesErrorCodes>(LocalesErrorCodes.CannotDeleteDefaultLocale);

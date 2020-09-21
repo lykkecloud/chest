@@ -16,18 +16,24 @@ namespace Chest.Services
     public class LocalizedValuesService : ILocalizedValuesService
     {
         private readonly ILocalizedValuesRepository _localizedValuesRepository;
+        private readonly ILocalesRepository _localesRepository;
         private readonly IAuditService _auditService;
 
         public LocalizedValuesService(ILocalizedValuesRepository localizedValuesRepository,
+            ILocalesRepository localesRepository,
             IAuditService auditService)
         {
             _localizedValuesRepository = localizedValuesRepository;
+            _localesRepository = localesRepository;
             _auditService = auditService;
         }
 
         public async Task<Result<LocalizedValuesErrorCodes>> AddAsync(LocalizedValue value, string userName,
             string correlationId)
         {
+            if(!await _localesRepository.ExistsAsync(value.Locale))
+                return new Result<LocalizedValuesErrorCodes>(LocalizedValuesErrorCodes.LocaleDoesNotExist);
+            
             var result = await _localizedValuesRepository.AddAsync(value);
 
             if (result.IsSuccess)
@@ -42,6 +48,9 @@ namespace Chest.Services
         public async Task<Result<LocalizedValuesErrorCodes>> UpdateAsync(LocalizedValue value, string userName,
             string correlationId)
         {
+            if(!await _localesRepository.ExistsAsync(value.Locale))
+                return new Result<LocalizedValuesErrorCodes>(LocalizedValuesErrorCodes.LocaleDoesNotExist);
+            
             var existing = await _localizedValuesRepository.GetAsync(value.Locale, value.Key);
             if (existing.IsSuccess)
             {
