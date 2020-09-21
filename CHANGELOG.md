@@ -1,4 +1,4 @@
-## 2.21.0 (September 21, 2020) NOVA 2. Delivery 2.
+## 2.21.0 + Client 3.9.2 (September 21, 2020) NOVA 2. Delivery 2.
 
 * LT-2506: Add contract for locales api
 * LT-2507: Implement CRUD api for locales in Chest
