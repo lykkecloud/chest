@@ -1,3 +1,29 @@
+## 2.21.0 (September 21, 2020) NOVA 2. Delivery 2.
+
+* LT-2506: Add contract for locales api
+* LT-2507: Implement CRUD api for locales in Chest
+* LT-2522: Localize currencies and categories
+
+### Settings changes
+
+* Add new section to appsettings.json
+
+```json
+"CqrsSettings": {
+    "RetryDelay": "00:00:02",
+    "EnvironmentName": "dev"
+  }
+```
+* Add connection string to RabbitMq
+
+Add CqrsSettings:ConnectionString to appsettings.json / secrets.json or add CQRS_CONNECTIONSTRING environment variable
+
+### RabbitMQ changes.
+New bindings to the queue dev.SettingsService.events.exchange
+
+* to queue dev.Chest.queue.SettingsService.events.CurrencyChangedEvent.projections with routingKey CurrencyChangedEvent
+* to queue dev.Chest.queue.SettingsService.events.ProductCategoryChangedEvent.projections with routing key ProductCategoryChangedEvent
+
 ## 2.20.0 (August 31, 2020) NOVA 2. Delivery 1.
 
 * LT-2460: Implement localization api in Chest

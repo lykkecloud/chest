@@ -10,7 +10,7 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <Version>2.20.0</Version>
+    <Version>2.21.0</Version>
     <Authors>Chest Contributors</Authors>
     <Company>Lykke</Company>
     <Copyright>Copyright (c) 2020 Lykke Corp. See the LICENSE file in the project root for more information.</Copyright>
