@@ -117,10 +117,21 @@ namespace Chest.Services
             Dictionary<string, string> valuesByLocale, string userName, string correlationId)
         {
             var existing = await _localizedValuesRepository.GetAllByKey(key);
+            var locales = await _localesRepository.GetAllAsync();
 
             var results = new List<Result<LocalizedValuesErrorCodes>>();
             var localesWithError = new List<string>();
 
+            // validation
+            // we run validation in its own foreach to avoid partial updates
+            foreach (var valueByLocale in valuesByLocale)
+            {
+                var locale = locales.Value.FirstOrDefault(l => l.Id == valueByLocale.Key);
+                if(locale == null) return new Result<LocalizedValuesErrorCodes>(LocalizedValuesErrorCodes.LocaleDoesNotExist);
+                if(locale.IsDefault && string.IsNullOrEmpty(valueByLocale.Value)) return new Result<LocalizedValuesErrorCodes>(LocalizedValuesErrorCodes.LocalizedValueMustNotBeEmpty);
+            }
+
+            // upsert
             foreach (var valueByLocale in valuesByLocale)
             {
                 var localizedValue = new LocalizedValue()
