@@ -8,5 +8,6 @@
         UpsertFailed,
         UpsertPartiallyFailed,
         LocaleDoesNotExist,
+        LocalizedValueMustNotBeEmpty,
     }
 }
