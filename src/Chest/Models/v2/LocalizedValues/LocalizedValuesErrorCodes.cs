@@ -5,5 +5,8 @@
         None,
         DoesNotExist,
         AlreadyExists,
+        UpsertFailed,
+        UpsertPartiallyFailed,
+        LocaleDoesNotExist,
     }
 }

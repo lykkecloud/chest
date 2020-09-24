@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using Chest.Data.Entities;
+using Chest.Models.v2;
 using Chest.Models.v2.LocalizedValues;
 using Lykke.Snow.Common.Model;
 
@@ -23,5 +25,9 @@ namespace Chest.Services
         /// <param name="key"></param>
         /// <returns></returns>
         Task<List<LocalizedValue>> GetAllByKey(string key);
+
+        Task<PaginatedResponse<LocalizedValueByKey>> GetAllAsync(int skip = 0, int take = 0);
+        Task<Result<LocalizedValuesErrorCodes>> UpsertByKey(string key, Dictionary<string, string> valuesByLocale,
+            string userName, string correlationId);
     }
 }

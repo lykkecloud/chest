@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Chest.Data.Entities;
 using Chest.Extensions;
@@ -126,6 +127,24 @@ namespace Chest.Data.Repositories
 
             _cacheProvider.ClearAllCachedEntries();
             return new Result<LocalesErrorCodes>();
+        }
+
+        public async Task<bool> ExistsAsync(string id)
+        {
+            await using var context = _contextFactory.CreateDataContext();
+
+            var result = await context.Locales.AsQueryable().AnyAsync(l => l.Id == id);
+
+            return result;
+        }
+
+        public async Task<bool> HasAnyLocalizedValues(string id)
+        {
+            await using var context = _contextFactory.CreateDataContext();
+
+            var result = await context.LocalizedValues.AsQueryable().AnyAsync(l => l.Locale == id);
+
+            return result;
         }
     }
 }

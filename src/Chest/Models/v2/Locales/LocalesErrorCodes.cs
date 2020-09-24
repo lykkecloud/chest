@@ -10,5 +10,6 @@
         /// The target locale should have all localized values first
         /// </summary>
         CannotSetLocaleAsDefault,
+        CannotDeleteLocaleAssignedToAnyLocalizedValue,
     }
 }
