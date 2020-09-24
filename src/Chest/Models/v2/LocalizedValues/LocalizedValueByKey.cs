@@ -6,8 +6,8 @@ namespace Chest.Models.v2.LocalizedValues
 {
     public class LocalizedValueByKey
     {
-        public string Key { get; set; }
-        public Dictionary<string, string> Localizations { get; set; }
+        public string Key { get; }
+        public Dictionary<string, string> Localizations { get; }
 
         public LocalizedValueByKey(string key, List<LocalizedValue> localizedValues)
         {
