@@ -5,6 +5,7 @@ using Chest.Client.Models;
 using Chest.Data.Entities;
 using Chest.Exceptions;
 using Chest.Extensions;
+using Chest.Models.v2;
 using Chest.Models.v2.LocalizedValues;
 using EFSecondLevelCache.Core;
 using EFSecondLevelCache.Core.Contracts;
@@ -67,7 +68,7 @@ namespace Chest.Data.Repositories
             {
                 if (e.Message.Contains(DoesNotExistException))
                     return new Result<LocalizedValuesErrorCodes>(LocalizedValuesErrorCodes.DoesNotExist);
-                
+
                 throw;
             }
 
@@ -163,6 +164,34 @@ namespace Chest.Data.Repositories
                 .ToListAsync();
 
             return values;
+        }
+
+        public async Task<PaginatedResponse<LocalizedValue>> GetAllAsync(int skip = 0, int take = 0)
+        {
+            await using var context = _contextFactory.CreateDataContext();
+
+            var distinctKeysQuery = context.LocalizedValues
+                .AsNoTracking()
+                .AsQueryable()
+                .Select(v => v.Key)
+                .Distinct();
+
+            var query = context.LocalizedValues.AsNoTracking().AsQueryable();
+            
+            var totalSize = await distinctKeysQuery.CountAsync();
+
+            if (take > 0)
+            {
+                var innerQuery = distinctKeysQuery
+                    .OrderBy(v => v)
+                    .Skip(skip)
+                    .Take(take);
+
+                query = query.Where(v => innerQuery.Contains(v.Key));
+            }
+
+            var values = await query.ToListAsync();
+            return new PaginatedResponse<LocalizedValue>(values, skip, values.Count, totalSize);
         }
     }
 }

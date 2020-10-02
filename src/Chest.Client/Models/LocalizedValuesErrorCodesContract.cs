@@ -5,5 +5,9 @@
         None,
         LocalizedValueDoesNotExist,
         LocalizedValueAlreadyExists,
+        UpsertFailed,
+        UpsertPartiallyFailed,
+        LocaleDoesNotExist,
+        LocalizedValueMustNotBeEmpty,
     }
 }

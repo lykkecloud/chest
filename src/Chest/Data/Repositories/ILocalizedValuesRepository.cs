@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Chest.Data.Entities;
+using Chest.Models.v2;
 using Chest.Models.v2.LocalizedValues;
 using Lykke.Snow.Common.Model;
 
@@ -22,5 +23,7 @@ namespace Chest.Data.Repositories
         /// <param name="key"></param>
         /// <returns></returns>
         Task<List<LocalizedValue>> GetAllByKey(string key);
+
+        Task<PaginatedResponse<LocalizedValue>> GetAllAsync(int skip = 0, int take = 0);
     }
 }
