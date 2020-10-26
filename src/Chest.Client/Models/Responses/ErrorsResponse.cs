@@ -4,6 +4,6 @@ namespace Chest.Client.Models.Responses
 {
     public class ErrorsResponse
     {
-        public IReadOnlyList<ValidationErrorContract> Errors { get; set; }
+        public IReadOnlyList<ValidationErrorContract> Errors { get; set; } = new List<ValidationErrorContract>();
     }
 }
