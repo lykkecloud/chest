@@ -1,3 +1,8 @@
+## 2.22.0 + Client 3.10.2 (October 26, 2020) NOVA 2. Delivery 3.
+
+* LT-2566: Implement api for GUI in chest
+* LT-2671: Order AuditTrail records by Timestamp descending
+
 ## 2.21.0 + Client 3.9.2 (September 21, 2020) NOVA 2. Delivery 2.
 
 * LT-2506: Add contract for locales api
