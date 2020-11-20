@@ -227,10 +227,8 @@ namespace Chest.Services
                         Log.Error(rollbackEx, "Couldn't rollback bulk upsert transaction");
                     }
                     
-                    Log.Error(e, $"Couldn't make bulk update for category [{category}]" + 
+                    Log.Warning($"Couldn't make bulk update for category [{category}]" + 
                                  $" and collection [{collection}], number of keys to update [{updatedData?.Count ?? 0}]");
-
-                    throw;
                 }
 
                 _cacheProvider.ClearAllCachedEntries();
@@ -283,10 +281,8 @@ namespace Chest.Services
                         Log.Error(rollbackEx, $"Couldn't rollback bulk replace transaction");
                     }
 
-                    Log.Error(e, $"Couldn't make bulk replace for category [{category}]" + 
+                    Log.Warning($"Couldn't make bulk replace for category [{category}]" + 
                                  $" and collection [{collection}], number of keys to update [{updatedData?.Count ?? 0}]");
-
-                    throw;
                 }
 
                 _cacheProvider.ClearAllCachedEntries();
