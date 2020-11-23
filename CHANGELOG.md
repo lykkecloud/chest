@@ -1,3 +1,7 @@
+## 2.23.0 (November 23, 2020) NOVA 2. Delivery 4.
+
+* LT-2697: Strange new errors in Chest since last delivery
+
 ## 2.22.0 + Client 3.10.2 (October 26, 2020) NOVA 2. Delivery 3.
 
 * LT-2566: Implement api for GUI in chest
