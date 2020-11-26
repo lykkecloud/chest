@@ -1,3 +1,7 @@
+## 2.23.1 + client-3.13.0 + client-3.14.0 (November 26, 2020)
+
+* LT-2815: Update HttpClientGenerator lib to get HTTP 400 details
+
 ## 2.23.0 (November 23, 2020) NOVA 2. Delivery 4.
 
 * LT-2697: Strange new errors in Chest since last delivery
