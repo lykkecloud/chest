@@ -51,8 +51,8 @@ namespace Chest.Projections
             var value = new LocalizedValue()
             {
                 Locale = defaultLocaleResult.Value.Id,
-                Key = e.NewProductCategory.LocalizationToken,
-                Value = e.OriginalCategoryName ?? e.NewProductCategory.Id,
+                Key = e.NewValue.LocalizationToken,
+                Value = e.OriginalCategoryName ?? e.NewValue.Id,
             };
 
             await _localizedValuesService.AddAsync(value, e.Username, e.CorrelationId);
@@ -60,7 +60,7 @@ namespace Chest.Projections
 
         private async Task DeleteAllTranslations(ProductCategoryChangedEvent e)
         {
-            var key = e.OldProductCategory.LocalizationToken;
+            var key = e.OldValue.LocalizationToken;
             var values = await _localizedValuesService.GetAllByKey(key);
 
             foreach (var value in values)

@@ -43,7 +43,7 @@ namespace Chest.Projections
 
         private async Task DeleteAllTranslations(CurrencyChangedEvent e)
         {
-            var key = GetKey(e.OldCurrency.Id);
+            var key = GetKey(e.OldValue.Id);
             var values = await _localizedValuesService.GetAllByKey(key);
 
             foreach (var value in values)
@@ -64,8 +64,8 @@ namespace Chest.Projections
             var value = new LocalizedValue()
             {
                 Locale = defaultLocaleResult.Value.Id,
-                Key = GetKey(e.NewCurrency.Id),
-                Value = e.NewCurrency.InterestRateMdsCode,
+                Key = GetKey(e.NewValue.Id),
+                Value = e.NewValue.InterestRateMdsCode,
             };
 
             await _localizedValuesService.AddAsync(value, e.Username, e.CorrelationId);
