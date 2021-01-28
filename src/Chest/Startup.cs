@@ -68,9 +68,15 @@ namespace Chest
             services.AddSingleton<IHttpStatusCodeMapper, HttpStatusCodeMapper>();
             services.AddSingleton<ILogLevelMapper, DefaultLogLevelMapper>();
 
+            if (!TimeSpan.TryParse(_configuration.GetValue<string>("CacheExpiration"), out var cacheExpiration))
+            {
+                cacheExpiration = TimeSpan.FromMinutes(5);
+            }
+
             var cacheManagerConfiguration = new CacheManager.Core.ConfigurationBuilder()
                 .WithJsonSerializer()
                 .WithMicrosoftMemoryCacheHandle()
+                .WithExpiration(ExpirationMode.Sliding, cacheExpiration)
                 .Build();
 
             services.AddEFSecondLevelCache();
