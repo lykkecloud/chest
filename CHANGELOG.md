@@ -1,3 +1,7 @@
+## 2.25.0 NOVA 2 Delivery 8 (March 01, 2021)
+
+* LT-3085: Chest crashed - Post Incident Investigation
+
 ## 2.24.0 NOVA 2 Delivery 7 (February 01, 2021)
 
 * LT-3046: Update contracts accordingly to new half working day feature 
