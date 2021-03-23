@@ -17,7 +17,7 @@ namespace Chest.Modules
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterMsSql(_configuration.GetConnectionString("Chest"),
-                connString => new ChestDbContext(connString, true),
+                connString => new ChestDbContext(connString, false),
                 dbConn => new ChestDbContext(dbConn));
         }
     }
