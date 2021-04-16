@@ -1,3 +1,7 @@
+## 2.26.0 NOVA 2 Delivery 10 (March 29, 2021)
+
+* LT-3183: Disable db context trace
+
 ## 2.25.0 NOVA 2 Delivery 8 (March 01, 2021)
 
 * LT-3085: Chest crashed - Post Incident Investigation
