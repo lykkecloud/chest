@@ -1,3 +1,11 @@
+## 2.27.0 Delivery 11 (April 21, 2021)
+
+* LT-3257: Update Startup and HttpClientGenerator libraries
+
+### Deployment
+
+* Created package Chest.Client.3.15.0
+
 ## 2.26.0 NOVA 2 Delivery 10 (March 29, 2021)
 
 * LT-3183: Disable db context trace
